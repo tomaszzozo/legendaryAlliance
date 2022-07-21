@@ -1,2 +1,3 @@
 git lfs track "*.psd"
 UKRYTE PLIKI cmd + shift + .
+/var/www/html
