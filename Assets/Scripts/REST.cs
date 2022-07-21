@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using System;
-using System.Text.RegularExpressions;
 using TMPro;
 
 public class REST : MonoBehaviour

@@ -1,0 +1,101 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using TMPro;
+
+public class MessageBoxFactory : MonoBehaviour
+{
+    private int _width = 0, _height = 0;
+    private string _content = "";
+    private Canvas _canvas;
+    private GameObject _canvasObject;
+
+    public static void ShowAlertDialog(string content, GameObject gameObject)
+    {
+        gameObject.AddComponent<MessageBoxFactory>().AlertDialog(content);
+    }
+
+    private void AlertDialog(string content)
+    {
+        _width = (int)(Screen.width / 1.3);
+        _height = (int)(Screen.height / 1.3);
+        _content = content;
+
+        if (FindObjectOfType<EventSystem>() == null)
+        {
+            GameObject es = new("EventSystem", typeof(EventSystem));
+            es.AddComponent<StandaloneInputModule>();
+        }
+
+        CreateCanvas();
+        CreateBackground();
+        CreateTitle();
+        CreateButton();
+    }
+
+    private void CreateTitle()
+    {
+        GameObject titleObject = new("MessageBoxTitle");
+        titleObject.transform.SetParent(_canvas.transform);
+        TextMeshProUGUI text = titleObject.AddComponent<TextMeshProUGUI>();
+        text.text = _content;
+        text.rectTransform.sizeDelta = Vector2.zero;
+        text.rectTransform.anchorMin = Vector2.zero;
+        text.rectTransform.anchorMax = Vector2.one;
+        text.rectTransform.anchoredPosition = new Vector2(0, Screen.height / 4);
+        text.fontSize = 50;
+        text.color = Color.white;
+        text.alignment = TextAlignmentOptions.Midline;
+    }
+
+    private void CreateButton()
+    {
+        float width = Screen.width / 5;
+        float height = Screen.height / 8;
+
+        GameObject buttonObject = new("MessageBoxButton");
+        Image buttonImage = buttonObject.AddComponent<Image>();
+        buttonImage.transform.SetParent(_canvas.transform, false);
+        buttonImage.rectTransform.sizeDelta = new Vector2(width, height);
+        buttonImage.rectTransform.anchoredPosition = new Vector2(0, height*-2);
+        buttonImage.color = new Color(.2f, .2f, .2f, .99f);
+
+        Button button = buttonObject.AddComponent<Button>();
+        button.targetGraphic = buttonImage;
+        button.onClick.AddListener(() => Destroy(_canvasObject));
+
+        GameObject textObject = new("MessageBoxButtonText");
+        textObject.transform.SetParent(buttonObject.transform, false);
+        TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+        text.text = "OK";
+        text.rectTransform.sizeDelta = Vector2.zero;
+        text.rectTransform.anchorMin = Vector2.zero;
+        text.rectTransform.anchorMax = Vector2.one;
+        text.rectTransform.anchoredPosition = new Vector2(.5f, .5f);
+        text.fontSize = 40;
+        text.color = Color.white;
+        text.alignment = TextAlignmentOptions.Midline;
+    }
+
+    private void CreateBackground()
+    {
+        GameObject backgroundObject = new("MessageBoxBackground");
+        Image background = backgroundObject.AddComponent<Image>();
+        background.transform.SetParent(_canvas.transform, false);
+        background.rectTransform.sizeDelta = new Vector2(_width, _height);
+        background.rectTransform.anchoredPosition = Vector3.zero;
+        background.color = new Color(0.5f, 0.5f, 0.5f, 0.99f);
+    }
+
+    private void CreateCanvas()
+    {
+        GameObject canvasObject = new("MessageBoxCanvas");
+        _canvasObject = canvasObject;
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        canvasObject.AddComponent<GraphicRaycaster>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 10;
+        canvasObject.transform.position = new Vector3(canvasObject.transform.position.x, canvasObject.transform.position.y, 10);
+        _canvas = canvas;
+    }
+}

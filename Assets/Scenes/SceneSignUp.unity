@@ -1346,7 +1346,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 782104441}
         m_TargetAssemblyTypeName: REST, Assembly-CSharp
-        m_MethodName: signUpRequest
+        m_MethodName: SignUpRequest
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1406,7 +1406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf7a8e45f577f481fba389bd457d0f63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  usernameInputField: {fileID: 0}
+  usernameInput: {fileID: 1003497059}
+  passwordInput: {fileID: 779215353}
+  repeatPasswordInput: {fileID: 1884865299}
 --- !u!1 &794158897
 GameObject:
   m_ObjectHideFlags: 0
