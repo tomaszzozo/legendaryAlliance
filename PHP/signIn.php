@@ -19,27 +19,24 @@ if ($conn->connect_error) {
 }
 
 // get arguments
-$username = $conn->real_escape_string($_POST['username']);
-$password = $conn->real_escape_string($_POST['password']);
+$username = $conn->real_escape_string($_GET['username']);
+$password = $conn->real_escape_string($_GET['password']);
 
-// prepare validation query
 $query = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username' LIMIT 1");
 
 // check if record exists
 if (!$query) {
   abort('Error: ' . mysqli_error($conn), $conn);
-} else if (mysqli_num_rows($query) > 0) {
-  abort("'$username' already exists!", $conn);
+} else if (mysqli_num_rows($query) == 0) {
+  abort("Incorrect username and password combination!", $conn);
 }
 
-// hash password
-$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+$query = "SELECT passwordHash FROM users where username = '$username' LIMIT 1";
 
-// create user query
-$query = mysqli_query($conn, "INSERT INTO users (username, passwordHash) VALUES ('$username', '$passwordHash')");
-
-if (!$query) {
-    abort('Error: ' . mysqli_error($conn), $conn);
+if (count(mysqli_query($conn, $query)->fetch_row()) == 1 && password_verify($password, mysqli_query($conn, $query)->fetch_row()[0])) {
+    $conn->close();
+    echo("Ok");
+    return;
 }
 
-$conn->close();
+abort("Incorrect username and password combination!", $conn);
