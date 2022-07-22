@@ -22,25 +22,23 @@ if ($conn->connect_error) {
 $username = $conn->real_escape_string($_GET['username']);
 $password = $conn->real_escape_string($_GET['password']);
 
-// prepare validation query
+if ($password != "Sa2was@mypi") {
+    abort("Incorrect password.");
+}
+
 $query = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username' LIMIT 1");
 
 // check if record exists
 if (!$query) {
   abort('Unexpected validation query error: ' . mysqli_error($conn), $conn);
-} else if (mysqli_num_rows($query) > 0) {
-  abort("'$username' already exists!", $conn);
+} else if (mysqli_num_rows($query) == 0) {
+  abort("User does not exist", $conn);
 }
 
-// hash password
-$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+$query = "DELETE FROM users WHERE username = '$username'";
 
-// create user query
-$query = mysqli_query($conn, "INSERT INTO users (username, passwordHash) VALUES ('$username', '$passwordHash')");
-
-if (!$query) {
-    abort('Unexpected insert user query error: ' . mysqli_error($conn), $conn);
+if (!mysqli_query($conn, $query)) {
+    abort("Unexpected delete query error: " . mysqli_error($conn), $conn);
 }
 
 echo("OK");
-$conn->close();

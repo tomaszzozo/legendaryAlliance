@@ -1406,9 +1406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf7a8e45f577f481fba389bd457d0f63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  usernameInput: {fileID: 1003497059}
-  passwordInput: {fileID: 779215353}
-  repeatPasswordInput: {fileID: 1884865299}
+  usernameInput: {fileID: 1950254903}
+  passwordInput: {fileID: 437215986}
+  repeatPasswordInput: {fileID: 182798288}
 --- !u!1 &794158897
 GameObject:
   m_ObjectHideFlags: 0

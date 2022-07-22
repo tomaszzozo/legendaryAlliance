@@ -16,7 +16,7 @@ $dbname = "serwer137660_tomaszwjr";
 $conn = new mysqli($servername, $username, $password, $dbname);
 // Check connection
 if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+  die("Could not connect to database: " . $conn->connect_error);
 }
 
 $result = $conn->query("SELECT * from users");

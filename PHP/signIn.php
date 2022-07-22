@@ -15,7 +15,7 @@ $dbname = "serwer137660_tomaszwjr";
 $conn = new mysqli($servername, $username, $password, $dbname);
 // Check connection
 if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+  die("Could not connect to database: " . $conn->connect_error);
 }
 
 // get arguments
@@ -26,7 +26,7 @@ $query = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username' L
 
 // check if record exists
 if (!$query) {
-  abort('Error: ' . mysqli_error($conn), $conn);
+  abort('Unexpected validation query error: ' . mysqli_error($conn), $conn);
 } else if (mysqli_num_rows($query) == 0) {
   abort("Incorrect username and password combination!", $conn);
 }
@@ -35,7 +35,7 @@ $query = "SELECT passwordHash FROM users where username = '$username' LIMIT 1";
 
 if (count(mysqli_query($conn, $query)->fetch_row()) == 1 && password_verify($password, mysqli_query($conn, $query)->fetch_row()[0])) {
     $conn->close();
-    echo("Ok");
+    echo("OK");
     return;
 }
 
