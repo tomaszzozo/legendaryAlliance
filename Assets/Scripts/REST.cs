@@ -12,11 +12,19 @@ public class REST : MonoBehaviour
 
     public void SignUpRequest()
     {
-        string username = usernameInput.GetComponent<TextMeshProUGUI>().text;
-        string password = passwordInput.GetComponent<TextMeshProUGUI>().text;
-        string repeatPassword = repeatPasswordInput.GetComponent<TextMeshProUGUI>().text;
+        string username = usernameInput.GetComponent<TMP_InputField>().text;
+        string password = passwordInput.GetComponent<TMP_InputField>().text;
+        string repeatPassword = repeatPasswordInput.GetComponent<TMP_InputField>().text;
 
-        // TODO: add data validation
+        string verificationResult = DataValidator.ValidateSignUpData(username, password, repeatPassword);
+        if (!verificationResult.Equals(DataValidator.statusOk))
+        {
+            MessageBoxFactory.ShowAlertDialog(verificationResult, gameObject);
+            return;
+        }
+
+        // TODO: add sign in request
+        // TODO: add logged in screen
 
         try
         {
@@ -29,19 +37,18 @@ public class REST : MonoBehaviour
             var request = UnityWebRequest.Post(url, form);
             StartCoroutine(SignUpResponse(request));
         }
-        catch (Exception e) { Debug.Log("ERROR : " + e.Message); }
+        catch (Exception e) { MessageBoxFactory.ShowAlertDialog("ERROR : " + e.Message, gameObject); }
     }
 
     private IEnumerator SignUpResponse(UnityWebRequest req)
     {
         yield return req.SendWebRequest();
         if (req.result == UnityWebRequest.Result.ConnectionError)
-            Debug.Log("Network error has occured: " + req.GetResponseHeader(""));
+            MessageBoxFactory.ShowAlertDialog("Network error has occured: " + req.GetResponseHeader(""), gameObject);
         else if (req.downloadHandler.text.Contains("already"))
         {
-            Debug.LogError("User already exists!");
+            MessageBoxFactory.ShowAlertDialog("User already exists!", gameObject);
         }
-        else
-            Debug.Log("Success " + req.downloadHandler.text);
+        else MessageBoxFactory.ShowAlertDialog("Success " + req.downloadHandler.text, gameObject);
     }
 }
