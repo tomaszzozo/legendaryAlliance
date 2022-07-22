@@ -10,7 +10,7 @@ public class REST : MonoBehaviour
     public GameObject passwordInput;
     public GameObject repeatPasswordInput;
 
-    public void SignUpRequest()
+    public void SignUp()
     {
         string username = usernameInput.GetComponent<TMP_InputField>().text;
         string password = passwordInput.GetComponent<TMP_InputField>().text;
@@ -23,56 +23,70 @@ public class REST : MonoBehaviour
             return;
         }
 
-        try
-        {
-            WWWForm form = new();
-            form.AddField("username", username);
-            form.AddField("password", password);
-
-            string url = "http://54.93.126.7/signUp.php";
-
-            var request = UnityWebRequest.Post(url, form);
-            StartCoroutine(SignUpResponse(request));
-        }
-        catch (Exception e) { MessageBoxFactory.ShowAlertDialog("ERROR : " + e.Message, gameObject); }
+        StartCoroutine(SignURequest($"http://54.93.126.7/signUp.php?username={username}&password={password}"));
     }
 
-    public void SignInRequest()
+    public void SignIn()
     {
         string username = usernameInput.GetComponent<TMP_InputField>().text;
         string password = passwordInput.GetComponent<TMP_InputField>().text;
 
-        try
-        {
-            string url = $"http://54.93.126.7/signIn.php?username={username}&password={password}";
-
-            var request = UnityWebRequest.Get(url);
-            StartCoroutine(SignInResponse(request));
-        }
-        catch (Exception e) { MessageBoxFactory.ShowAlertDialog("ERROR : " + e.Message, gameObject); }
+        StartCoroutine(SignInRequest($"http://54.93.126.7/signIn.php?username={username}&password={password}"));
     }
 
-    private IEnumerator SignUpResponse(UnityWebRequest req)
+    IEnumerator SignURequest(string uri)
     {
-        yield return req.SendWebRequest();
-        if (req.result == UnityWebRequest.Result.ConnectionError)
-            MessageBoxFactory.ShowAlertDialog("Network error has occured: " + req.GetResponseHeader(""), gameObject);
-        else if (req.downloadHandler.text.Contains("already"))
+        using UnityWebRequest webRequest = UnityWebRequest.Get(uri);
+        // Request and wait for the desired page.
+        yield return webRequest.SendWebRequest();
+
+        switch (webRequest.result)
         {
-            MessageBoxFactory.ShowAlertDialog("User already exists!", gameObject);
+            case UnityWebRequest.Result.ConnectionError:
+            case UnityWebRequest.Result.DataProcessingError:
+                MessageBoxFactory.ShowAlertDialog("Error: " + webRequest.error, gameObject);
+                break;
+            case UnityWebRequest.Result.ProtocolError:
+                MessageBoxFactory.ShowAlertDialog("HTTP Error: " + webRequest.error, gameObject);
+                break;
+            case UnityWebRequest.Result.Success:
+                if (webRequest.downloadHandler.text.Equals("OK"))
+                {
+                    MessageBoxFactory.ShowAlertDialog("Sign up successfull", gameObject);
+                }
+                else
+                {
+                    MessageBoxFactory.ShowAlertDialog("Request error: " + webRequest.downloadHandler.text, gameObject);
+                }
+                break;
         }
-        else MessageBoxFactory.ShowAlertDialog("Success " + req.downloadHandler.text, gameObject);
     }
 
-    private IEnumerator SignInResponse(UnityWebRequest req)
+    private IEnumerator SignInRequest(string uri)
     {
-        yield return req.SendWebRequest();
-        if (req.result == UnityWebRequest.Result.ConnectionError)
-            MessageBoxFactory.ShowAlertDialog("Network error has occured: " + req.GetResponseHeader(""), gameObject);
-        else if (req.downloadHandler.text.Contains("Ok"))
+        using UnityWebRequest webRequest = UnityWebRequest.Get(uri);
+        // Request and wait for the desired page.
+        yield return webRequest.SendWebRequest();
+
+        switch (webRequest.result)
         {
-            MessageBoxFactory.ShowAlertDialog("Successfully logged in.", gameObject);
+            case UnityWebRequest.Result.ConnectionError:
+            case UnityWebRequest.Result.DataProcessingError:
+                MessageBoxFactory.ShowAlertDialog("Error: " + webRequest.error, gameObject);
+                break;
+            case UnityWebRequest.Result.ProtocolError:
+                MessageBoxFactory.ShowAlertDialog("HTTP Error: " + webRequest.error, gameObject);
+                break;
+            case UnityWebRequest.Result.Success:
+                if (webRequest.downloadHandler.text.Equals("OK"))
+                {
+                    MessageBoxFactory.ShowAlertDialog("Sign in successfull", gameObject);
+                }
+                else
+                {
+                    MessageBoxFactory.ShowAlertDialog("Request error: " + webRequest.downloadHandler.text, gameObject);
+                }
+                break;
         }
-        else MessageBoxFactory.ShowAlertDialog("Incorrect username and password combination.", gameObject);
     }
 }
