@@ -47,17 +47,10 @@ public class REST : MonoBehaviour
                 MessageBoxFactory.ShowAlertDialog("Error: " + webRequest.error, gameObject);
                 break;
             case UnityWebRequest.Result.ProtocolError:
-                MessageBoxFactory.ShowAlertDialog("HTTP Error: " + webRequest.error, gameObject);
+                MessageBoxFactory.ShowAlertDialog(webRequest.downloadHandler.text, gameObject);
                 break;
             case UnityWebRequest.Result.Success:
-                if (webRequest.downloadHandler.text.Equals("OK"))
-                {
-                    MessageBoxFactory.ShowAlertDialog("Sign up successfull", gameObject);
-                }
-                else
-                {
-                    MessageBoxFactory.ShowAlertDialog("Request error: " + webRequest.downloadHandler.text, gameObject);
-                }
+                MessageBoxFactory.ShowAlertDialog("Sign up successfull", gameObject);
                 break;
         }
     }
@@ -72,20 +65,13 @@ public class REST : MonoBehaviour
         {
             case UnityWebRequest.Result.ConnectionError:
             case UnityWebRequest.Result.DataProcessingError:
-                MessageBoxFactory.ShowAlertDialog("Error: " + webRequest.error, gameObject);
+                MessageBoxFactory.ShowAlertDialog("Unexpected error: " + webRequest.error, gameObject);
                 break;
             case UnityWebRequest.Result.ProtocolError:
-                MessageBoxFactory.ShowAlertDialog("HTTP Error: " + webRequest.error, gameObject);
+                MessageBoxFactory.ShowAlertDialog(webRequest.downloadHandler.text, gameObject);
                 break;
             case UnityWebRequest.Result.Success:
-                if (webRequest.downloadHandler.text.Equals("OK"))
-                {
-                    MessageBoxFactory.ShowAlertDialog("Sign in successfull", gameObject);
-                }
-                else
-                {
-                    MessageBoxFactory.ShowAlertDialog("Request error: " + webRequest.downloadHandler.text, gameObject);
-                }
+                MessageBoxFactory.ShowAlertDialog("Sign in successfull", gameObject);
                 break;
         }
     }
