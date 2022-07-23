@@ -39,13 +39,12 @@ public class MessageBoxFactory : MonoBehaviour
         titleObject.transform.SetParent(_canvas.transform);
         TextMeshProUGUI text = titleObject.AddComponent<TextMeshProUGUI>();
         text.text = _content;
-        text.rectTransform.sizeDelta = Vector2.zero;
-        text.rectTransform.anchorMin = Vector2.zero;
-        text.rectTransform.anchorMax = Vector2.one;
-        text.rectTransform.anchoredPosition = new Vector2(0, Screen.height / 4);
-        text.fontSize = 50;
-        text.color = Color.white;
+        text.fontSize = 40;
         text.alignment = TextAlignmentOptions.Midline;
+        text.color = Color.white;
+        text.rectTransform.anchoredPosition = Vector3.zero;
+        text.rectTransform.sizeDelta = new Vector2(_width * 0.8f, _height);
+        text.rectTransform.anchoredPosition = new Vector2(0, Screen.height / 4);
     }
 
     private void CreateButton()
@@ -72,7 +71,7 @@ public class MessageBoxFactory : MonoBehaviour
         text.rectTransform.anchorMin = Vector2.zero;
         text.rectTransform.anchorMax = Vector2.one;
         text.rectTransform.anchoredPosition = new Vector2(.5f, .5f);
-        text.fontSize = 40;
+        text.fontSize = 35;
         text.color = Color.white;
         text.alignment = TextAlignmentOptions.Midline;
     }
