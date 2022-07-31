@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
-using System;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class REST : MonoBehaviour
@@ -10,31 +10,33 @@ public class REST : MonoBehaviour
     public GameObject passwordInput;
     public GameObject repeatPasswordInput;
 
+    private string _username;
+
     public void SignUp()
     {
-        string username = usernameInput.GetComponent<TMP_InputField>().text;
+        _username = usernameInput.GetComponent<TMP_InputField>().text;
         string password = passwordInput.GetComponent<TMP_InputField>().text;
         string repeatPassword = repeatPasswordInput.GetComponent<TMP_InputField>().text;
 
-        string verificationResult = DataValidator.ValidateSignUpData(username, password, repeatPassword);
+        string verificationResult = DataValidator.ValidateSignUpData(_username, password, repeatPassword);
         if (!verificationResult.Equals(DataValidator.statusOk))
         {
             MessageBoxFactory.ShowAlertDialog(verificationResult, gameObject);
             return;
         }
 
-        StartCoroutine(SignURequest($"http://54.93.126.7/signUp.php?username={username}&password={password}"));
+        StartCoroutine(SignURequest($"http://54.93.126.7/signUp.php?username={_username}&password={password}"));
     }
 
     public void SignIn()
     {
-        string username = usernameInput.GetComponent<TMP_InputField>().text;
+        _username = usernameInput.GetComponent<TMP_InputField>().text;
         string password = passwordInput.GetComponent<TMP_InputField>().text;
 
-        StartCoroutine(SignInRequest($"http://54.93.126.7/signIn.php?username={username}&password={password}"));
+        StartCoroutine(SignInRequest($"http://54.93.126.7/signIn.php?username={_username}&password={password}"));
     }
 
-    IEnumerator SignURequest(string uri)
+    private IEnumerator SignURequest(string uri)
     {
         using UnityWebRequest webRequest = UnityWebRequest.Get(uri);
         // Request and wait for the desired page.
@@ -50,7 +52,8 @@ public class REST : MonoBehaviour
                 MessageBoxFactory.ShowAlertDialog(webRequest.downloadHandler.text, gameObject);
                 break;
             case UnityWebRequest.Result.Success:
-                MessageBoxFactory.ShowAlertDialog("Sign up successfull", gameObject);
+                GlobalVariables.SetUsername(_username);
+                SceneManager.LoadScene("SceneLoggedInMenu");
                 break;
         }
     }
@@ -71,7 +74,8 @@ public class REST : MonoBehaviour
                 MessageBoxFactory.ShowAlertDialog(webRequest.downloadHandler.text, gameObject);
                 break;
             case UnityWebRequest.Result.Success:
-                MessageBoxFactory.ShowAlertDialog("Sign in successfull", gameObject);
+                GlobalVariables.SetUsername(_username);
+                SceneManager.LoadScene("SceneLoggedInMenu");
                 break;
         }
     }

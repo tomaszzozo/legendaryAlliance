@@ -11,4 +11,25 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SceneSignUp.unity
     guid: 65d9811088655481c9295a5cff175fd1
+  - enabled: 1
+    path: Assets/Scenes/SceneLoggedInMenu.unity
+    guid: 889478540547b4ef5b45bc7075f5eab5
+  - enabled: 1
+    path: Assets/Scenes/SceneCreateGame.unity
+    guid: 404254954f92a404f90d35f292faddfc
+  - enabled: 1
+    path: Assets/Scenes/SceneDisconnected.unity
+    guid: 8e09819f9446c4067ba5316b8e99063a
+  - enabled: 1
+    path: Assets/Scenes/SceneConnecting.unity
+    guid: a94a736c6703a4f65a82d2b337fc2713
+  - enabled: 1
+    path: Assets/Scenes/SceneEnterRoomId.unity
+    guid: 3c78f81cb63f7451d837fd8df153d768
+  - enabled: 1
+    path: Assets/Scenes/SceneJoinGame.unity
+    guid: 77ffd839186a8428caa98429d46d0498
+  - enabled: 1
+    path: Assets/Scenes/SceneTryToJoinRoom.unity
+    guid: 35165ffed071d43fab207a5b8e821c10
   m_configObjects: {}
