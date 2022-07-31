@@ -2,8 +2,9 @@ using UnityEngine;
 using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
+using ExitGames.Client.Photon;
 
-public class SceneCreateGame : MonoBehaviourPunCallbacks
+public class SceneCreateGame : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     public GameObject labelRoomId;
     public GameObject labelAdminUsername;
@@ -14,7 +15,7 @@ public class SceneCreateGame : MonoBehaviourPunCallbacks
     public GameObject labelStatus2;
     public GameObject labelStatus3;
     public GameObject labelStatus4;
-
+    public GameObject labelButtonReady;
 
     private TextMeshProUGUI _labelRoomId;
     private TextMeshProUGUI _labelAdminUsername;
@@ -25,6 +26,7 @@ public class SceneCreateGame : MonoBehaviourPunCallbacks
     private TextMeshProUGUI _labelStatus2;
     private TextMeshProUGUI _labelStatus3;
     private TextMeshProUGUI _labelStatus4;
+    private TextMeshProUGUI _labelButtonReady;
 
     private bool _disconnectedIntentionally = false;
 
@@ -41,6 +43,7 @@ public class SceneCreateGame : MonoBehaviourPunCallbacks
         _labelStatus2 = labelStatus2.GetComponent<TextMeshProUGUI>();
         _labelStatus3 = labelStatus3.GetComponent<TextMeshProUGUI>();
         _labelStatus4 = labelStatus4.GetComponent<TextMeshProUGUI>();
+        _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -103,6 +106,34 @@ public class SceneCreateGame : MonoBehaviourPunCallbacks
         PhotonNetwork.Disconnect();
     }
 
+    public void OnClickReadyButton()
+    {
+        _labelStatus1.text = _labelStatus1.text.Equals("Not ready") ? "Ready" : "Not ready";
+        _labelButtonReady.text = _labelStatus1.text.Equals("Not ready") ? "Ready" : "Not ready";
+        RaiseEventUpdateRoomUi();
+    }
+
+    void IOnEventCallback.OnEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code == (int)Events.EventTypes.CLIENT_CLICKED_READY)
+        {
+            string nickName = Events.ClientClickedReady.Deserialize((object[])photonEvent.CustomData).nickName;
+            if (_labelP2.text.Equals(nickName))
+            {
+                _labelStatus2.text = _labelStatus2.text.Equals("Not ready") ? "Ready" : "Not ready";
+            }
+            else if (_labelP3.text.Equals(nickName))
+            {
+                _labelStatus3.text = _labelStatus3.text.Equals("Not ready") ? "Ready" : "Not ready";
+            }
+            else
+            {
+                _labelStatus4.text = _labelStatus4.text.Equals("Not ready") ? "Ready" : "Not ready";
+            }
+            RaiseEventUpdateRoomUi();
+        }
+    }
+
     private void RaiseEventUpdateRoomUi()
     {
         Events.UpdateRoomUi data = new(
@@ -110,6 +141,6 @@ public class SceneCreateGame : MonoBehaviourPunCallbacks
             new string[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text },
             new string[] { _labelStatus1.text, _labelStatus2.text, _labelStatus3.text, _labelStatus4.text });
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
-        PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, ExitGames.Client.Photon.SendOptions.SendReliable);
+        PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
     }
 }

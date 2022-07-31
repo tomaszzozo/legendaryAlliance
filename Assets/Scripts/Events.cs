@@ -3,6 +3,7 @@
     public enum EventTypes
     {
         UPDATE_ROOM_UI = 1,
+        CLIENT_CLICKED_READY,
     }
 
     public class Event
@@ -44,6 +45,27 @@
                 (int)content[0],
                 (string[])content[1],
                 (string[])content[2]);
+        }
+    }
+
+    public class ClientClickedReady : Event
+    {
+        public readonly string nickName;
+
+        public ClientClickedReady(string nickName) : base(EventTypes.CLIENT_CLICKED_READY)
+        {
+            this.nickName = nickName;
+        }
+
+        public object[] Serialize()
+        {
+            return new object[] { nickName};
+        }
+
+        public static ClientClickedReady Deserialize(object[] content)
+        {
+            return new ClientClickedReady(
+                (string)content[0]);
         }
     }
 }

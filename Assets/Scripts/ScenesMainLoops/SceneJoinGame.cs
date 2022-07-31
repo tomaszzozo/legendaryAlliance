@@ -15,6 +15,7 @@ public class SceneJoinGame : MonoBehaviourPunCallbacks, IOnEventCallback
     public GameObject labelStatus2;
     public GameObject labelStatus3;
     public GameObject labelStatus4;
+    public GameObject labelButtonReady;
 
     private TextMeshProUGUI _labelRoomId;
     private TextMeshProUGUI _labelAdminUsername;
@@ -25,6 +26,7 @@ public class SceneJoinGame : MonoBehaviourPunCallbacks, IOnEventCallback
     private TextMeshProUGUI _labelStatus2;
     private TextMeshProUGUI _labelStatus3;
     private TextMeshProUGUI _labelStatus4;
+    private TextMeshProUGUI _labelButtonReady;
 
     private bool _disconnectedIntentionally = false;
 
@@ -40,6 +42,7 @@ public class SceneJoinGame : MonoBehaviourPunCallbacks, IOnEventCallback
         _labelStatus2 = labelStatus2.GetComponent<TextMeshProUGUI>();
         _labelStatus3 = labelStatus3.GetComponent<TextMeshProUGUI>();
         _labelStatus4 = labelStatus4.GetComponent<TextMeshProUGUI>();
+        _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
 
         UpdateUi(Events.UpdateRoomUi.Deserialize(GlobalVariables.sharedData));
     }
@@ -63,6 +66,14 @@ public class SceneJoinGame : MonoBehaviourPunCallbacks, IOnEventCallback
         _disconnectedIntentionally = true;
         Debug.Log("Disconnected");
         PhotonNetwork.Disconnect();
+    }
+
+    public void OnClickReady()
+    {
+        _labelButtonReady.text = _labelButtonReady.text.Equals("Not ready") ? "Ready" : "Not ready";
+        Events.ClientClickedReady data = new(PhotonNetwork.NickName);
+        RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+        PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
     }
 
     void IOnEventCallback.OnEvent(EventData photonEvent)

@@ -77,7 +77,7 @@ public class SceneJoiningRoom : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private IEnumerator IfNoResponseGoBack()
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(10);
 
         _labelTitle.text = "No response from room!";
 
