@@ -1,0 +1,12 @@
+Red d5002b
+
+Violet 9b00d5
+
+bule 0018ff
+
+Yellow fff000
+
+-1 - water
+0 - fields
+1 - active fields
+

@@ -68,9 +68,9 @@ public class SceneJoiningRoom : MonoBehaviourPunCallbacks, IOnEventCallback
 
     void IOnEventCallback.OnEvent(EventData photonEvent)
     {
-        if (photonEvent.Code == (int)Events.EventTypes.UPDATE_ROOM_UI)
+        if (photonEvent.Code == (int)Events.EventTypes.UpdateRoomUI)
         {
-            GlobalVariables.sharedData = (object[])photonEvent.CustomData;
+            GlobalVariables.SharedData = (object[])photonEvent.CustomData;
             gameObject.AddComponent<SceneLoader>().LoadScene("SceneJoinGame");
         }
     }

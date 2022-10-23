@@ -2,22 +2,25 @@
 {
     public enum EventTypes
     {
-        UPDATE_ROOM_UI = 1,
-        CLIENT_CLICKED_READY,
+        UpdateRoomUI = 1,
+        ClientClickedReady,
+        GoToGameScene,
+        RoomAlreadyInGameSignal,
+        NextTurn
     }
 
     public class Event
     {
-        public readonly EventTypes eventType;
+        private readonly EventTypes _eventType;
 
-        public Event(EventTypes eventType)
+        protected Event(EventTypes eventType)
         {
-            this.eventType = eventType;
+            _eventType = eventType;
         }
 
         public byte GetEventType()
         {
-            return (byte)eventType;
+            return (byte)_eventType;
         }
     }
 
@@ -27,7 +30,7 @@
         public readonly string[] usernames;
         public readonly string[] statuses;
 
-        public UpdateRoomUi(int roomId, string[] usernames, string[] statuses) : base(EventTypes.UPDATE_ROOM_UI)
+        public UpdateRoomUi(int roomId, string[] usernames, string[] statuses) : base(EventTypes.UpdateRoomUI)
         {
             this.roomId = roomId;
             this.usernames = usernames;
@@ -52,14 +55,14 @@
     {
         public readonly string nickName;
 
-        public ClientClickedReady(string nickName) : base(EventTypes.CLIENT_CLICKED_READY)
+        public ClientClickedReady(string nickName) : base(EventTypes.ClientClickedReady)
         {
             this.nickName = nickName;
         }
 
         public object[] Serialize()
         {
-            return new object[] { nickName};
+            return new object[] { nickName };
         }
 
         public static ClientClickedReady Deserialize(object[] content)

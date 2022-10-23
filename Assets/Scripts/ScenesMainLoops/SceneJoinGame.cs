@@ -44,7 +44,7 @@ public class SceneJoinGame : MonoBehaviourPunCallbacks, IOnEventCallback
         _labelStatus4 = labelStatus4.GetComponent<TextMeshProUGUI>();
         _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
 
-        UpdateUi(Events.UpdateRoomUi.Deserialize(GlobalVariables.sharedData));
+        UpdateUi(Events.UpdateRoomUi.Deserialize(GlobalVariables.SharedData));
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -78,9 +78,14 @@ public class SceneJoinGame : MonoBehaviourPunCallbacks, IOnEventCallback
 
     void IOnEventCallback.OnEvent(EventData photonEvent)
     {
-        if (photonEvent.Code == (int)Events.EventTypes.UPDATE_ROOM_UI)
+        if (photonEvent.Code == (int)Events.EventTypes.UpdateRoomUI)
         {
             UpdateUi(Events.UpdateRoomUi.Deserialize((object[])photonEvent.CustomData));
+        }
+        else if (photonEvent.Code == (int)Events.EventTypes.GoToGameScene)
+        {
+            GlobalVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
+            gameObject.AddComponent<SceneLoader>().LoadScene("SceneGameClient");
         }
     }
 

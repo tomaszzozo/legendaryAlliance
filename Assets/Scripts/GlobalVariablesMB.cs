@@ -12,7 +12,7 @@ public class GlobalVariablesMB : MonoBehaviour
 
 public static class GlobalVariables
 {
-    public static object[] sharedData;
+    public static object[] SharedData;
 
     public static void SetUsername(string username) { PlayerPrefs.SetString("username", username); }
     public static void DeleteUsername() { PlayerPrefs.DeleteKey("username"); }

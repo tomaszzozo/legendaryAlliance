@@ -113,9 +113,31 @@ public class SceneCreateGame : MonoBehaviourPunCallbacks, IOnEventCallback
         RaiseEventUpdateRoomUi();
     }
 
+    public void OnClickStartGameButton()
+    {
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
+        {
+            MessageBoxFactory.ShowAlertDialog("You need to invite at least one player!", gameObject);
+            return;
+        }
+
+        if (_labelStatus1.text.Equals("Not ready")
+            || (!_labelP2.text.Equals("Not connected") && _labelStatus2.text.Equals("Not ready"))
+            || (PhotonNetwork.CurrentRoom.PlayerCount > 2 && !_labelP3.text.Equals("Not connected") && _labelStatus3.text.Equals("Not ready"))
+            || (PhotonNetwork.CurrentRoom.PlayerCount == 4 && !_labelP4.text.Equals("Not connected") && _labelStatus4.text.Equals("Not ready")))
+        {
+            MessageBoxFactory.ShowAlertDialog("All players must be ready!", gameObject);
+            return;
+        }
+
+        RaiseEventGoToGameScene();
+        GlobalVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
+        gameObject.AddComponent<SceneLoader>().LoadScene("SceneGameHost");
+    }
+
     void IOnEventCallback.OnEvent(EventData photonEvent)
     {
-        if (photonEvent.Code == (int)Events.EventTypes.CLIENT_CLICKED_READY)
+        if (photonEvent.Code == (int)Events.EventTypes.ClientClickedReady)
         {
             string nickName = Events.ClientClickedReady.Deserialize((object[])photonEvent.CustomData).nickName;
             if (_labelP2.text.Equals(nickName))
@@ -142,5 +164,11 @@ public class SceneCreateGame : MonoBehaviourPunCallbacks, IOnEventCallback
             new string[] { _labelStatus1.text, _labelStatus2.text, _labelStatus3.text, _labelStatus4.text });
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
+    }
+
+    private void RaiseEventGoToGameScene()
+    {
+        RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+        PhotonNetwork.RaiseEvent((byte)Events.EventTypes.GoToGameScene, null, options, SendOptions.SendReliable);
     }
 }

@@ -19,7 +19,7 @@ public class REST : MonoBehaviour
         string repeatPassword = repeatPasswordInput.GetComponent<TMP_InputField>().text;
 
         string verificationResult = DataValidator.ValidateSignUpData(_username, password, repeatPassword);
-        if (!verificationResult.Equals(DataValidator.statusOk))
+        if (!verificationResult.Equals(DataValidator.StatusOk))
         {
             MessageBoxFactory.ShowAlertDialog(verificationResult, gameObject);
             return;

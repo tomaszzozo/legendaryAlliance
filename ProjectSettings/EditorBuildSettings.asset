@@ -32,4 +32,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SceneTryToJoinRoom.unity
     guid: 35165ffed071d43fab207a5b8e821c10
+  - enabled: 1
+    path: Assets/Scenes/SceneGameHost.unity
+    guid: 2899dbbaa05024986bbc06dabbf04ff0
+  - enabled: 1
+    path: Assets/Scenes/SceneGameClient.unity
+    guid: 5b1952a4406fc4f2c8c1dd16a19eb6ff
   m_configObjects: {}
