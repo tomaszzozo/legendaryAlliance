@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ExitGames.Client.Photon;
 using fields;
 using Photon.Pun;
@@ -19,11 +18,10 @@ namespace ScenesMainLoops
         }
         public static Globals GlobalVariables;
 
-        public static bool IsOverUi = false;
+        public static bool IsOverUi;
         public void SetUiHover(bool value) { IsOverUi = value; Debug.Log(value); }
 
         public Button buttonNextTurn;
-        public int currentPlayerIndex;
         public new Camera camera;
         public Canvas canvas;
         public Canvas fieldInspectMode;
@@ -31,9 +29,17 @@ namespace ScenesMainLoops
         public TextMeshProUGUI labelP2;
         public TextMeshProUGUI labelP3;
         public TextMeshProUGUI labelP4;
+        public TextMeshProUGUI labelCoins;
+        public TextMeshProUGUI labelUsername;
+        public Image decorationBar;
         
+        public int startingGold;
+        public int unitCost;
+        public int baseIncome;
+        private int CurrentPlayerIndex { get; set; }
         private const int LabelOffset = 30;
         private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
+        private Players _player;
         
         public override void OnDisconnected(DisconnectCause cause)
         {
@@ -86,17 +92,41 @@ namespace ScenesMainLoops
         public bool IsItMyTurn()
         {
             if (!PhotonNetwork.InRoom) return true; // TODO: delete on release
-            return currentPlayerIndex == _playerLabelOfIndex.FirstOrDefault(x => x.Value.text == SharedVariables.GetUsername()).Key;
+            return Players.PlayersList[CurrentPlayerIndex] == _player;
         }
 
+        private int CalculateIncome()
+        {
+            return baseIncome;
+        }
         
         private void Start()
         {
-            labelP1.text = (string)SharedVariables.SharedData[0];
-            labelP2.text = (string)SharedVariables.SharedData[1];
-            labelP3.text = (string)SharedVariables.SharedData[2];
-            labelP4.text = (string)SharedVariables.SharedData[3];
+            if (PhotonNetwork.InRoom) 
+            {
+                labelP1.text = (string)SharedVariables.SharedData[0];
+                labelP2.text = (string)SharedVariables.SharedData[1];
+                labelP3.text = (string)SharedVariables.SharedData[2];
+                labelP4.text = (string)SharedVariables.SharedData[3];
+                Players.FillPlayerNames();
+                if (PhotonNetwork.CurrentRoom.PlayerCount < 4) labelP4.enabled = false;
+                if (PhotonNetwork.CurrentRoom.PlayerCount < 3) labelP3.enabled = false;
+            }
+            else // TODO: delete on release
+            {
+                Players.PlayersList[0].Name = "UnityTest";
+                SharedVariables.SetUsername("UnityTest");
+                SharedVariables.SetIsAdmin(true);
+            }
+            
+            labelCoins.text = startingGold.ToString();
+            labelUsername.text = SharedVariables.GetUsername();
 
+            _player = Players.PlayersList.Find(x => x.Name == SharedVariables.GetUsername());
+            decorationBar.color = _player.Color;
+            
+            Players.InitGold(startingGold, baseIncome);
+            
             _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
                 {0, labelP1},
@@ -105,26 +135,30 @@ namespace ScenesMainLoops
                 {3, labelP4 }
             };
 
-            if (PhotonNetwork.CurrentRoom.PlayerCount < 4) labelP4.gameObject.SetActive(false);
-            if (PhotonNetwork.CurrentRoom.PlayerCount < 3) labelP3.gameObject.SetActive(false);
-
             labelP1.transform.Translate(new Vector2(LabelOffset, 0));
 
             if (!SharedVariables.GetIsAdmin()) buttonNextTurn.interactable = false;
         }
-        
+
         private void NextTurn()
         {
-            _playerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
-            if (++currentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
+            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
+            if (++CurrentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
             {
-                currentPlayerIndex = 0;
+                CurrentPlayerIndex = 0;
             }
-            _playerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
+
+            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
             buttonNextTurn.interactable = IsItMyTurn();
-            
+
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
+
+            if (SharedVariables.SharedData[CurrentPlayerIndex].ToString() != SharedVariables.GetUsername()) return;
+
+            _player.Income = CalculateIncome();
+            _player.Gold += _player.Income;
+            labelCoins.text = _player.Gold.ToString();
         }
     }
 }

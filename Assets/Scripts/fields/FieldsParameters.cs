@@ -21,7 +21,7 @@ namespace fields
 
         public static readonly Dictionary<string, FieldT> LookupTable = new()
         {
-            {"argentyna", new FieldT(12, new Vector2(-30.89f, -28.67f))},
+            {"argentyna", new FieldT(14, new Vector2(-30.89f, -28.67f))},
             {"brazylia", new FieldT(12, new Vector2(-26.52f, -14.1f))},
             {"peru", new FieldT(12, new Vector2(-34.13f, -15.68f))},
             {"wenezuela", new FieldT(12, new Vector2(-32.92f, -6.12f))}

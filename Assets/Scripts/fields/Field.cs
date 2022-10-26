@@ -45,10 +45,10 @@ namespace fields
         private void EnableAppropriateSprite()
         {
             if (_parameters.Owner == null) graySprite.enabled = true;
-            else if (_parameters.Owner == SharedVariables.SharedData[0].ToString()) redSprite.enabled = true;
-            else if (_parameters.Owner == SharedVariables.SharedData[1].ToString()) blueSprite.enabled = true;
-            else if (_parameters.Owner == SharedVariables.SharedData[2].ToString()) yellowSprite.enabled = true;
-            else if (_parameters.Owner == SharedVariables.SharedData[3].ToString()) violetSprite.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[0].Name) redSprite.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[1].Name) blueSprite.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[2].Name) yellowSprite.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[3].Name) violetSprite.enabled = true;
         }
         
         private void Start()
