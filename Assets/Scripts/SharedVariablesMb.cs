@@ -20,4 +20,7 @@ public static class SharedVariables
 
     public static void SetRoomToJoin(string roomToJoinId) { PlayerPrefs.SetString("roomToJoinId", roomToJoinId); }
     public static string GetRoomToJoin() { return PlayerPrefs.GetString("roomToJoinId"); }
+    
+    public static void SetIsAdmin(bool isAdmin) { PlayerPrefs.SetInt("isAdmin", isAdmin ? 1:0); }
+    public static bool GetIsAdmin() { return PlayerPrefs.GetInt("isAdmin") == 1; }
 }

@@ -87,7 +87,8 @@ namespace ScenesMainLoops
             else if (photonEvent.Code == (int)EventTypes.GoToGameScene)
             {
                 SharedVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
-                gameObject.AddComponent<SceneLoader>().LoadScene("SceneGameClient");
+                SharedVariables.SetIsAdmin(false);
+                gameObject.AddComponent<SceneLoader>().LoadScene("SceneGameHost");
             }
         }
 

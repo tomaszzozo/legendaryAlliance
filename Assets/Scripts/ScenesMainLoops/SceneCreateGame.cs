@@ -131,6 +131,8 @@ namespace ScenesMainLoops
                 MessageBoxFactory.ShowAlertDialog("All players must be ready!", gameObject);
                 return;
             }
+            
+            SharedVariables.SetIsAdmin(true);
 
             RaiseEventGoToGameScene();
             SharedVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };

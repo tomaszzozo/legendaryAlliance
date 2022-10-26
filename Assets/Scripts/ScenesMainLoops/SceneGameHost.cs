@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ExitGames.Client.Photon;
 using fields;
 using Photon.Pun;
@@ -36,7 +37,7 @@ namespace ScenesMainLoops
         private TextMeshProUGUI _labelP4;
         private const int LabelOffset = 30;
 
-        public Dictionary<int, TextMeshProUGUI> PlayerLabelOfIndex;
+        private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
 
         private void Start()
         {
@@ -50,7 +51,7 @@ namespace ScenesMainLoops
             _labelP3.text = (string)SharedVariables.SharedData[2];
             _labelP4.text = (string)SharedVariables.SharedData[3];
 
-            PlayerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
+            _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
                 {0, _labelP1},
                 {1, _labelP2 },
@@ -62,6 +63,8 @@ namespace ScenesMainLoops
             if (PhotonNetwork.CurrentRoom.PlayerCount < 3) _labelP3.gameObject.SetActive(false);
 
             _labelP1.transform.Translate(new Vector2(LabelOffset, 0));
+
+            if (!SharedVariables.GetIsAdmin()) buttonNextTurn.interactable = false;
         }
 
         public override void OnDisconnected(DisconnectCause cause)
@@ -114,18 +117,21 @@ namespace ScenesMainLoops
         
         public bool IsItMyTurn()
         {
-            return currentPlayerIndex == 0;
+            return currentPlayerIndex == _playerLabelOfIndex.FirstOrDefault(x => x.Value.text == SharedVariables.GetUsername()).Key;
         }
         
         private void NextTurn()
         {
-            PlayerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
+            _playerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
             if (++currentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
             {
                 currentPlayerIndex = 0;
             }
-            PlayerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
+            _playerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
             buttonNextTurn.interactable = IsItMyTurn();
+            
+            RaiseEventOptions options = new() { Receivers = ReceiverGroup.All };
+            PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
         }
     }
 }

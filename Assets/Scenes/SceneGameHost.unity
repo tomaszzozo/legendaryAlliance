@@ -7705,7 +7705,7 @@ MonoBehaviour:
   panBorderThickness: -1000
   panLimit: {x: 51, y: 35}
   scrollSpeed: 200
-  scrollLimit: {x: 8, y: 30}
+  scrollLimit: {x: 8, y: 45}
 --- !u!1 &2074426589
 GameObject:
   m_ObjectHideFlags: 0
