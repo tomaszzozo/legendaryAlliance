@@ -72,6 +72,7 @@ namespace fields
 
         private void OnMouseDown()
         {
+            if (SceneGame.IsOverUi) return;
             if (SceneGame.GlobalVariables.SelectedFieldLocal != null || !mainLoop.IsItMyTurn()) return;
 
             mainLoop.canvas.enabled = false;

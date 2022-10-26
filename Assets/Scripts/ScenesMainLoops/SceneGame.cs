@@ -18,7 +18,10 @@ namespace ScenesMainLoops
             public Field SelectedFieldOnline { get; set; }
         }
         public static Globals GlobalVariables;
-        
+
+        public static bool IsOverUi = false;
+        public void SetUiHover(bool value) { IsOverUi = value; Debug.Log(value); }
+
         public Button buttonNextTurn;
         public int currentPlayerIndex;
         public new Camera camera;
@@ -85,6 +88,7 @@ namespace ScenesMainLoops
             if (!PhotonNetwork.InRoom) return true; // TODO: delete on release
             return currentPlayerIndex == _playerLabelOfIndex.FirstOrDefault(x => x.Value.text == SharedVariables.GetUsername()).Key;
         }
+
         
         private void Start()
         {
