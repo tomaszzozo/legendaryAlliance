@@ -48,8 +48,7 @@ public class CameraController : MonoBehaviour
         pos.y = Mathf.Clamp(pos.y, -panLimit.y, panLimit.y);
         size = Mathf.Clamp(size, scrollLimit.x, scrollLimit.y);
 
-        _camera.orthographicSize = size; 
+        _camera.orthographicSize = size;
         transform.position = pos;
-        
     }
 }

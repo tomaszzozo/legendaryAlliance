@@ -36,7 +36,7 @@ namespace ScenesMainLoops
         private TextMeshProUGUI _labelP4;
         private const int LabelOffset = 30;
 
-        private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
+        public Dictionary<int, TextMeshProUGUI> PlayerLabelOfIndex;
 
         private void Start()
         {
@@ -50,7 +50,7 @@ namespace ScenesMainLoops
             _labelP3.text = (string)SharedVariables.SharedData[2];
             _labelP4.text = (string)SharedVariables.SharedData[3];
 
-            _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
+            PlayerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
                 {0, _labelP1},
                 {1, _labelP2 },
@@ -93,15 +93,15 @@ namespace ScenesMainLoops
             fieldInspectMode.enabled = false;
             canvas.enabled = true;
             
-            camera.transform.position = SharedVariables.GetCameraPosition();
-            camera.orthographicSize = SharedVariables.GetCameraSize();
+            camera.orthographicSize += 2;
             CameraController.MovementEnabled = true;
             
+            GlobalVariables.SelectedFieldLocal.DisableAllSprites();
             GlobalVariables.SelectedFieldLocal = null;
             GlobalVariables.SelectedFieldOnline = null;
-            
-            // RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
-            // PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
+
+            RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
         }
         
         public void OnEvent(EventData photonEvent)
@@ -119,12 +119,12 @@ namespace ScenesMainLoops
         
         private void NextTurn()
         {
-            _playerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
+            PlayerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
             if (++currentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
             {
                 currentPlayerIndex = 0;
             }
-            _playerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
+            PlayerLabelOfIndex[currentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
             buttonNextTurn.interactable = IsItMyTurn();
         }
     }

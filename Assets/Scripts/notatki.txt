@@ -1,9 +1,9 @@
 -1 water
 0 - 9 fields
-10 selected field online
-11 selected field local
+10 selected field
 
 red ff0000
 blue 0018ff
 yellow fff600
 violet a200ff
+gray 4a4949

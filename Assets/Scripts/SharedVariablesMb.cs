@@ -20,18 +20,4 @@ public static class SharedVariables
 
     public static void SetRoomToJoin(string roomToJoinId) { PlayerPrefs.SetString("roomToJoinId", roomToJoinId); }
     public static string GetRoomToJoin() { return PlayerPrefs.GetString("roomToJoinId"); }
-
-    public static void SetCameraPosition(Vector3 position)
-    {
-        PlayerPrefs.SetFloat("cameraPositionX", position.x);
-        PlayerPrefs.SetFloat("cameraPositionY", position.y);
-    }
-
-    public static Vector3 GetCameraPosition()
-    {
-        return new Vector3(PlayerPrefs.GetFloat("cameraPositionX"), PlayerPrefs.GetFloat("cameraPositionY"), -10);
-    }
-    
-    public static void SetCameraSize(float size) { PlayerPrefs.SetFloat("cameraSize", size); }
-    public static float GetCameraSize() { return PlayerPrefs.GetFloat("cameraSize"); }
 }
