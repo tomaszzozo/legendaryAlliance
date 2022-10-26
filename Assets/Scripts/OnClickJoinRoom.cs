@@ -14,7 +14,7 @@ public class OnClickJoinRoom : MonoBehaviour
 
     public void OnClick()
     {
-        GlobalVariables.SetRoomToJoin(_inputField.text);
+        SharedVariables.SetRoomToJoin(_inputField.text);
         gameObject.AddComponent<SceneLoader>().LoadScene("SceneTryToJoinRoom");
     }
 }

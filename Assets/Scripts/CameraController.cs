@@ -8,6 +8,7 @@ public class CameraController : MonoBehaviour
     public Vector2 panLimit;
     public float scrollSpeed = 20f;
     public Vector2 scrollLimit;
+    public static bool MovementEnabled = true;
 
     private Camera _camera;
 
@@ -18,6 +19,8 @@ public class CameraController : MonoBehaviour
     
     void Update()
     {
+        if (!MovementEnabled) return;
+        
         Vector3 pos = transform.position;
         float size = _camera.orthographicSize;
         

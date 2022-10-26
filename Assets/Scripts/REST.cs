@@ -52,7 +52,7 @@ public class REST : MonoBehaviour
                 MessageBoxFactory.ShowAlertDialog(webRequest.downloadHandler.text, gameObject);
                 break;
             case UnityWebRequest.Result.Success:
-                GlobalVariables.SetUsername(_username);
+                SharedVariables.SetUsername(_username);
                 SceneManager.LoadScene("SceneLoggedInMenu");
                 break;
         }
@@ -74,7 +74,7 @@ public class REST : MonoBehaviour
                 MessageBoxFactory.ShowAlertDialog(webRequest.downloadHandler.text, gameObject);
                 break;
             case UnityWebRequest.Result.Success:
-                GlobalVariables.SetUsername(_username);
+                SharedVariables.SetUsername(_username);
                 SceneManager.LoadScene("SceneLoggedInMenu");
                 break;
         }

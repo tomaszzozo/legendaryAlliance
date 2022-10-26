@@ -1,74 +1,93 @@
-﻿namespace Events
+﻿public enum EventTypes
 {
-    public enum EventTypes
+    UpdateRoomUI = 1,
+    ClientClickedReady,
+    GoToGameScene,
+    RoomAlreadyInGameSignal,
+    NextTurn,
+    OnlineSelectedFieldChange,
+    OnlineDeselectField
+}
+
+public class Event
+{
+    private readonly EventTypes _eventType;
+
+    protected Event(EventTypes eventType)
     {
-        UpdateRoomUI = 1,
-        ClientClickedReady,
-        GoToGameScene,
-        RoomAlreadyInGameSignal,
-        NextTurn
+        _eventType = eventType;
     }
 
-    public class Event
+    public byte GetEventType()
     {
-        private readonly EventTypes _eventType;
+        return (byte)_eventType;
+    }
+}
 
-        protected Event(EventTypes eventType)
-        {
-            _eventType = eventType;
-        }
+public class UpdateRoomUi : Event
+{
+    public readonly int RoomId;
+    public readonly string[] Usernames;
+    public readonly string[] Statuses;
 
-        public byte GetEventType()
-        {
-            return (byte)_eventType;
-        }
+    public UpdateRoomUi(int roomId, string[] usernames, string[] statuses) : base(EventTypes.UpdateRoomUI)
+    {
+        RoomId = roomId;
+        Usernames = usernames;
+        Statuses = statuses;
     }
 
-    public class UpdateRoomUi : Event
+    public object[] Serialize()
     {
-        public readonly int roomId;
-        public readonly string[] usernames;
-        public readonly string[] statuses;
-
-        public UpdateRoomUi(int roomId, string[] usernames, string[] statuses) : base(EventTypes.UpdateRoomUI)
-        {
-            this.roomId = roomId;
-            this.usernames = usernames;
-            this.statuses = statuses;
-        }
-
-        public object[] Serialize()
-        {
-            return new object[] { roomId, usernames, statuses };
-        }
-
-        public static UpdateRoomUi Deserialize(object[] content)
-        {
-            return new UpdateRoomUi(
-                (int)content[0],
-                (string[])content[1],
-                (string[])content[2]);
-        }
+        return new object[] { RoomId, Usernames, Statuses };
     }
 
-    public class ClientClickedReady : Event
+    public static UpdateRoomUi Deserialize(object[] content)
     {
-        public readonly string nickName;
+        return new UpdateRoomUi(
+            (int)content[0],
+            (string[])content[1],
+            (string[])content[2]);
+    }
+}
 
-        public ClientClickedReady(string nickName) : base(EventTypes.ClientClickedReady)
-        {
-            this.nickName = nickName;
-        }
+public class ClientClickedReady : Event
+{
+    public readonly string NickName;
 
-        public object[] Serialize()
-        {
-            return new object[] { nickName };
-        }
+    public ClientClickedReady(string nickName) : base(EventTypes.ClientClickedReady)
+    {
+        NickName = nickName;
+    }
 
-        public static ClientClickedReady Deserialize(object[] content)
-        {
-            return new ClientClickedReady(
-                (string)content[0]);
-        }
+    public object[] Serialize()
+    {
+        return new object[] { NickName };
+    }
+
+    public static ClientClickedReady Deserialize(object[] content)
+    {
+        return new ClientClickedReady(
+            (string)content[0]);
+    }
+}
+
+public class OnlineSelectedFieldChange : Event
+{
+    public readonly string FieldName;
+
+    public OnlineSelectedFieldChange(string fieldName) : base(EventTypes.OnlineSelectedFieldChange)
+    {
+        FieldName = fieldName;
+    }
+
+    public object[] Serialize()
+    {
+        return new object[] { FieldName };
+    }
+
+    public static OnlineSelectedFieldChange Deserialize(object[] content)
+    {
+        return new OnlineSelectedFieldChange((string)content[0]);
     }
 }

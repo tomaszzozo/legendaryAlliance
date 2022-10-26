@@ -36,10 +36,10 @@ namespace ScenesMainLoops
             _labelP4 = labelP4.GetComponent<TextMeshProUGUI>();
             _buttonNextTurn = buttonNextTurn.GetComponent<Button>();
         
-            _labelP1.text = (string)GlobalVariables.SharedData[0];
-            _labelP2.text = (string)GlobalVariables.SharedData[1];
-            _labelP3.text = (string)GlobalVariables.SharedData[2];
-            _labelP4.text = (string)GlobalVariables.SharedData[3];
+            _labelP1.text = (string)SharedVariables.SharedData[0];
+            _labelP2.text = (string)SharedVariables.SharedData[1];
+            _labelP3.text = (string)SharedVariables.SharedData[2];
+            _labelP4.text = (string)SharedVariables.SharedData[3];
 
             _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
@@ -64,7 +64,7 @@ namespace ScenesMainLoops
         public override void OnPlayerEnteredRoom(Player newPlayer)
         {
             RaiseEventOptions options = new() { TargetActors =  new[] { newPlayer.ActorNumber } };
-            PhotonNetwork.RaiseEvent((byte)Events.EventTypes.RoomAlreadyInGameSignal, null, options, SendOptions.SendReliable);
+            PhotonNetwork.RaiseEvent((byte)EventTypes.RoomAlreadyInGameSignal, null, options, SendOptions.SendReliable);
         }
 
         public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -76,12 +76,12 @@ namespace ScenesMainLoops
         {
             NextTurn();
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
-            PhotonNetwork.RaiseEvent((byte)Events.EventTypes.NextTurn, null, options, SendOptions.SendReliable);
+            PhotonNetwork.RaiseEvent((byte)EventTypes.NextTurn, null, options, SendOptions.SendReliable);
         }
         
         public void OnEvent(EventData photonEvent)
         {
-            if (photonEvent.Code == (int)Events.EventTypes.NextTurn)
+            if (photonEvent.Code == (int)EventTypes.NextTurn)
             {
                 NextTurn();
             }
@@ -101,7 +101,7 @@ namespace ScenesMainLoops
         
         private bool IsItMyTurn()
         {
-            return _currentPlayerIndex == _playerLabelOfIndex.FirstOrDefault(x => x.Value.text == GlobalVariables.GetUsername()).Key;
+            return _currentPlayerIndex == _playerLabelOfIndex.FirstOrDefault(x => x.Value.text == SharedVariables.GetUsername()).Key;
         }
     }
 }

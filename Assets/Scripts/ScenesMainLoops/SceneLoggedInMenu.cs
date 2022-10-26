@@ -1,12 +1,15 @@
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
-public class SceneLoggedInMenu : MonoBehaviour
+namespace ScenesMainLoops
 {
-    public GameObject labelLoggedIn;
-
-    void Start()
+    public class SceneLoggedInMenu : MonoBehaviour
     {
-        labelLoggedIn.GetComponent<TextMeshProUGUI>().text = $"Logged in as: {GlobalVariables.GetUsername()}";
+        public GameObject labelLoggedIn;
+
+        void Start()
+        {
+            labelLoggedIn.GetComponent<TextMeshProUGUI>().text = $"Logged in as: {SharedVariables.GetUsername()}";
+        }
     }
 }

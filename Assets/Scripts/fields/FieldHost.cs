@@ -3,6 +3,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using ScenesMainLoops;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace fields
 {
@@ -30,71 +31,40 @@ namespace fields
 
         private void OnMouseEnter()
         {
-            if (_redSprite.enabled) return;
             
-            _redSprite.enabled = true;
-            if (mainLoop.IsItMyTurn()) return;
-            _blueSprite.enabled = false;
-            _yellowSprite.enabled = false;
-            _violetSprite.enabled = false;
         }
 
         private void OnMouseExit()
         {
-            if (SceneGameHost.GlobalVariables.SelectedFieldLocal == this) return;
-            _redSprite.enabled = false;
-            if (SceneGameHost.GlobalVariables.SelectedFieldOnline != name) return;
-            switch (mainLoop.currentPlayerIndex)
-            {
-                case 1: _blueSprite.enabled = true; break;
-                case 2: _yellowSprite.enabled = true; break;
-                case 3: _violetSprite.enabled = true; break;
-            }
+            
         }
 
         private void OnMouseDown()
         {
-            if (SceneGameHost.GlobalVariables.SelectedFieldLocal == this)
-            {
-                SceneGameHost.GlobalVariables.SelectedFieldLocal = null;
-            }
-            else
-            {
-                if (SceneGameHost.GlobalVariables.SelectedFieldLocal != null)
-                {
-                    SceneGameHost.GlobalVariables.SelectedFieldLocal._redSprite.enabled = false;
-                }
-                
-                _blueSprite.enabled = false;
-                _yellowSprite.enabled = false;
-                _violetSprite.enabled = false;
-                _redSprite.enabled = true;
-                SceneGameHost.GlobalVariables.SelectedFieldLocal = this;
-                if (mainLoop.IsItMyTurn())
-                {
-                    SceneGameHost.GlobalVariables.SelectedFieldOnline = name;
-                    OnlineSelectedFieldChange data = new(name);
-                    RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
-                    PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
-                }
-            }
+            if (SceneGameHost.GlobalVariables.SelectedFieldLocal != null || !mainLoop.IsItMyTurn()) return;
+
+            mainLoop.canvas.enabled = false;
+            mainLoop.fieldInspectMode.enabled = true;
+
+            SharedVariables.SetCameraSize(mainLoop.camera.orthographicSize);
+            SharedVariables.SetCameraPosition(mainLoop.camera.transform.position);
+            CameraController.MovementEnabled = false;
+            
+            var parameters = FieldsParameters.LookupTable[name];
+            mainLoop.camera.transform.position = parameters.CameraPosition;
+            mainLoop.camera.orthographicSize = parameters.CameraSize;
+            
+            SceneGameHost.GlobalVariables.SelectedFieldOnline = this;
+            SceneGameHost.GlobalVariables.SelectedFieldLocal = this;
+
+            // OnlineSelectedFieldChange data = new(name);
+            // RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+            // PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         }
 
         public void OnEvent(EventData photonEvent)
         {
-            if (photonEvent.Code == (int)EventTypes.OnlineSelectedFieldChange 
-                && OnlineSelectedFieldChange.Deserialize((object[])photonEvent.CustomData).FieldName == name)
-            {
-                switch (mainLoop.currentPlayerIndex)
-                {
-                    case 1: _blueSprite.enabled = true; break;
-                    case 2: _yellowSprite.enabled = true; break;
-                    case 3: _violetSprite.enabled = true; break;
-                }
-
-                SceneGameHost.GlobalVariables.SelectedFieldOnline =
-                    OnlineSelectedFieldChange.Deserialize((object[])photonEvent.CustomData).FieldName;
-            }
+            
         }
     }
 }
