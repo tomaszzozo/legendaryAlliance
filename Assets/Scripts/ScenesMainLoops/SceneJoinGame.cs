@@ -88,7 +88,7 @@ namespace ScenesMainLoops
             {
                 SharedVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
                 SharedVariables.SetIsAdmin(false);
-                gameObject.AddComponent<SceneLoader>().LoadScene("SceneGameHost");
+                gameObject.AddComponent<SceneLoader>().LoadScene("SceneGame");
             }
         }
 

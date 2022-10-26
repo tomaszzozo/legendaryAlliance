@@ -251,15 +251,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2719dd6cdc14313a94d6bacdb74967, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  labelP1: {fileID: 1574351806}
-  labelP2: {fileID: 1298137428}
-  labelP3: {fileID: 622506488}
-  labelP4: {fileID: 839871463}
   buttonNextTurn: {fileID: 1680498082}
   currentPlayerIndex: 0
   camera: {fileID: 2028638880}
   canvas: {fileID: 1407680188}
   fieldInspectMode: {fileID: 1072390521}
+  labelP1: {fileID: 1574351808}
+  labelP2: {fileID: 1298137430}
+  labelP3: {fileID: 622506490}
+  labelP4: {fileID: 839871465}
 --- !u!1 &302589964
 GameObject:
   m_ObjectHideFlags: 0

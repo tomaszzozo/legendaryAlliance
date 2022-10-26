@@ -136,7 +136,7 @@ namespace ScenesMainLoops
 
             RaiseEventGoToGameScene();
             SharedVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
-            gameObject.AddComponent<SceneLoader>().LoadScene("SceneGameHost");
+            gameObject.AddComponent<SceneLoader>().LoadScene("SceneGame");
         }
 
         void IOnEventCallback.OnEvent(EventData photonEvent)
