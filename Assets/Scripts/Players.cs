@@ -18,12 +18,20 @@ public class Players
         PlayersList[3].Name = SharedVariables.SharedData[3].ToString();
     }
 
-    public static void InitGold(int gold, int baseIncome)
+    public static void Init(int gold, int baseIncome)
     {
         PlayersList[0].Gold = gold + baseIncome;
-        PlayersList[1].Gold = gold;
-        PlayersList[2].Gold = gold;
-        PlayersList[3].Gold = gold;
+        PlayersList[0].Income = baseIncome;
+        foreach (var player in PlayersList)
+        {
+            player.Gold = gold;
+            player.Income = baseIncome;
+        }
+    }
+
+    public string IncomeAsString()
+    {
+        return "(" + (Income < 0 ? "-" : "+") + Income + ")";
     }
 
     public string Name;

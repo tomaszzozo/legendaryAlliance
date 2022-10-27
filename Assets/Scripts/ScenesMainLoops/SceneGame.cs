@@ -34,6 +34,7 @@ namespace ScenesMainLoops
         public Image decorationBar;
         public Image clockIcon;
         public TextMeshProUGUI labelButtonNextTurn;
+        public TextMeshProUGUI labelIncome;
         
         public int startingGold;
         public int unitCost;
@@ -62,6 +63,8 @@ namespace ScenesMainLoops
 
         public void OnClickNextTurnButton()
         {
+            AudioPlayer.PlayButtonClick();
+
             NextTurn();
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent((byte)EventTypes.NextTurn, null, options, SendOptions.SendReliable);
@@ -69,6 +72,8 @@ namespace ScenesMainLoops
 
         public void OnClickBackButton()
         {
+            AudioPlayer.PlayButtonClick();
+            
             fieldInspectMode.enabled = false;
             canvas.enabled = true;
             
@@ -125,22 +130,23 @@ namespace ScenesMainLoops
                 labelP1.text = Players.PlayersList[0].Name;
             }
             
-            labelCoins.text = startingGold.ToString();
-            labelUsername.text = SharedVariables.GetUsername();
-
+            // VARIABLES INIT
+            Players.Init(startingGold, baseIncome);
             _player = Players.PlayersList.Find(x => x.Name == SharedVariables.GetUsername());
-            decorationBar.color = _player.Color;
-            
-            Players.InitGold(startingGold, baseIncome);
-            
             _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
                 {0, labelP1},
-                {1, labelP2 },
-                {2, labelP3 },
-                {3, labelP4 }
+                {1, labelP2},
+                {2, labelP3},
+                {3, labelP4}
             };
-
+            
+            // LABELS INIT
+            decorationBar.color = _player.Color;
+            
+            labelCoins.text = _player.Gold.ToString();
+            labelUsername.text = SharedVariables.GetUsername();
+            labelIncome.text = _player.IncomeAsString();
             labelP1.transform.Translate(new Vector2(LabelOffset, 0));
 
             if (!SharedVariables.GetIsAdmin())
@@ -154,7 +160,11 @@ namespace ScenesMainLoops
         private void NextTurn()
         {
             _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
-            if (++CurrentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
+            if (!PhotonNetwork.InRoom) // TODO: delete on release
+            {
+                CurrentPlayerIndex = 0;
+            }
+            else if (++CurrentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
             {
                 CurrentPlayerIndex = 0;
             }
@@ -167,11 +177,13 @@ namespace ScenesMainLoops
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
 
-            if (SharedVariables.SharedData[CurrentPlayerIndex].ToString() != SharedVariables.GetUsername()) return;
+            if (Players.PlayersList[CurrentPlayerIndex].Name != SharedVariables.GetUsername()) return;
 
             _player.Income = CalculateIncome();
             _player.Gold += _player.Income;
             labelCoins.text = _player.Gold.ToString();
+            
+            if (IsItMyTurn()) AudioPlayer.PlayYourTurn();
         }
     }
 }

@@ -61,6 +61,7 @@ namespace fields
             if (!mainLoop.IsItMyTurn()) return;
             if (SceneGame.GlobalVariables.SelectedFieldLocal != null) return;
             EnableAppropriateSprite();
+            AudioPlayer.PlayFieldHover();
         }
 
         private void OnMouseExit()
@@ -74,6 +75,8 @@ namespace fields
         {
             if (SceneGame.IsOverUi) return;
             if (SceneGame.GlobalVariables.SelectedFieldLocal != null || !mainLoop.IsItMyTurn()) return;
+            
+            AudioPlayer.PlayButtonClick();
 
             mainLoop.canvas.enabled = false;
             mainLoop.fieldInspectMode.enabled = true;
