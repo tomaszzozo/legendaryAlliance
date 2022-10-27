@@ -7,3 +7,5 @@ blue 0018ff
 yellow fff600
 violet a200ff
 gray 4a4949
+
+legendary alliance

@@ -5,7 +5,6 @@ public class BackgroundImage : MonoBehaviour
     public static BackgroundImage Instance { get; private set; }
     public static BackgroundImage Instance2 { get; private set; }
     private Vector2 _initialPosition;
-    private SpriteRenderer _sprite;
 
     [SerializeField] private float speed;
 
@@ -13,6 +12,7 @@ public class BackgroundImage : MonoBehaviour
 
     public void Destroy()
     {
+        Destroy(gameObject.GetComponent<SpriteRenderer>());
         Destroy(this);    
     }
     
@@ -20,8 +20,7 @@ public class BackgroundImage : MonoBehaviour
     {
         if (Instance != null && Instance != this && Instance2 != null && Instance2 != this) 
         { 
-            Debug.Log("An instance of map already exists, destroying this object...");
-            Destroy(this); 
+            Destroy();
         } 
         else
         {
@@ -34,7 +33,6 @@ public class BackgroundImage : MonoBehaviour
     private void Start()
     {
         _initialPosition = transform.position;
-        _sprite = gameObject.GetComponent<SpriteRenderer>();
     }
 
     private void Update()
