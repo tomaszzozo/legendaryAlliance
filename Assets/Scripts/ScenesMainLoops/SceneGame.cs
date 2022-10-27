@@ -117,6 +117,10 @@ namespace ScenesMainLoops
                 Players.PlayersList[0].Name = "UnityTest";
                 SharedVariables.SetUsername("UnityTest");
                 SharedVariables.SetIsAdmin(true);
+                labelP2.enabled = false;
+                labelP3.enabled = false;
+                labelP4.enabled = false;
+                labelP1.text = Players.PlayersList[0].Name;
             }
             
             labelCoins.text = startingGold.ToString();

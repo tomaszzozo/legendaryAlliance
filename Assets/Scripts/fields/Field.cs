@@ -14,7 +14,7 @@ namespace fields
         public SpriteRenderer violetSprite;
         public SpriteRenderer graySprite;
         public SceneGame mainLoop;
-        private FieldsParameters.FieldT _parameters;
+        private FieldsParameters _parameters;
         
         public void OnEvent(EventData photonEvent)
         {
