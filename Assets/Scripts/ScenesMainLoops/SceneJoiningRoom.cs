@@ -54,7 +54,7 @@ namespace ScenesMainLoops
         public override void OnConnectedToMaster()
         {
             Debug.Log("Connected to master");
-            PhotonNetwork.JoinRoom(SharedVariables.GetRoomToJoin());
+            Debug.Log(PhotonNetwork.JoinRoom(SharedVariables.GetRoomToJoin()));
         }
 
         public override void OnJoinRoomFailed(short returnCode, string message)
@@ -65,6 +65,7 @@ namespace ScenesMainLoops
 
         public override void OnJoinedRoom()
         {
+            Debug.Log("Joined room");
             StartCoroutine(IfNoResponseGoBack());
         }
 

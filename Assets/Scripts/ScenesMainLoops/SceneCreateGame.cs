@@ -32,8 +32,10 @@ namespace ScenesMainLoops
 
         private bool _disconnectedIntentionally;
 
-        void Start()
+        private void Start()
         {
+            PhotonNetwork.AutomaticallySyncScene = false;
+
             _labelRoomId = labelRoomId.GetComponent<TextMeshProUGUI>();
             _labelAdminUsername = labelAdminUsername.GetComponent<TextMeshProUGUI>();
             _labelRoomId.text = $"Room id: {PhotonNetwork.CurrentRoom.Name}";
@@ -50,8 +52,8 @@ namespace ScenesMainLoops
 
         public override void OnDisconnected(DisconnectCause cause)
         {
-            if (_disconnectedIntentionally) return;
-            gameObject.AddComponent<SceneLoader>().LoadScene("SceneDisconnected");
+            gameObject.AddComponent<SceneLoader>()
+                .LoadScene(_disconnectedIntentionally ? "SceneLoggedInMenu" : "SceneDisconnected");
         }
 
         public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -133,7 +135,8 @@ namespace ScenesMainLoops
             }
             
             SharedVariables.SetIsAdmin(true);
-
+            
+            AudioMainTheme.Instance.Stop();
             RaiseEventGoToGameScene();
             SharedVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
             gameObject.AddComponent<SceneLoader>().LoadScene("SceneGame");

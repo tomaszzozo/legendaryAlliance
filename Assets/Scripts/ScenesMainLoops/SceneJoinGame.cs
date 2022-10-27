@@ -51,8 +51,8 @@ namespace ScenesMainLoops
 
         public override void OnDisconnected(DisconnectCause cause)
         {
-            if (_disconnectedIntentionally) return;
-            gameObject.AddComponent<SceneLoader>().LoadScene("SceneDisconnected");
+            gameObject.AddComponent<SceneLoader>()
+                .LoadScene(_disconnectedIntentionally ? "SceneLoggedInMenu" : "SceneDisconnected");
         }
 
         public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -63,12 +63,12 @@ namespace ScenesMainLoops
             }
         }
 
-        public void Disconnect()
-        {
-            _disconnectedIntentionally = true;
-            Debug.Log("Disconnected");
-            PhotonNetwork.Disconnect();
-        }
+        // public void Disconnect()
+        // {
+        //     _disconnectedIntentionally = true;
+        //     Debug.Log("Disconnected");
+        //     PhotonNetwork.Disconnect();
+        // }
 
         public void OnClickReady()
         {
@@ -88,6 +88,7 @@ namespace ScenesMainLoops
             {
                 SharedVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
                 SharedVariables.SetIsAdmin(false);
+                AudioMainTheme.Instance.Stop();
                 gameObject.AddComponent<SceneLoader>().LoadScene("SceneGame");
             }
         }

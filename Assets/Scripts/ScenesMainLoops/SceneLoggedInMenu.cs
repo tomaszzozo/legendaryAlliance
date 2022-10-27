@@ -1,3 +1,4 @@
+using Photon.Pun;
 using TMPro;
 using UnityEngine;
 
@@ -7,8 +8,9 @@ namespace ScenesMainLoops
     {
         public GameObject labelLoggedIn;
 
-        void Start()
+        private void Start()
         {
+            PhotonNetwork.Disconnect();
             labelLoggedIn.GetComponent<TextMeshProUGUI>().text = $"Logged in as: {SharedVariables.GetUsername()}";
         }
     }
