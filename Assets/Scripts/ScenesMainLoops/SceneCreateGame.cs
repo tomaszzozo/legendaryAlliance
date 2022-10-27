@@ -41,8 +41,8 @@ namespace ScenesMainLoops
             _labelRoomId.text = $"Room id: {PhotonNetwork.CurrentRoom.Name}";
             _labelAdminUsername.text = SharedVariables.GetUsername();
             _labelP2 = labelP2.GetComponent<TextMeshProUGUI>();
-            _labelP3 = labelP2.GetComponent<TextMeshProUGUI>();
-            _labelP4 = labelP2.GetComponent<TextMeshProUGUI>();
+            _labelP3 = labelP3.GetComponent<TextMeshProUGUI>();
+            _labelP4 = labelP4.GetComponent<TextMeshProUGUI>();
             _labelStatus1 = labelStatus1.GetComponent<TextMeshProUGUI>();
             _labelStatus2 = labelStatus2.GetComponent<TextMeshProUGUI>();
             _labelStatus3 = labelStatus3.GetComponent<TextMeshProUGUI>();
