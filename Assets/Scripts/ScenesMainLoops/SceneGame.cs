@@ -32,6 +32,8 @@ namespace ScenesMainLoops
         public TextMeshProUGUI labelCoins;
         public TextMeshProUGUI labelUsername;
         public Image decorationBar;
+        public Image clockIcon;
+        public TextMeshProUGUI labelButtonNextTurn;
         
         public int startingGold;
         public int unitCost;
@@ -141,7 +143,12 @@ namespace ScenesMainLoops
 
             labelP1.transform.Translate(new Vector2(LabelOffset, 0));
 
-            if (!SharedVariables.GetIsAdmin()) buttonNextTurn.interactable = false;
+            if (!SharedVariables.GetIsAdmin())
+            {
+                buttonNextTurn.interactable = false;
+                clockIcon.enabled = true;
+                labelButtonNextTurn.enabled = false;
+            }
         }
 
         private void NextTurn()
@@ -154,6 +161,8 @@ namespace ScenesMainLoops
 
             _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
             buttonNextTurn.interactable = IsItMyTurn();
+            clockIcon.enabled = !IsItMyTurn();
+            labelButtonNextTurn.enabled = IsItMyTurn();
 
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
