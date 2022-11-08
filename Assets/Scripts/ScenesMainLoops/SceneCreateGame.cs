@@ -161,6 +161,10 @@ namespace ScenesMainLoops
                 }
                 RaiseEventUpdateRoomUi();
             }
+            else if (photonEvent.Code == (int)EventTypes.RequestRoomData)
+            {
+                RaiseEventUpdateRoomUi();
+            }
         }
 
         private void RaiseEventUpdateRoomUi()

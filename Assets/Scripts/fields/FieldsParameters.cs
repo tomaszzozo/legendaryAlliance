@@ -23,5 +23,13 @@ namespace fields
             {"peru", new FieldsParameters(12, new Vector2(-34.13f, -15.68f))},
             {"wenezuela", new FieldsParameters(12, new Vector2(-32.92f, -6.12f))}
         };
+
+        public static readonly Dictionary<string, List<string>> Neighbours = new()
+        {
+            { "argentyna", new List<string> { "brazylia", "peru" } },
+            { "brazylia", new List<string> { "wenezuela", "peru", "argentyna" } },
+            { "peru", new List<string> { "brazylia", "wenezuela", "argentyna" } },
+            { "wenezuela", new List<string> { "brazylia", "peru" } },
+        };
     }
 }

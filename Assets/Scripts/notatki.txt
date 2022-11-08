@@ -1,6 +1,7 @@
 -1 water
 0 - 9 fields
-10 selected field
+10 - selected field
+11 - borders
 
 red ff0000
 blue 0018ff

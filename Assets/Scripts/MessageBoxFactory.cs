@@ -20,6 +20,7 @@ public class MessageBoxFactory : MonoBehaviour
         _width = (int)(Screen.width / 1.3);
         _height = (int)(Screen.height / 1.3);
         _content = content;
+        SharedVariables.IsOverUi = true;
 
         if (FindObjectOfType<EventSystem>() == null)
         {
@@ -61,7 +62,11 @@ public class MessageBoxFactory : MonoBehaviour
 
         Button button = buttonObject.AddComponent<Button>();
         button.targetGraphic = buttonImage;
-        button.onClick.AddListener(() => Destroy(_canvasObject));
+        button.onClick.AddListener(() =>
+        {
+            SharedVariables.IsOverUi = false;
+            Destroy(_canvasObject);
+        });
 
         GameObject textObject = new("MessageBoxButtonText");
         textObject.transform.SetParent(buttonObject.transform, false);

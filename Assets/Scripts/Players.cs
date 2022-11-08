@@ -20,13 +20,12 @@ public class Players
 
     public static void Init(int gold, int baseIncome)
     {
-        PlayersList[0].Gold = gold + baseIncome;
-        PlayersList[0].Income = baseIncome;
         foreach (var player in PlayersList)
         {
             player.Gold = gold;
             player.Income = baseIncome;
         }
+        PlayersList[0].Gold += baseIncome;
     }
 
     public string IncomeAsString()

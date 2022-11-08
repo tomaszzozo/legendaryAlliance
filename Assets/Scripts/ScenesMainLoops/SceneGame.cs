@@ -18,9 +18,6 @@ namespace ScenesMainLoops
         }
         public static Globals GlobalVariables;
 
-        public static bool IsOverUi;
-        public void SetUiHover(bool value) { IsOverUi = value; Debug.Log(value); }
-
         public Button buttonNextTurn;
         public new Camera camera;
         public Canvas canvas;
@@ -39,6 +36,7 @@ namespace ScenesMainLoops
         public int startingGold;
         public int unitCost;
         public int baseIncome;
+        public int RoundCounter;
         private int CurrentPlayerIndex { get; set; }
         private const int LabelOffset = 30;
         private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
@@ -80,7 +78,7 @@ namespace ScenesMainLoops
             camera.orthographicSize += 2;
             CameraController.MovementEnabled = true;
             
-            GlobalVariables.SelectedFieldLocal.DisableAllSprites();
+            GlobalVariables.SelectedFieldLocal.DisableAllGlowSprites();
             GlobalVariables.SelectedFieldLocal = null;
             GlobalVariables.SelectedFieldOnline = null;
 
@@ -90,7 +88,7 @@ namespace ScenesMainLoops
         
         public void OnEvent(EventData photonEvent)
         {
-            if (photonEvent.Code == (int)EventTypes.NextTurn)
+            if (new List<int> {(int)EventTypes.NextTurn, (int)EventTypes.CapitalSelected}.Contains(photonEvent.Code))
             {
                 NextTurn();
             }
@@ -100,6 +98,41 @@ namespace ScenesMainLoops
         {
             if (!PhotonNetwork.InRoom) return true; // TODO: delete on release
             return Players.PlayersList[CurrentPlayerIndex] == _player;
+        }
+
+        public Players GetCurrentPlayer()
+        {
+            return Players.PlayersList[CurrentPlayerIndex];
+        }
+        
+        public void NextTurn()
+        {
+            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
+            if (!PhotonNetwork.InRoom) // TODO: delete on release
+            {
+                CurrentPlayerIndex = 0;
+            }
+            else if (++CurrentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
+            {
+                CurrentPlayerIndex = 0;
+                RoundCounter++;
+            }
+
+            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
+            buttonNextTurn.interactable = IsItMyTurn();
+            clockIcon.enabled = !IsItMyTurn();
+            labelButtonNextTurn.enabled = IsItMyTurn();
+
+            // RaiseEventOptions options = new() { Receivers = ReceiverGroup.All };
+            // PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
+
+            if (Players.PlayersList[CurrentPlayerIndex].Name != SharedVariables.GetUsername()) return;
+            
+            _player.Income = CalculateIncome();
+            _player.Gold += _player.Income;
+            labelCoins.text = _player.Gold.ToString();
+            
+            if (IsItMyTurn()) AudioPlayer.PlayYourTurn();
         }
 
         private int CalculateIncome()
@@ -129,7 +162,7 @@ namespace ScenesMainLoops
                 labelP4.enabled = false;
                 labelP1.text = Players.PlayersList[0].Name;
             }
-            
+
             // VARIABLES INIT
             Players.Init(startingGold, baseIncome);
             _player = Players.PlayersList.Find(x => x.Name == SharedVariables.GetUsername());
@@ -142,6 +175,9 @@ namespace ScenesMainLoops
             };
             
             // LABELS INIT
+            BackgroundImage.Instance.Destroy();
+            BackgroundImage.Instance2.Destroy();
+            
             decorationBar.color = _player.Color;
             
             labelCoins.text = _player.Gold.ToString();
@@ -155,35 +191,6 @@ namespace ScenesMainLoops
                 clockIcon.enabled = true;
                 labelButtonNextTurn.enabled = false;
             }
-        }
-
-        private void NextTurn()
-        {
-            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
-            if (!PhotonNetwork.InRoom) // TODO: delete on release
-            {
-                CurrentPlayerIndex = 0;
-            }
-            else if (++CurrentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
-            {
-                CurrentPlayerIndex = 0;
-            }
-
-            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
-            buttonNextTurn.interactable = IsItMyTurn();
-            clockIcon.enabled = !IsItMyTurn();
-            labelButtonNextTurn.enabled = IsItMyTurn();
-
-            RaiseEventOptions options = new() { Receivers = ReceiverGroup.All };
-            PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
-
-            if (Players.PlayersList[CurrentPlayerIndex].Name != SharedVariables.GetUsername()) return;
-
-            _player.Income = CalculateIncome();
-            _player.Gold += _player.Income;
-            labelCoins.text = _player.Gold.ToString();
-            
-            if (IsItMyTurn()) AudioPlayer.PlayYourTurn();
         }
     }
 }

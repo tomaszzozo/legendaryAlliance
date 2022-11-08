@@ -13,6 +13,7 @@ public class SharedVariablesMb : MonoBehaviour
 public static class SharedVariables
 {
     public static object[] SharedData;
+    public static bool IsOverUi;
 
     public static void SetUsername(string username) { PlayerPrefs.SetString("username", username); }
     public static void DeleteUsername() { PlayerPrefs.DeleteKey("username"); }

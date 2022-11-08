@@ -1,4 +1,6 @@
-﻿public enum EventTypes
+﻿using fields;
+
+public enum EventTypes
 {
     UpdateRoomUI = 1,
     ClientClickedReady,
@@ -6,7 +8,9 @@
     RoomAlreadyInGameSignal,
     NextTurn,
     OnlineSelectedFieldChange,
-    OnlineDeselectField
+    OnlineDeselectField,
+    CapitalSelected,
+    RequestRoomData,
 }
 
 public class Event
@@ -89,5 +93,27 @@ public class OnlineSelectedFieldChange : Event
     public static OnlineSelectedFieldChange Deserialize(object[] content)
     {
         return new OnlineSelectedFieldChange((string)content[0]);
+    }
+}
+
+public class CapitalSelected : Event
+{
+    public readonly string FieldName;
+    public readonly string Owner;
+
+    public CapitalSelected(string fieldName, string owner) : base(EventTypes.CapitalSelected)
+    {
+        FieldName = fieldName;
+        Owner = owner;
+    }
+
+    public object[] Serialize()
+    {
+        return new object[] { FieldName, Owner };
+    }
+
+    public static CapitalSelected Deserialize(object[] content)
+    {
+        return new CapitalSelected((string)content[0], (string)content[1]);
     }
 }

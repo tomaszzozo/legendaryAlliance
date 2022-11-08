@@ -38,15 +38,17 @@ namespace ScenesMainLoops
             _labelAdminUsername = labelAdminUsername.GetComponent<TextMeshProUGUI>();
             _labelRoomId.text = $"Room id: {PhotonNetwork.CurrentRoom.Name}";
             _labelP2 = labelP2.GetComponent<TextMeshProUGUI>();
-            _labelP3 = labelP2.GetComponent<TextMeshProUGUI>();
-            _labelP4 = labelP2.GetComponent<TextMeshProUGUI>();
+            _labelP3 = labelP3.GetComponent<TextMeshProUGUI>();
+            _labelP4 = labelP4.GetComponent<TextMeshProUGUI>();
             _labelStatus1 = labelStatus1.GetComponent<TextMeshProUGUI>();
             _labelStatus2 = labelStatus2.GetComponent<TextMeshProUGUI>();
             _labelStatus3 = labelStatus3.GetComponent<TextMeshProUGUI>();
             _labelStatus4 = labelStatus4.GetComponent<TextMeshProUGUI>();
             _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
 
-            UpdateUi(UpdateRoomUi.Deserialize(SharedVariables.SharedData));
+            PhotonNetwork.RaiseEvent((byte)EventTypes.RequestRoomData, null,
+                new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient }, SendOptions.SendReliable);
+            // UpdateUi(UpdateRoomUi.Deserialize(SharedVariables.SharedData));
         }
 
         public override void OnDisconnected(DisconnectCause cause)
