@@ -4,10 +4,10 @@ public class Players
 {
     public static readonly List<Players> PlayersList = new()
     {
-        new Players {Name = "", Color = new Color(255, 0 ,0), Gold = 0},
-        new Players {Name = "", Color = new Color(0, 24 ,255), Gold = 0},
-        new Players {Name = "", Color = new Color(255, 246, 0), Gold = 0},
-        new Players {Name = "", Color = new Color(162, 0, 255), Gold = 0}
+        new Players {Name = "", Color = new Color(255/255f, 0/255f ,0/255f), Gold = 0},
+        new Players {Name = "", Color = new Color(0/255f, 24/255f ,255/255f), Gold = 0},
+        new Players {Name = "", Color = new Color(255/255f, 246/255f, 0/255f), Gold = 0},
+        new Players {Name = "", Color = new Color(162/255f, 0/255f, 255/255f), Gold = 0}
     };
 
     public static void FillPlayerNames()

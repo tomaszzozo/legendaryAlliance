@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ExitGames.Client.Photon;
 using fields;
 using Photon.Pun;
@@ -32,6 +33,9 @@ namespace ScenesMainLoops
         public Image clockIcon;
         public TextMeshProUGUI labelButtonNextTurn;
         public TextMeshProUGUI labelIncome;
+        public TextMeshProUGUI fieldInspectLabelIncome;
+        public TextMeshProUGUI fieldInspectLabelName;
+        public TextMeshProUGUI fieldInspectLabelOwner;
         
         public int startingGold;
         public int unitCost;
@@ -137,7 +141,9 @@ namespace ScenesMainLoops
 
         private int CalculateIncome()
         {
-            return baseIncome;
+            return baseIncome + FieldsParameters.LookupTable.Values
+                .Where(field => field.Owner == _player.Name)
+                .Sum(field => field.Income);
         }
         
         private void Start()

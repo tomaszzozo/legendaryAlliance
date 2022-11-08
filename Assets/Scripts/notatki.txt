@@ -2,6 +2,7 @@
 0 - 9 fields
 10 - selected field
 11 - borders
+12 - capitals
 
 red ff0000
 blue 0018ff

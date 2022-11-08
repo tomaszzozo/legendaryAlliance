@@ -3,7 +3,6 @@ using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using ScenesMainLoops;
-using TMPro;
 using UnityEngine;
 
 namespace fields
@@ -20,8 +19,13 @@ namespace fields
         public SpriteRenderer VioletBorder;
         public SpriteRenderer YellowBorder;
         public SceneGame mainLoop;
-        private FieldsParameters _parameters;
+        public SpriteRenderer capitalRed;
+        public SpriteRenderer capitalBlue;
+        public SpriteRenderer capitalYellow;
+        public SpriteRenderer capitalViolet;
         
+        private FieldsParameters _parameters;
+
         public void OnEvent(EventData photonEvent)
         {
             switch (photonEvent.Code)
@@ -46,6 +50,7 @@ namespace fields
                     if (name != data.FieldName) return;
                     _parameters.Owner = data.Owner;
                     EnableAppropriateBorderSprite();
+                    EnableAppropriateCapitalSprite();
                     break;
                 }
             }
@@ -74,6 +79,14 @@ namespace fields
             BlueBorder.enabled = true;
             YellowBorder.enabled = true;
             VioletBorder.enabled = true;
+        }
+
+        private void EnableAppropriateCapitalSprite()
+        {
+            if (_parameters.Owner == Players.PlayersList[0].Name) capitalRed.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[1].Name) capitalBlue.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[2].Name) capitalYellow.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[3].Name) capitalViolet.enabled = true;
         }
 
         private void EnableAppropriateGlowSprite()
@@ -129,7 +142,7 @@ namespace fields
                 DisableAllGlowSprites();
                 _parameters.Owner = mainLoop.GetCurrentPlayer().Name;
                 EnableAppropriateBorderSprite();
-                
+                EnableAppropriateCapitalSprite();
                 mainLoop.NextTurn();
                 CapitalSelected newEvent = new(name, _parameters.Owner);
                 RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
@@ -137,6 +150,10 @@ namespace fields
                     SendOptions.SendReliable);
                 return;
             }
+
+            mainLoop.fieldInspectLabelIncome.text = "Income: " + _parameters.Income;
+            mainLoop.fieldInspectLabelName.text = name;
+            mainLoop.fieldInspectLabelOwner.text = "Owner: " + (_parameters.Owner ?? "unconquered land");
 
             mainLoop.canvas.enabled = false;
             mainLoop.fieldInspectMode.enabled = true;

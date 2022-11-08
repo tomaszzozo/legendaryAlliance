@@ -8,12 +8,14 @@ namespace fields
         public float CameraSize { get; }
         public Vector3 CameraPosition { get; }
         public string Owner { get; set; }
+        public int Income;
         
-        public FieldsParameters(float camSize, Vector2 camPosition)
+        public FieldsParameters(float camSize, Vector2 camPosition, int income = 10)
         {
             CameraSize = camSize;
             CameraPosition = new Vector3(camPosition.x, camPosition.y, -10);
             Owner = null;
+            Income = income;
         }
 
         public static readonly Dictionary<string, FieldsParameters> LookupTable = new()
