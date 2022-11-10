@@ -1,8 +1,9 @@
 -1 water
 0 - 9 fields
-10 - selected field
-11 - borders
-12 - capitals
+10 selected field
+11 borders
+12 - 19 capitals, objects
+20 - units
 
 red ff0000
 blue 0018ff
@@ -11,3 +12,10 @@ violet a200ff
 gray 4a4949
 
 legendary alliance
+
+units count:
+1 - 5 tiny 
+6 - 10 small
+11 - 15 medium
+16 - 20 large
+21+ enormous

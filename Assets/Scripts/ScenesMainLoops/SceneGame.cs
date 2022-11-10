@@ -22,7 +22,6 @@ namespace ScenesMainLoops
         public Button buttonNextTurn;
         public new Camera camera;
         public Canvas canvas;
-        public Canvas fieldInspectMode;
         public TextMeshProUGUI labelP1;
         public TextMeshProUGUI labelP2;
         public TextMeshProUGUI labelP3;
@@ -33,14 +32,12 @@ namespace ScenesMainLoops
         public Image clockIcon;
         public TextMeshProUGUI labelButtonNextTurn;
         public TextMeshProUGUI labelIncome;
-        public TextMeshProUGUI fieldInspectLabelIncome;
-        public TextMeshProUGUI fieldInspectLabelName;
-        public TextMeshProUGUI fieldInspectLabelOwner;
-        
+        public FieldInspectorManager fieldInspectorManager;
+
         public int startingGold;
         public int unitCost;
         public int baseIncome;
-        public int RoundCounter;
+        public int RoundCounter { get; private set; }
         private int CurrentPlayerIndex { get; set; }
         private const int LabelOffset = 30;
         private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
@@ -66,7 +63,6 @@ namespace ScenesMainLoops
         public void OnClickNextTurnButton()
         {
             AudioPlayer.PlayButtonClick();
-
             NextTurn();
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent((byte)EventTypes.NextTurn, null, options, SendOptions.SendReliable);
@@ -76,10 +72,10 @@ namespace ScenesMainLoops
         {
             AudioPlayer.PlayButtonClick();
             
-            fieldInspectMode.enabled = false;
+            fieldInspectorManager.HideFieldInspector();
             canvas.enabled = true;
             
-            camera.orthographicSize += 2;
+            camera.orthographicSize += 4;
             CameraController.MovementEnabled = true;
             
             GlobalVariables.SelectedFieldLocal.DisableAllGlowSprites();
@@ -127,12 +123,10 @@ namespace ScenesMainLoops
             clockIcon.enabled = !IsItMyTurn();
             labelButtonNextTurn.enabled = IsItMyTurn();
 
-            // RaiseEventOptions options = new() { Receivers = ReceiverGroup.All };
-            // PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
-
             if (Players.PlayersList[CurrentPlayerIndex].Name != SharedVariables.GetUsername()) return;
             
             _player.Income = CalculateIncome();
+            labelIncome.text = _player.IncomeAsString();
             _player.Gold += _player.Income;
             labelCoins.text = _player.Gold.ToString();
             
@@ -197,6 +191,8 @@ namespace ScenesMainLoops
                 clockIcon.enabled = true;
                 labelButtonNextTurn.enabled = false;
             }
+            
+            fieldInspectorManager.HideFieldInspector();
         }
     }
 }

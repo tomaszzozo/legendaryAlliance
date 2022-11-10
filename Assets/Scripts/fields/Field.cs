@@ -4,6 +4,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using ScenesMainLoops;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace fields
 {
@@ -14,15 +15,16 @@ namespace fields
         public SpriteRenderer yellowSprite;
         public SpriteRenderer violetSprite;
         public SpriteRenderer graySprite;
-        public SpriteRenderer RedBorder;
-        public SpriteRenderer BlueBorder;
-        public SpriteRenderer VioletBorder;
-        public SpriteRenderer YellowBorder;
+        [FormerlySerializedAs("RedBorder")] public SpriteRenderer redBorder;
+        [FormerlySerializedAs("BlueBorder")] public SpriteRenderer blueBorder;
+        [FormerlySerializedAs("VioletBorder")] public SpriteRenderer violetBorder;
+        [FormerlySerializedAs("YellowBorder")] public SpriteRenderer yellowBorder;
         public SceneGame mainLoop;
         public SpriteRenderer capitalRed;
         public SpriteRenderer capitalBlue;
         public SpriteRenderer capitalYellow;
         public SpriteRenderer capitalViolet;
+        public UnitsManager unitsManager;
         
         private FieldsParameters _parameters;
 
@@ -67,18 +69,18 @@ namespace fields
 
         public void EnableAppropriateBorderSprite()
         {
-            if (_parameters.Owner == Players.PlayersList[0].Name) RedBorder.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[1].Name) BlueBorder.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[2].Name) YellowBorder.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[3].Name) VioletBorder.enabled = true;
+            if (_parameters.Owner == Players.PlayersList[0].Name) redBorder.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[1].Name) blueBorder.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[2].Name) yellowBorder.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[3].Name) violetBorder.enabled = true;
         }
 
         public void DisableAllBorderSprites()
         {
-            RedBorder.enabled = true;
-            BlueBorder.enabled = true;
-            YellowBorder.enabled = true;
-            VioletBorder.enabled = true;
+            redBorder.enabled = true;
+            blueBorder.enabled = true;
+            yellowBorder.enabled = true;
+            violetBorder.enabled = true;
         }
 
         private void EnableAppropriateCapitalSprite()
@@ -151,12 +153,8 @@ namespace fields
                 return;
             }
 
-            mainLoop.fieldInspectLabelIncome.text = "Income: " + _parameters.Income;
-            mainLoop.fieldInspectLabelName.text = name;
-            mainLoop.fieldInspectLabelOwner.text = "Owner: " + (_parameters.Owner ?? "unconquered land");
-
+            mainLoop.fieldInspectorManager.ShowFieldInspector(ref _parameters, name);
             mainLoop.canvas.enabled = false;
-            mainLoop.fieldInspectMode.enabled = true;
 
             CameraController.MovementEnabled = false;
             
