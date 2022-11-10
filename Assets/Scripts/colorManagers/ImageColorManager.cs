@@ -24,6 +24,9 @@ public class ImageColorManager : MonoBehaviour
             case 3:
                 violetImage.enabled = true;
                 break;
+            default:
+                DisableImages();
+                break;
         }
     }
 

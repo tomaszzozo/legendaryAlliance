@@ -11,6 +11,7 @@ public enum EventTypes
     OnlineDeselectField,
     CapitalSelected,
     RequestRoomData,
+    BuyUnits
 }
 
 public class Event
@@ -117,3 +118,15 @@ public class CapitalSelected : Event
         return new CapitalSelected((string)content[0], (string)content[1]);
     }
 }
+
+// public class BuyUnits : Event
+// {
+//     public readonly string FieldName;
+//     public readonly string AvailableUnits;
+//     public readonly string AllUnits;
+//     public readonly string Owner;
+//     public readonly string Gold;
+//     public readonly string Income;
+//     
+//     public BuyUnits
+// }

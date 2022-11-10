@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ExitGames.Client.Photon;
 using fields;
 using Photon.Pun;
@@ -26,19 +25,15 @@ namespace ScenesMainLoops
         public TextMeshProUGUI labelP2;
         public TextMeshProUGUI labelP3;
         public TextMeshProUGUI labelP4;
-        public TextMeshProUGUI labelCoins;
-        public TextMeshProUGUI labelUsername;
-        public Image decorationBar;
         public Image clockIcon;
         public TextMeshProUGUI labelButtonNextTurn;
-        public TextMeshProUGUI labelIncome;
         public FieldInspectorManager fieldInspectorManager;
-
+        public TopStatsManager topStatsManager;
+        
         public int startingGold;
-        public int unitCost;
-        public int baseIncome;
         public int RoundCounter { get; private set; }
-        private int CurrentPlayerIndex { get; set; }
+        public static int CurrentPlayerIndex { get; private set; }
+        public const int UnitBaseCost = 15;
         private const int LabelOffset = 30;
         private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
         private Players _player;
@@ -100,7 +95,7 @@ namespace ScenesMainLoops
             return Players.PlayersList[CurrentPlayerIndex] == _player;
         }
 
-        public Players GetCurrentPlayer()
+        public static Players GetCurrentPlayer()
         {
             return Players.PlayersList[CurrentPlayerIndex];
         }
@@ -111,6 +106,7 @@ namespace ScenesMainLoops
             if (!PhotonNetwork.InRoom) // TODO: delete on release
             {
                 CurrentPlayerIndex = 0;
+                RoundCounter++;
             }
             else if (++CurrentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
             {
@@ -123,23 +119,20 @@ namespace ScenesMainLoops
             clockIcon.enabled = !IsItMyTurn();
             labelButtonNextTurn.enabled = IsItMyTurn();
 
-            if (Players.PlayersList[CurrentPlayerIndex].Name != SharedVariables.GetUsername()) return;
+            if (!IsItMyTurn()) return;
             
-            _player.Income = CalculateIncome();
-            labelIncome.text = _player.IncomeAsString();
+            foreach (var (_, parameters) in FieldsParameters.LookupTable)
+            {
+                if (parameters.Owner == GetCurrentPlayer().Name) parameters.AvailableUnits = parameters.AllUnits;
+            }
+            
+            _player.Income = _player.CalculateIncome();
             _player.Gold += _player.Income;
-            labelCoins.text = _player.Gold.ToString();
             
-            if (IsItMyTurn()) AudioPlayer.PlayYourTurn();
+            topStatsManager.RefreshValues();
+            AudioPlayer.PlayYourTurn();
         }
 
-        private int CalculateIncome()
-        {
-            return baseIncome + FieldsParameters.LookupTable.Values
-                .Where(field => field.Owner == _player.Name)
-                .Sum(field => field.Income);
-        }
-        
         private void Start()
         {
             if (PhotonNetwork.InRoom) 
@@ -151,10 +144,12 @@ namespace ScenesMainLoops
                 Players.FillPlayerNames();
                 if (PhotonNetwork.CurrentRoom.PlayerCount < 4) labelP4.enabled = false;
                 if (PhotonNetwork.CurrentRoom.PlayerCount < 3) labelP3.enabled = false;
+                _player = Players.PlayersList.Find(x => x.Name == SharedVariables.GetUsername());
             }
             else // TODO: delete on release
             {
                 Players.PlayersList[0].Name = "UnityTest";
+                _player = Players.PlayersList[0];
                 SharedVariables.SetUsername("UnityTest");
                 SharedVariables.SetIsAdmin(true);
                 labelP2.enabled = false;
@@ -164,8 +159,7 @@ namespace ScenesMainLoops
             }
 
             // VARIABLES INIT
-            Players.Init(startingGold, baseIncome);
-            _player = Players.PlayersList.Find(x => x.Name == SharedVariables.GetUsername());
+            Players.Init(startingGold);
             _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
                 {0, labelP1},
@@ -175,14 +169,11 @@ namespace ScenesMainLoops
             };
             
             // LABELS INIT
-            BackgroundImage.Instance.Destroy();
-            BackgroundImage.Instance2.Destroy();
+            if (BackgroundImage.Instance) BackgroundImage.Instance.Destroy();
+            if (BackgroundImage.Instance2) BackgroundImage.Instance2.Destroy();
             
-            decorationBar.color = _player.Color;
+            topStatsManager.Init(_player);
             
-            labelCoins.text = _player.Gold.ToString();
-            labelUsername.text = SharedVariables.GetUsername();
-            labelIncome.text = _player.IncomeAsString();
             labelP1.transform.Translate(new Vector2(LabelOffset, 0));
 
             if (!SharedVariables.GetIsAdmin())

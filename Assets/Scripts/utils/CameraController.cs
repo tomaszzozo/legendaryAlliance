@@ -1,4 +1,3 @@
-using System.Drawing;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -12,17 +11,17 @@ public class CameraController : MonoBehaviour
 
     private Camera _camera;
 
-    void Start()
+    private void Start()
     {
         _camera = GetComponent<Camera>();
     }
-    
-    void Update()
+
+    private void Update()
     {
         if (!MovementEnabled) return;
         
-        Vector3 pos = transform.position;
-        float size = _camera.orthographicSize;
+        var pos = transform.position;
+        var size = _camera.orthographicSize;
         
         if (Input.GetKey("w") || Input.mousePosition.y >= Screen.height - panBorderThickness)
         {
@@ -41,7 +40,7 @@ public class CameraController : MonoBehaviour
             pos.x += panSpeed * Time.deltaTime;
         }
 
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        var scroll = Input.GetAxis("Mouse ScrollWheel");
         size -= scroll * scrollSpeed * Time.deltaTime;
         
         pos.x = Mathf.Clamp(pos.x, -panLimit.x, panLimit.x);

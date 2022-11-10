@@ -142,7 +142,7 @@ namespace fields
                 }
 
                 DisableAllGlowSprites();
-                _parameters.Owner = mainLoop.GetCurrentPlayer().Name;
+                _parameters.Owner = SceneGame.GetCurrentPlayer().Name;
                 EnableAppropriateBorderSprite();
                 EnableAppropriateCapitalSprite();
                 mainLoop.NextTurn();
@@ -153,7 +153,7 @@ namespace fields
                 return;
             }
 
-            mainLoop.fieldInspectorManager.ShowFieldInspector(ref _parameters, name);
+            mainLoop.fieldInspectorManager.ShowFieldInspector(_parameters, name);
             mainLoop.canvas.enabled = false;
 
             CameraController.MovementEnabled = false;

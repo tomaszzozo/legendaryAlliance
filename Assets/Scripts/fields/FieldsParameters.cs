@@ -24,10 +24,10 @@ namespace fields
 
         public static readonly Dictionary<string, FieldsParameters> LookupTable = new()
         {
-            {"argentyna", new FieldsParameters(14, new Vector2(-30.89f, -28.67f))},
-            {"brazylia", new FieldsParameters(12, new Vector2(-26.52f, -14.1f))},
-            {"peru", new FieldsParameters(12, new Vector2(-34.13f, -15.68f))},
-            {"wenezuela", new FieldsParameters(12, new Vector2(-32.92f, -6.12f))}
+            {"argentyna", new FieldsParameters(14, new Vector2(-40f, -26f))},
+            {"brazylia", new FieldsParameters(12, new Vector2(-36f, -14f))},
+            {"peru", new FieldsParameters(12, new Vector2(-40f, -13f))},
+            {"wenezuela", new FieldsParameters(12, new Vector2(-41f, -4f))}
         };
 
         public static readonly Dictionary<string, List<string>> Neighbours = new()

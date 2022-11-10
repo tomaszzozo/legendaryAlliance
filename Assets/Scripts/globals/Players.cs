@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using fields;
 using UnityEngine;
 public class Players
 {
@@ -18,19 +20,25 @@ public class Players
         PlayersList[3].Name = SharedVariables.SharedData[3].ToString();
     }
 
-    public static void Init(int gold, int baseIncome)
+    public static void Init(int gold)
     {
         foreach (var player in PlayersList)
         {
             player.Gold = gold;
-            player.Income = baseIncome;
         }
-        PlayersList[0].Gold += baseIncome;
+        PlayersList[0].Gold += 5;
     }
 
     public string IncomeAsString()
     {
         return "(" + (Income < 0 ? "-" : "+") + Income + ")";
+    }
+    
+    public int CalculateIncome()
+    {
+        return FieldsParameters.LookupTable.Values
+            .Where(field => field.Owner == Name)
+            .Sum(field => field.Income);
     }
 
     public string Name;

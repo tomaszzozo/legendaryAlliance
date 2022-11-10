@@ -10,18 +10,18 @@ namespace fields
         [SerializeField] private SpriteColorManager large;
         [SerializeField] private SpriteColorManager enormous;
 
-        public void EnableAppropriateSprites(int currentPlayerIndex, int unitsCount)
+        public void EnableAppropriateSprites(int unitsCount, int playerIndex)
         {
             tiny.DisableSprites();
             small.DisableSprites();
             medium.DisableSprites();
             large.DisableSprites();
             enormous.DisableSprites();
-            if (unitsCount > 0) tiny.EnableAppropriateSprite(currentPlayerIndex);
-            if (unitsCount > 5) small.EnableAppropriateSprite(currentPlayerIndex);
-            if (unitsCount > 10) medium.EnableAppropriateSprite(currentPlayerIndex);
-            if (unitsCount > 15) large.EnableAppropriateSprite(currentPlayerIndex);
-            if (unitsCount > 20) enormous.EnableAppropriateSprite(currentPlayerIndex);
+            if (unitsCount > 0) tiny.EnableAppropriateSprite(playerIndex);
+            if (unitsCount > 5) small.EnableAppropriateSprite(playerIndex);
+            if (unitsCount > 10) medium.EnableAppropriateSprite(playerIndex);
+            if (unitsCount > 15) large.EnableAppropriateSprite(playerIndex);
+            if (unitsCount > 20) enormous.EnableAppropriateSprite(playerIndex);
         }
     }
 }

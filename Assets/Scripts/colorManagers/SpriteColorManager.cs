@@ -9,9 +9,9 @@ namespace fields
         [SerializeField] private SpriteRenderer yellowSprite;
         [SerializeField] private SpriteRenderer violetSprite;
 
-        public void EnableAppropriateSprite(int currentPlayerIndex)
+        public void EnableAppropriateSprite(int playerIndex)
         {
-            switch (currentPlayerIndex)
+            switch (playerIndex)
             {
                 case 0:
                     redSprite.enabled = true;
