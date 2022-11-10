@@ -59,5 +59,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+/Assets/Images/
+/Assets/Photon/
+/Assets/TextMesh Pro/
 # End of https://www.toptal.com/developers/gitignore/api/unity
 *.psd filter=lfs diff=lfs merge=lfs -text
