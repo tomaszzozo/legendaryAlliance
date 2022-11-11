@@ -14,36 +14,36 @@ public class AttackModeNeighbourComponent : MonoBehaviour
     private Button _subtractButton;
     private TextMeshProUGUI _addButtonLabel;
     private TextMeshProUGUI _subtractButtonLabel;
-
-    private FieldsParameters _parameters;
-    private int _selectedUnitsCount;
+    
+    public int SelectedUnitsCount { get; private set; }
+    public FieldsParameters Parameters { get; private set; }
 
     public void OnClickAddButton()
     {
-        if (_selectedUnitsCount == _parameters.AvailableUnits) return;
-        selectedUnitsCountLabel.text = ++_selectedUnitsCount + "/" + _parameters.AvailableUnits;
+        if (SelectedUnitsCount == Parameters.AvailableUnits) return;
+        selectedUnitsCountLabel.text = ++SelectedUnitsCount + "/" + Parameters.AvailableUnits;
         AttackModeManager.AllChosenUnits++;
     }
 
     public void OnClickSubtractButton()
     {
-        if (_selectedUnitsCount == 0) return;
-        selectedUnitsCountLabel.text = --_selectedUnitsCount + "/" + _parameters.AvailableUnits;
+        if (SelectedUnitsCount == 0) return;
+        selectedUnitsCountLabel.text = --SelectedUnitsCount + "/" + Parameters.AvailableUnits;
         AttackModeManager.AllChosenUnits--;
     }
 
     public void Enable(string fieldName)
     {
-        _parameters = FieldsParameters.LookupTable[fieldName];
-        _selectedUnitsCount = 0;
+        Parameters = FieldsParameters.LookupTable[fieldName];
+        SelectedUnitsCount = 0;
         
-        fieldNameLabel.text = fieldName;
-        selectedUnitsCountLabel.text =  "0/" + _parameters.AvailableUnits;
+        fieldNameLabel.text = Translator.TranslateField(fieldName);
+        selectedUnitsCountLabel.text =  "0/" + Parameters.AvailableUnits;
         
         _addButton.image.enabled = true;
         _addButtonLabel.enabled = true;
         _subtractButton.image.enabled = true;
-        _subtractButton.enabled = true;
+        _subtractButtonLabel.enabled = true;
         fieldNameLabel.enabled = true;
         selectedUnitsCountLabel.enabled = true;
     }
@@ -56,6 +56,7 @@ public class AttackModeNeighbourComponent : MonoBehaviour
         _subtractButtonLabel.enabled = false;
         fieldNameLabel.enabled = false;
         selectedUnitsCountLabel.enabled = false;
+        Parameters = null;
     }
 
     private void Start()

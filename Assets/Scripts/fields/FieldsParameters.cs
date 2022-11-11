@@ -11,6 +11,7 @@ namespace fields
         public int Income;
         public int AvailableUnits;
         public int AllUnits;
+        public Field Instance { get; set; }
         
         private FieldsParameters(float camSize, Vector2 camPosition, int income = 5)
         {

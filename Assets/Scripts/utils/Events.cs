@@ -1,4 +1,5 @@
-﻿using fields;
+﻿using System.Collections.Generic;
+using fields;
 
 public enum EventTypes
 {
@@ -11,7 +12,8 @@ public enum EventTypes
     OnlineDeselectField,
     CapitalSelected,
     RequestRoomData,
-    BuyUnits
+    BuyUnits,
+    AfterAttackUpdateFields
 }
 
 public class Event
@@ -146,5 +148,51 @@ public class BuyUnits : Event
     {
         return new BuyUnits((string)content[0], (int)content[1], (int)content[2], (string)content[3],
             (int)content[4]);
+    }
+}
+
+public class AfterAttackUpdateFields : Event
+{
+    public struct FieldUpdatedData
+    {
+        public string FieldName;
+        public int AllUnits;
+        public int AvailableUnits;
+    }
+
+    public readonly List<FieldUpdatedData> FieldsUpdatedData;
+    public readonly string NewOwner;
+
+    public AfterAttackUpdateFields(List<FieldUpdatedData> updatedData, string newOwner) : base(EventTypes.AfterAttackUpdateFields)
+    {
+        FieldsUpdatedData = updatedData;
+        NewOwner = newOwner;
+    }
+
+    public object[] Serialize()
+    {
+        var array = new object [FieldsUpdatedData.Count*3 + 1];
+        array[0] = NewOwner;
+        for (int i = 1, d = 0; i < array.Length; i+=3, d++)
+        {
+            array[i] = FieldsUpdatedData[d].FieldName;
+            array[i+1] = FieldsUpdatedData[d].AllUnits;
+            array[i+2] = FieldsUpdatedData[d].AvailableUnits;
+        }
+
+        return array;
+    }
+
+    public static AfterAttackUpdateFields Deserialize(object[] content)
+    {
+        var newOwner = content[0] as string;
+        var updatedData = new List<FieldUpdatedData>();
+        
+        for (var i = 1; i < content.Length; i+=3)
+        {
+            updatedData.Add(new FieldUpdatedData{FieldName = content[i] as string, AllUnits = (int)content[i+1], AvailableUnits = (int)content[i+2]});
+        }
+
+        return new AfterAttackUpdateFields(updatedData, newOwner);
     }
 }

@@ -10,6 +10,7 @@ public class ImageColorManager : MonoBehaviour
 
     public void EnableAppropriateImage(int playerIndex)
     {
+        DisableImages();
         switch (playerIndex)
         {
             case 0:
@@ -23,9 +24,6 @@ public class ImageColorManager : MonoBehaviour
                 break;
             case 3:
                 violetImage.enabled = true;
-                break;
-            default:
-                DisableImages();
                 break;
         }
     }

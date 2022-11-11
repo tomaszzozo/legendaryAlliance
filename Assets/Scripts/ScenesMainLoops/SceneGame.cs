@@ -33,7 +33,7 @@ namespace ScenesMainLoops
         public int startingGold;
         public int RoundCounter { get; private set; }
         public static int CurrentPlayerIndex { get; private set; }
-        public const int UnitBaseCost = 15;
+        public const int UnitBaseCost = 20;
         private const int LabelOffset = 30;
         private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
         private Players _player;
@@ -87,6 +87,24 @@ namespace ScenesMainLoops
             {
                 NextTurn();
             }
+            else if (photonEvent.Code == (int)EventTypes.AfterAttackUpdateFields)
+            {
+                var data = AfterAttackUpdateFields.Deserialize((object[])photonEvent.CustomData);
+                for (var i = 0; i < data.FieldsUpdatedData.Count; i++)
+                {
+                    var dataElement = data.FieldsUpdatedData[i];
+                    var field = FieldsParameters.LookupTable[dataElement.FieldName];
+                    if (i == 0)
+                    {
+                        field.Owner = data.NewOwner;
+                        field.Instance.EnableAppropriateBorderSprite();
+                        field.Instance.EnableAppropriateGlowSprite();
+                    }
+                    field.AllUnits = dataElement.AllUnits;
+                    field.AvailableUnits = dataElement.AvailableUnits;
+                    field.Instance.unitsManager.EnableAppropriateSprites(field.AllUnits, Players.NameToIndex(field.Owner));
+                }
+            }
         }
         
         public bool IsItMyTurn()
@@ -115,7 +133,7 @@ namespace ScenesMainLoops
             }
 
             _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
-            buttonNextTurn.interactable = IsItMyTurn();
+            buttonNextTurn.interactable = IsItMyTurn() && RoundCounter != 0;
             clockIcon.enabled = !IsItMyTurn();
             labelButtonNextTurn.enabled = IsItMyTurn();
 
@@ -176,9 +194,9 @@ namespace ScenesMainLoops
             
             labelP1.transform.Translate(new Vector2(LabelOffset, 0));
 
+            buttonNextTurn.interactable = false;
             if (!SharedVariables.GetIsAdmin())
             {
-                buttonNextTurn.interactable = false;
                 clockIcon.enabled = true;
                 labelButtonNextTurn.enabled = false;
             }

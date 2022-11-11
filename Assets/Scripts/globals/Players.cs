@@ -26,7 +26,11 @@ public class Players
         {
             player.Gold = gold;
         }
-        PlayersList[0].Gold += 5;
+    }
+
+    public static int NameToIndex(string name)
+    {
+        return PlayersList.FindIndex(player => player.Name == name);
     }
 
     public string IncomeAsString()

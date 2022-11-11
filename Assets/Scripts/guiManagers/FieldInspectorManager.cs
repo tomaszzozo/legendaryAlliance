@@ -69,6 +69,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     public void OnClickAttackButton()
     {
+        BuyUnits data = new(name, _parameters.AvailableUnits, _parameters.AllUnits, _parameters.Owner, SceneGame.GetCurrentPlayer().Gold);
+        RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+        PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         attackModeManager.EnableAttackModule(_fieldName);
         HideFieldInspector();
     }

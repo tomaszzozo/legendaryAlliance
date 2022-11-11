@@ -78,6 +78,7 @@ namespace fields
 
         public void EnableAppropriateBorderSprite()
         {
+            DisableAllBorderSprites();
             if (_parameters.Owner == Players.PlayersList[0].Name) redBorder.enabled = true;
             else if (_parameters.Owner == Players.PlayersList[1].Name) blueBorder.enabled = true;
             else if (_parameters.Owner == Players.PlayersList[2].Name) yellowBorder.enabled = true;
@@ -86,12 +87,22 @@ namespace fields
 
         public void DisableAllBorderSprites()
         {
-            redBorder.enabled = true;
-            blueBorder.enabled = true;
-            yellowBorder.enabled = true;
-            violetBorder.enabled = true;
+            redBorder.enabled = false;
+            blueBorder.enabled = false;
+            yellowBorder.enabled = false;
+            violetBorder.enabled = false;
         }
-
+        
+        public void EnableAppropriateGlowSprite()
+        {
+            DisableAllGlowSprites();
+            if (_parameters.Owner == null) graySprite.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[0].Name) redSprite.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[1].Name) blueSprite.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[2].Name) yellowSprite.enabled = true;
+            else if (_parameters.Owner == Players.PlayersList[3].Name) violetSprite.enabled = true;
+        }
+        
         private void EnableAppropriateCapitalSprite()
         {
             if (_parameters.Owner == Players.PlayersList[0].Name) capitalRed.enabled = true;
@@ -100,18 +111,19 @@ namespace fields
             else if (_parameters.Owner == Players.PlayersList[3].Name) capitalViolet.enabled = true;
         }
 
-        private void EnableAppropriateGlowSprite()
-        {
-            if (_parameters.Owner == null) graySprite.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[0].Name) redSprite.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[1].Name) blueSprite.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[2].Name) yellowSprite.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[3].Name) violetSprite.enabled = true;
-        }
-
         private void Start()
         {
             _parameters = FieldsParameters.LookupTable[name];
+            _parameters.Instance = this;
+            redBorder.sortingOrder = 10;
+            blueBorder.sortingOrder = 10;
+            yellowBorder.sortingOrder = 10;
+            violetBorder.sortingOrder = 10;
+            redSprite.sortingOrder = 11;
+            blueSprite.sortingOrder = 11;
+            yellowSprite.sortingOrder = 11;
+            violetSprite.sortingOrder = 11;
+            graySprite.sortingOrder = 11;
         }
 
         private void OnMouseEnter()
