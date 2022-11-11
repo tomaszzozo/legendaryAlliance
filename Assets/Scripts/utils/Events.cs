@@ -119,14 +119,32 @@ public class CapitalSelected : Event
     }
 }
 
-// public class BuyUnits : Event
-// {
-//     public readonly string FieldName;
-//     public readonly string AvailableUnits;
-//     public readonly string AllUnits;
-//     public readonly string Owner;
-//     public readonly string Gold;
-//     public readonly string Income;
-//     
-//     public BuyUnits
-// }
+public class BuyUnits : Event
+{
+    public readonly string FieldName;
+    public readonly int AvailableUnits;
+    public readonly int AllUnits;
+    public readonly string Owner;
+    public readonly int Gold;
+
+    public BuyUnits(string fieldName, int availableUnits, int allUnits, string owner, int gold) : base(
+        EventTypes.BuyUnits)
+    {
+        FieldName = fieldName;
+        AvailableUnits = availableUnits;
+        AllUnits = allUnits;
+        Owner = owner;
+        Gold = gold;
+    }
+
+    public object[] Serialize()
+    {
+        return new object[] { FieldName, AvailableUnits, AllUnits, Owner, Gold };
+    }
+
+    public static BuyUnits Deserialize(object[] content)
+    {
+        return new BuyUnits((string)content[0], (int)content[1], (int)content[2], (string)content[3],
+            (int)content[4]);
+    }
+}

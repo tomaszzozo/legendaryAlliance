@@ -8,9 +8,9 @@ public class ImageColorManager : MonoBehaviour
     public Image yellowImage;
     public Image violetImage;
 
-    public void EnableAppropriateImage(int currentPlayerIndex)
+    public void EnableAppropriateImage(int playerIndex)
     {
-        switch (currentPlayerIndex)
+        switch (playerIndex)
         {
             case 0:
                 redImage.enabled = true;

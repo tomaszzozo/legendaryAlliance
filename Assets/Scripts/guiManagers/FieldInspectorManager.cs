@@ -1,6 +1,8 @@
 using System.Linq;
+using ExitGames.Client.Photon;
 using fields;
 using Photon.Pun;
+using Photon.Realtime;
 using ScenesMainLoops;
 using TMPro;
 using UnityEngine;
@@ -17,6 +19,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     [FormerlySerializedAs("thisCanvas")] [SerializeField] private Canvas canvas;
     [SerializeField] private GameObject buyUnitButton;
     [SerializeField] private GameObject attackButton;
+    [SerializeField] private AttackModeManager attackModeManager;
     
     private TextMeshProUGUI _buyUnitButtonLabel;
     private TextMeshProUGUI _attackButtonLabel;
@@ -25,9 +28,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private FieldsParameters _parameters;
     private string _fieldName;
     
-    public void ShowFieldInspector(FieldsParameters parameters, string fieldName)
+    public void EnableFieldInspector(string fieldName)
     {
-        _parameters = parameters;
+        _parameters = FieldsParameters.LookupTable[fieldName];
         _fieldName = fieldName;
         
         unitColorManager.EnableAppropriateImage(
@@ -45,19 +48,29 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         canvas.enabled = true;
     }
 
-    public void HideFieldInspector()
+    public void HideFieldInspector(bool onStartup = false)
     {
         canvas.enabled = false;
-        // buy units event
+        if (onStartup || _parameters.Owner != SceneGame.GetCurrentPlayer().Name) return;
+        
+        BuyUnits data = new(name, _parameters.AvailableUnits, _parameters.AllUnits, _parameters.Owner, SceneGame.GetCurrentPlayer().Gold);
+        RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+        PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
     }
 
-    public void OnBuyUnitButtonClick()
+    public void OnClickBuyUnitButton()
     {
         _parameters.AllUnits++;
         SceneGame.GetCurrentPlayer().Gold -= SceneGame.UnitBaseCost;
         _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= SceneGame.UnitBaseCost;
         SceneGame.GlobalVariables.SelectedFieldLocal.unitsManager.EnableAppropriateSprites(_parameters.AllUnits, SceneGame.CurrentPlayerIndex);
         unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
+    }
+
+    public void OnClickAttackButton()
+    {
+        attackModeManager.EnableAttackModule(_fieldName);
+        HideFieldInspector();
     }
 
     private void Start()

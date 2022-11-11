@@ -183,7 +183,7 @@ namespace ScenesMainLoops
                 labelButtonNextTurn.enabled = false;
             }
             
-            fieldInspectorManager.HideFieldInspector();
+            fieldInspectorManager.HideFieldInspector(true);
         }
     }
 }

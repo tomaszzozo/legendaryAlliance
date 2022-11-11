@@ -55,6 +55,15 @@ namespace fields
                     EnableAppropriateCapitalSprite();
                     break;
                 }
+                case (int)EventTypes.BuyUnits:
+                {
+                    var data = BuyUnits.Deserialize((object[])photonEvent.CustomData);
+                    if (name != data.FieldName) return;
+                    _parameters.AllUnits = data.AllUnits;
+                    _parameters.AvailableUnits = data.AvailableUnits;
+                    Players.PlayersList.Find(player => player.Name == data.Owner).Gold = data.Gold;
+                    break;
+                }
             }
         }
 
@@ -153,7 +162,7 @@ namespace fields
                 return;
             }
 
-            mainLoop.fieldInspectorManager.ShowFieldInspector(_parameters, name);
+            mainLoop.fieldInspectorManager.EnableFieldInspector(name);
             mainLoop.canvas.enabled = false;
 
             CameraController.MovementEnabled = false;
