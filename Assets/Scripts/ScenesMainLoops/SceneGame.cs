@@ -80,6 +80,11 @@ namespace ScenesMainLoops
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
         }
+
+        public void SetUiHover(bool set)
+        {
+            SharedVariables.IsOverUi = set;
+        }
         
         public void OnEvent(EventData photonEvent)
         {
@@ -104,6 +109,10 @@ namespace ScenesMainLoops
                     field.AvailableUnits = dataElement.AvailableUnits;
                     field.Instance.unitsManager.EnableAppropriateSprites(field.AllUnits, Players.NameToIndex(field.Owner));
                 }
+
+                var thisPlayer = Players.PlayersList[Players.NameToIndex(SharedVariables.GetUsername())];
+                thisPlayer.Income = thisPlayer.CalculateIncome();
+                topStatsManager.RefreshValues();
             }
         }
         
@@ -138,7 +147,7 @@ namespace ScenesMainLoops
             labelButtonNextTurn.enabled = IsItMyTurn();
 
             if (!IsItMyTurn()) return;
-            
+            SharedVariables.IsOverUi = false;
             foreach (var (_, parameters) in FieldsParameters.LookupTable)
             {
                 if (parameters.Owner == GetCurrentPlayer().Name) parameters.AvailableUnits = parameters.AllUnits;

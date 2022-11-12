@@ -46,6 +46,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyUnitButtonLabel.enabled = _buyUnitButton.image.enabled;
         EnableAttackButtonIfAbleToAttack();
         canvas.enabled = true;
+        SharedVariables.IsOverUi = true;
     }
 
     public void HideFieldInspector(bool onStartup = false)
@@ -53,9 +54,10 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         canvas.enabled = false;
         if (onStartup || _parameters.Owner != SceneGame.GetCurrentPlayer().Name) return;
         
-        BuyUnits data = new(name, _parameters.AvailableUnits, _parameters.AllUnits, _parameters.Owner, SceneGame.GetCurrentPlayer().Gold);
+        BuyUnits data = new(_parameters.Instance.name, _parameters.AvailableUnits, _parameters.AllUnits, _parameters.Owner, SceneGame.GetCurrentPlayer().Gold);
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
+        SharedVariables.IsOverUi = false;
     }
 
     public void OnClickBuyUnitButton()

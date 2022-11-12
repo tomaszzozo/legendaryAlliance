@@ -29,6 +29,7 @@ public class AttackModeManager : MonoBehaviour
     
     public void OnClickCancelButton()
     {
+        SharedVariables.IsOverUi = false;
         fieldInspectorManager.EnableFieldInspector(_fieldName);
         canvas.enabled = false;
     }
@@ -65,9 +66,54 @@ public class AttackModeManager : MonoBehaviour
             
             OnClickCancelButton();
         }
+        else if (AllChosenUnits <= parameters.AllUnits)
+        {
+            parameters.AllUnits -= AllChosenUnits;
+            if (parameters.AvailableUnits > parameters.AllUnits) parameters.AvailableUnits = parameters.AllUnits;
+
+            var updatedData = attackModeNeighbourManager.UpdateNeighbours();
+            updatedData.Insert(0, new AfterAttackUpdateFields.FieldUpdatedData
+            {
+                AllUnits = parameters.AllUnits,
+                AvailableUnits = parameters.AvailableUnits,
+                FieldName = parameters.Instance.name
+            });
+            
+            AfterAttackUpdateFields newEvent = new(updatedData, parameters.Owner);
+            RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
+                SendOptions.SendReliable);
+
+            parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, Players.NameToIndex(parameters.Owner));
+            OnClickCancelButton();
+        }
         else
         {
+            parameters.Owner = SceneGame.GetCurrentPlayer().Name;
+            parameters.Instance.EnableAppropriateBorderSprite();
+            parameters.AllUnits = AllChosenUnits - parameters.AllUnits;
+            parameters.AvailableUnits = 0;
             
+            var updatedData = attackModeNeighbourManager.UpdateNeighbours();
+            updatedData.Insert(0, new AfterAttackUpdateFields.FieldUpdatedData
+            {
+                AllUnits = parameters.AllUnits,
+                AvailableUnits = parameters.AvailableUnits,
+                FieldName = parameters.Instance.name
+            });
+         
+            AfterAttackUpdateFields newEvent = new(updatedData, parameters.Owner);
+            RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
+                SendOptions.SendReliable);
+            
+            parameters.Instance.EnableAppropriateGlowSprite();
+            parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, SceneGame.CurrentPlayerIndex);
+            
+            SceneGame.GetCurrentPlayer().Income = SceneGame.GetCurrentPlayer().CalculateIncome();
+            topStatsManager.RefreshValues();
+            
+            OnClickCancelButton();
         }
     }
 
@@ -84,8 +130,9 @@ public class AttackModeManager : MonoBehaviour
         ourColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
         vsLabel.enabled = FieldsParameters.LookupTable[fieldName].Owner != null;
         theirUnitsLabel.enabled = vsLabel.enabled;
-        if (FieldsParameters.LookupTable[fieldName].Owner != null) theirColorManager.DisableImages();
+        if (FieldsParameters.LookupTable[fieldName].Owner == null) theirColorManager.DisableImages();
         else theirColorManager.EnableAppropriateImage(Players.PlayersList.FindIndex(player => player.Name == FieldsParameters.LookupTable[fieldName].Owner));
+        SharedVariables.IsOverUi = true;
     }
 
     private void Update()

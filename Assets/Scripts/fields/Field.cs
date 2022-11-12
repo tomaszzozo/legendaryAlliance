@@ -62,6 +62,7 @@ namespace fields
                     _parameters.AllUnits = data.AllUnits;
                     _parameters.AvailableUnits = data.AvailableUnits;
                     Players.PlayersList.Find(player => player.Name == data.Owner).Gold = data.Gold;
+                    unitsManager.EnableAppropriateSprites(_parameters.AllUnits, Players.NameToIndex(_parameters.Owner));
                     break;
                 }
             }
