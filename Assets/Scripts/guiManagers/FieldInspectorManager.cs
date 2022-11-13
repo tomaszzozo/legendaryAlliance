@@ -20,6 +20,8 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject buyUnitButton;
     [SerializeField] private GameObject attackButton;
     [SerializeField] private AttackModeManager attackModeManager;
+
+    public static bool RegroupMode;
     
     private TextMeshProUGUI _buyUnitButtonLabel;
     private TextMeshProUGUI _attackButtonLabel;
@@ -28,11 +30,13 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private FieldsParameters _parameters;
     private string _fieldName;
     
+    
     public void EnableFieldInspector(string fieldName)
     {
         _parameters = FieldsParameters.LookupTable[fieldName];
         _fieldName = fieldName;
-        
+        RegroupMode = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
+ 
         unitColorManager.EnableAppropriateImage(
             Players.PlayersList.FindIndex(player => player.Name == _parameters.Owner));
         incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
@@ -45,6 +49,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyUnitButton.interactable = _buyUnitButton.image.enabled && SceneGame.GetCurrentPlayer().Gold >= SceneGame.UnitBaseCost;
         _buyUnitButtonLabel.enabled = _buyUnitButton.image.enabled;
         EnableAttackButtonIfAbleToAttack();
+        EnableMoveButtonIfAbleToMove();
         canvas.enabled = true;
         SharedVariables.IsOverUi = true;
     }
@@ -93,5 +98,20 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
                          FieldsParameters.LookupTable[neighbourFieldName].Owner == SceneGame.GetCurrentPlayer().Name);
         _attackButton.image.enabled = enable;
         _attackButtonLabel.enabled = enable;
+    }
+
+    private void EnableMoveButtonIfAbleToMove()
+    {
+        if (RegroupMode && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName => 
+                FieldsParameters.LookupTable[neighbourFieldName].Owner == SceneGame.GetCurrentPlayer().Name))
+        {
+            _attackButton.image.enabled = true;
+            _attackButtonLabel.enabled = true;
+            _attackButtonLabel.text = "Move";
+        }
+        else
+        {
+            _attackButtonLabel.text = "Attack";
+        }
     }
 }

@@ -21,6 +21,7 @@ public class AttackModeManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI vsLabel;
     [SerializeField] private TopStatsManager topStatsManager;
     [SerializeField] private TextMeshProUGUI fieldNameLabel;
+    [SerializeField] private TextMeshProUGUI attackButtonLabel;
 
     public static int AllChosenUnits;
     private static int _allChosenUnitsHistory;
@@ -64,6 +65,23 @@ public class AttackModeManager : MonoBehaviour
             SceneGame.GetCurrentPlayer().Income = SceneGame.GetCurrentPlayer().CalculateIncome();
             topStatsManager.RefreshValues();
             
+            OnClickCancelButton();
+        }
+        else if (FieldInspectorManager.RegroupMode)
+        {
+            parameters.AllUnits += AllChosenUnits;
+            var updatedData = attackModeNeighbourManager.UpdateNeighbours();
+            updatedData.Insert(0, new AfterAttackUpdateFields.FieldUpdatedData
+            {
+                AllUnits = parameters.AllUnits,
+                AvailableUnits = parameters.AvailableUnits,
+                FieldName = parameters.Instance.name
+            });
+            AfterAttackUpdateFields newEvent = new(updatedData, parameters.Owner);
+            RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
+                SendOptions.SendReliable);
+            parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, SceneGame.CurrentPlayerIndex);
             OnClickCancelButton();
         }
         else if (AllChosenUnits <= parameters.AllUnits)
@@ -129,10 +147,12 @@ public class AttackModeManager : MonoBehaviour
         attackModeNeighbourManager.EnableAppropriateComponents(fieldName);
         ourColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
         vsLabel.enabled = FieldsParameters.LookupTable[fieldName].Owner != null;
+        vsLabel.text = FieldInspectorManager.RegroupMode ? "=>" : "vs";
         theirUnitsLabel.enabled = vsLabel.enabled;
         if (FieldsParameters.LookupTable[fieldName].Owner == null) theirColorManager.DisableImages();
         else theirColorManager.EnableAppropriateImage(Players.PlayersList.FindIndex(player => player.Name == FieldsParameters.LookupTable[fieldName].Owner));
         SharedVariables.IsOverUi = true;
+        attackButtonLabel.text = FieldInspectorManager.RegroupMode ? "move" : "to glory!";
     }
 
     private void Update()
