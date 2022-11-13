@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using ExitGames.Client.Photon;
 using fields;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace ScenesMainLoops
@@ -147,6 +149,17 @@ namespace ScenesMainLoops
             labelButtonNextTurn.enabled = IsItMyTurn();
 
             if (!IsItMyTurn()) return;
+            if (PhotonNetwork.InRoom) // TODO: delete on release
+            {
+                if (CheckIfDefeat())
+                {
+                    RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+                    PhotonNetwork.RaiseEvent((byte)EventTypes.NextTurn, null, options, SendOptions.SendReliable);
+                    gameObject.AddComponent<SceneLoader>().LoadScene("SceneLostGame");
+                }
+                if (CheckIfVictory()) gameObject.AddComponent<SceneLoader>().LoadScene("SceneWonGame");
+            }
+
             SharedVariables.IsOverUi = false;
             foreach (var (_, parameters) in FieldsParameters.LookupTable)
             {
@@ -211,6 +224,17 @@ namespace ScenesMainLoops
             }
             
             fieldInspectorManager.HideFieldInspector(true);
+        }
+        
+        private bool CheckIfVictory()
+        {
+            return RoundCounter > 1 && !FieldsParameters.LookupTable.Values.Any(field =>
+                field.Owner != null && field.Owner != GetCurrentPlayer().Name);
+        }
+
+        private bool CheckIfDefeat()
+        {
+            return RoundCounter > 1 && FieldsParameters.LookupTable.Values.All(field => field.Owner != GetCurrentPlayer().Name);
         }
     }
 }

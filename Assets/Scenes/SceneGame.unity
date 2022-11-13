@@ -5784,6 +5784,7 @@ MonoBehaviour:
   vsLabel: {fileID: 423310014}
   topStatsManager: {fileID: 852483785}
   fieldNameLabel: {fileID: 1391301324}
+  attackButtonLabel: {fileID: 1226200141}
 --- !u!1 &451878895
 GameObject:
   m_ObjectHideFlags: 0
