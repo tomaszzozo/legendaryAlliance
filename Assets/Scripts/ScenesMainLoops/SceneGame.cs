@@ -33,7 +33,7 @@ namespace ScenesMainLoops
         public TopStatsManager topStatsManager;
         
         public int startingGold;
-        public int RoundCounter { get; private set; }
+        public static int RoundCounter { get; private set; }
         public static int CurrentPlayerIndex { get; private set; }
         public const int UnitBaseCost = 20;
         private const int LabelOffset = 30;

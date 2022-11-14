@@ -13,7 +13,7 @@ public class SelectCapitalLabel : MonoBehaviour
 
     private void Update()
     {
-        if (mainLoop.RoundCounter == 0)
+        if (SceneGame.RoundCounter == 0)
         {
             thisLabel.enabled = mainLoop.IsItMyTurn();
         } 

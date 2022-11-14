@@ -150,7 +150,7 @@ namespace fields
             
             AudioPlayer.PlayButtonClick();
 
-            if (mainLoop.RoundCounter == 0)
+            if (SceneGame.RoundCounter == 0)
             {
                 if (_parameters.Owner != null)
                 {
