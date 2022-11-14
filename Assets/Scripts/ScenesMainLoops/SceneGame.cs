@@ -156,6 +156,7 @@ namespace ScenesMainLoops
                     RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
                     PhotonNetwork.RaiseEvent((byte)EventTypes.NextTurn, null, options, SendOptions.SendReliable);
                     gameObject.AddComponent<SceneLoader>().LoadScene("SceneLostGame");
+                    return;
                 }
                 if (CheckIfVictory()) gameObject.AddComponent<SceneLoader>().LoadScene("SceneWonGame");
             }
@@ -210,7 +211,6 @@ namespace ScenesMainLoops
             
             // LABELS INIT
             if (BackgroundImage.Instance) BackgroundImage.Instance.Destroy();
-            if (BackgroundImage.Instance2) BackgroundImage.Instance2.Destroy();
             
             topStatsManager.Init(_player);
             

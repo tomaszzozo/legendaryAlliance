@@ -543,7 +543,6 @@ GameObject:
   m_Component:
   - component: {fileID: 534762395}
   - component: {fileID: 534762396}
-  - component: {fileID: 534762397}
   m_Layer: 0
   m_Name: mapRight
   m_TagString: Untagged
@@ -559,12 +558,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534762394}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 25.099201, y: 0, z: 0}
+  m_LocalPosition: {x: 7.32514, y: -2.500234, z: -10.298844}
   m_LocalScale: {x: 0.18776809, y: 0.18776809, z: 0.18776809}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_Father: {fileID: 1675298150}
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &534762396
 SpriteRenderer:
@@ -618,20 +617,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &534762397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 534762394}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86a42eb22d89f457a9365ec46a03cce2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0.0008
-  resetPosition: 0
 --- !u!1 &535534677
 GameObject:
   m_ObjectHideFlags: 0
@@ -2021,7 +2006,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1318146883}
   - component: {fileID: 1318146885}
-  - component: {fileID: 1318146884}
   m_Layer: 0
   m_Name: mapLeft
   m_TagString: Untagged
@@ -2037,27 +2021,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1318146882}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.33, y: 0, z: 0}
+  m_LocalPosition: {x: -15.444061, y: -2.500234, z: -10.298844}
   m_LocalScale: {x: 0.18776809, y: 0.18776809, z: 0.18776809}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_Father: {fileID: 1675298150}
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1318146884
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1318146882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86a42eb22d89f457a9365ec46a03cce2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0.0008
-  resetPosition: -20
 --- !u!212 &1318146885
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2449,6 +2419,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1628365097}
   m_CullTransparentMesh: 1
+--- !u!1 &1675298148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1675298150}
+  - component: {fileID: 1675298149}
+  m_Layer: 0
+  m_Name: AnimationObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1675298149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1675298148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86a42eb22d89f457a9365ec46a03cce2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speedX: 2
+  speedY: 0.5
+  criticalLeft: 17.66
+  criticalRight: -9.61
+  criticalTop: 0.08
+  criticalBottom: 5
+--- !u!4 &1675298150
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1675298148}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 17.28, y: 0.13, z: 10.298844}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 534762395}
+  - {fileID: 1318146883}
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2014607362
 GameObject:
   m_ObjectHideFlags: 0

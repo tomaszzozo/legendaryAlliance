@@ -46,7 +46,7 @@ public class AudioMainTheme : MonoBehaviour
         if (Instance != null && Instance != this) 
         { 
             Debug.Log("An instance of main theme already exists, destroying this object...");
-            Destroy(this); 
+            Destroy(gameObject); 
         } 
         else 
         { 
