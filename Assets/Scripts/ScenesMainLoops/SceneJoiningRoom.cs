@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
@@ -11,8 +12,9 @@ namespace ScenesMainLoops
     {
         public GameObject labelTitle;
         private TextMeshProUGUI _labelTitle;
-
-        void Start()
+        private bool _executeNoResponse = true;
+        
+        private void Start()
         {
             _labelTitle = labelTitle.GetComponent<TextMeshProUGUI>();
             InvokeRepeating(nameof(AnimateText), 0, 0.5f);
@@ -66,6 +68,12 @@ namespace ScenesMainLoops
         public override void OnJoinedRoom()
         {
             Debug.Log("Joined room");
+            if (PhotonNetwork.CurrentRoom.Players.Values.Count(player =>
+                    player.NickName == SharedVariables.GetUsername()) > 1)
+            {
+                StartCoroutine(SameUsername());
+                return;
+            }
             StartCoroutine(IfNoResponseGoBack());
         }
 
@@ -81,11 +89,21 @@ namespace ScenesMainLoops
         private IEnumerator IfNoResponseGoBack()
         {
             yield return new WaitForSeconds(10);
-
+            if (!_executeNoResponse) yield break;
             _labelTitle.text = "No response from room!";
 
             yield return new WaitForSeconds(3);
             PhotonNetwork.Disconnect();
+            gameObject.AddComponent<SceneLoader>().LoadScene("SceneEnterRoomId");
+        }
+
+        private IEnumerator SameUsername()
+        {
+            PhotonNetwork.Disconnect();
+            _executeNoResponse = false;
+            _labelTitle.text = "You are already in this room on another device!";
+
+            yield return new WaitForSeconds(5);
             gameObject.AddComponent<SceneLoader>().LoadScene("SceneEnterRoomId");
         }
     }
