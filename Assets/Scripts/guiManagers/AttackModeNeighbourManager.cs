@@ -48,12 +48,20 @@ public class AttackModeNeighbourManager : MonoBehaviour
         {
             component.Parameters.AllUnits -= component.SelectedUnitsCount;
             component.Parameters.AvailableUnits -= component.SelectedUnitsCount;
+            if (component.Parameters.AllUnits == 0)
+            {
+                NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(component.Parameters.Owner)} lost control of {Translator.TranslateField(component.Parameters.Instance.name)} due to lack of units!");
+                component.Parameters.Owner = null;
+                component.Parameters.Instance.DisableAllBorderSprites();
+            }
             component.Parameters.Instance.unitsManager.EnableAppropriateSprites(component.Parameters.AllUnits,
                 Players.NameToIndex(component.Parameters.Owner));
             updatedData.Add(new AfterAttackUpdateFields.FieldUpdatedData
             {
-                FieldName = component.Parameters.Instance.name, AllUnits = component.Parameters.AllUnits,
-                AvailableUnits = component.Parameters.AvailableUnits
+                FieldName = component.Parameters.Instance.name, 
+                AllUnits = component.Parameters.AllUnits,
+                AvailableUnits = component.Parameters.AvailableUnits,
+                NewOwner = component.Parameters.Owner
             });
         }
 

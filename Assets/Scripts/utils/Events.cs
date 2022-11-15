@@ -159,26 +159,28 @@ public class AfterAttackUpdateFields : Event
         public string FieldName;
         public int AllUnits;
         public int AvailableUnits;
+        public string NewOwner;
     }
 
+    /// <summary>
+    /// First field is the one under display, other fields are neighbours to that field
+    /// </summary>
     public readonly List<FieldUpdatedData> FieldsUpdatedData;
-    public readonly string NewOwner;
 
-    public AfterAttackUpdateFields(List<FieldUpdatedData> updatedData, string newOwner) : base(EventTypes.AfterAttackUpdateFields)
+    public AfterAttackUpdateFields(List<FieldUpdatedData> updatedData) : base(EventTypes.AfterAttackUpdateFields)
     {
         FieldsUpdatedData = updatedData;
-        NewOwner = newOwner;
     }
 
     public object[] Serialize()
     {
-        var array = new object [FieldsUpdatedData.Count*3 + 1];
-        array[0] = NewOwner;
-        for (int i = 1, d = 0; i < array.Length; i+=3, d++)
+        var array = new object [FieldsUpdatedData.Count*4];
+        for (int i = 0, d = 0; i < array.Length; i+=4, d++)
         {
             array[i] = FieldsUpdatedData[d].FieldName;
             array[i+1] = FieldsUpdatedData[d].AllUnits;
             array[i+2] = FieldsUpdatedData[d].AvailableUnits;
+            array[i + 3] = FieldsUpdatedData[d].NewOwner;
         }
 
         return array;
@@ -186,15 +188,14 @@ public class AfterAttackUpdateFields : Event
 
     public static AfterAttackUpdateFields Deserialize(object[] content)
     {
-        var newOwner = content[0] as string;
         var updatedData = new List<FieldUpdatedData>();
         
-        for (var i = 1; i < content.Length; i+=3)
+        for (var i = 0; i < content.Length; i+=4)
         {
-            updatedData.Add(new FieldUpdatedData{FieldName = content[i] as string, AllUnits = (int)content[i+1], AvailableUnits = (int)content[i+2]});
+            updatedData.Add(new FieldUpdatedData{FieldName = content[i] as string, AllUnits = (int)content[i+1], AvailableUnits = (int)content[i+2], NewOwner = content[i+3] as string});
         }
 
-        return new AfterAttackUpdateFields(updatedData, newOwner);
+        return new AfterAttackUpdateFields(updatedData);
     }
 }
 

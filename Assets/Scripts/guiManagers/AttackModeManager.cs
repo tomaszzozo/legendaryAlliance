@@ -52,9 +52,10 @@ public class AttackModeManager : MonoBehaviour
             {
                 AllUnits = parameters.AllUnits,
                 AvailableUnits = parameters.AvailableUnits,
-                FieldName = parameters.Instance.name
+                FieldName = parameters.Instance.name,
+                NewOwner = parameters.Owner
             });
-            AfterAttackUpdateFields newEvent = new(updatedData, parameters.Owner);
+            AfterAttackUpdateFields newEvent = new(updatedData);
             RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
                 SendOptions.SendReliable);
@@ -76,16 +77,40 @@ public class AttackModeManager : MonoBehaviour
             {
                 AllUnits = parameters.AllUnits,
                 AvailableUnits = parameters.AvailableUnits,
-                FieldName = parameters.Instance.name
+                FieldName = parameters.Instance.name,
+                NewOwner = parameters.Owner
             });
-            AfterAttackUpdateFields newEvent = new(updatedData, parameters.Owner);
+            AfterAttackUpdateFields newEvent = new(updatedData);
             RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
                 SendOptions.SendReliable);
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, SceneGame.CurrentPlayerIndex);
             OnClickCancelButton();
         }
-        else if (AllChosenUnits <= parameters.AllUnits)
+        else if (AllChosenUnits == parameters.AllUnits)
+        {
+            parameters.AllUnits = 0;
+            NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(parameters.Owner)} lost control of {Translator.TranslateField(parameters.Instance.name)} due to lack of units after {Players.DescribeNameAsColor(PhotonNetwork.NickName)} attack!");
+            parameters.Owner = null;
+            parameters.Instance.DisableAllBorderSprites();
+            parameters.Instance.EnableAppropriateGlowSprite();
+            
+            var updatedData = attackModeNeighbourManager.UpdateNeighbours();
+            updatedData.Insert(0, new AfterAttackUpdateFields.FieldUpdatedData
+            {
+                AllUnits = 0,
+                AvailableUnits = 0,
+                FieldName = parameters.Instance.name,
+                NewOwner = null
+            });
+            AfterAttackUpdateFields newEvent = new(updatedData);
+            RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
+                SendOptions.SendReliable);
+            parameters.Instance.unitsManager.EnableAppropriateSprites(0, Players.NameToIndex(PhotonNetwork.NickName));
+            OnClickCancelButton();
+        }
+        else if (AllChosenUnits < parameters.AllUnits)
         {
             parameters.AllUnits -= AllChosenUnits;
             if (parameters.AvailableUnits > parameters.AllUnits) parameters.AvailableUnits = parameters.AllUnits;
@@ -95,18 +120,18 @@ public class AttackModeManager : MonoBehaviour
             {
                 AllUnits = parameters.AllUnits,
                 AvailableUnits = parameters.AvailableUnits,
-                FieldName = parameters.Instance.name
+                FieldName = parameters.Instance.name,
+                NewOwner = parameters.Owner
             });
             
-            AfterAttackUpdateFields newEvent = new(updatedData, parameters.Owner);
+            AfterAttackUpdateFields newEvent = new(updatedData);
             RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
                 SendOptions.SendReliable);
-            NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} attacked {Translator.TranslateField(parameters.Instance.name)}!");
+            NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} attacked {Players.DescribeNameAsColor(parameters.Owner)} in {Translator.TranslateField(parameters.Instance.name)} but failed to gain control!");
 
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, Players.NameToIndex(parameters.Owner));
             OnClickCancelButton();
-            
         }
         else
         {
@@ -120,14 +145,15 @@ public class AttackModeManager : MonoBehaviour
             {
                 AllUnits = parameters.AllUnits,
                 AvailableUnits = parameters.AvailableUnits,
-                FieldName = parameters.Instance.name
+                FieldName = parameters.Instance.name,
+                NewOwner = parameters.Owner
             });
          
-            AfterAttackUpdateFields newEvent = new(updatedData, parameters.Owner);
+            AfterAttackUpdateFields newEvent = new(updatedData);
             RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
                 SendOptions.SendReliable);
-            NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} attacked {Translator.TranslateField(parameters.Instance.name)}!");
+            NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} attacked {Players.DescribeNameAsColor(parameters.Owner)} and now controls {Translator.TranslateField(parameters.Instance.name)}!");
 
             parameters.Instance.EnableAppropriateGlowSprite();
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, SceneGame.CurrentPlayerIndex);

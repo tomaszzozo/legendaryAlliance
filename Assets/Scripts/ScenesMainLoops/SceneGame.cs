@@ -103,10 +103,10 @@ namespace ScenesMainLoops
                     {
                         var dataElement = data.FieldsUpdatedData[i];
                         var field = FieldsParameters.LookupTable[dataElement.FieldName];
+                        field.Owner = dataElement.NewOwner;
+                        field.Instance.EnableAppropriateBorderSprite();
                         if (i == 0)
                         {
-                            field.Owner = data.NewOwner;
-                            field.Instance.EnableAppropriateBorderSprite();
                             field.Instance.EnableAppropriateGlowSprite();
                         }
                         field.AllUnits = dataElement.AllUnits;
@@ -142,7 +142,7 @@ namespace ScenesMainLoops
         
         public void NextTurn()
         {
-            if (GameOverCheck())
+            if (PhotonNetwork.InRoom && GameOverCheck())
             {
                 PhotonNetwork.RaiseEvent((byte)EventTypes.SomeoneWon,
                     new SomeoneWon(PhotonNetwork.NickName).Serialize(),

@@ -21,10 +21,9 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
     
     public void OnEvent(EventData photonEvent)
     {
-        if (photonEvent.Code == (int)EventTypes.SendNotificationEvent)
-        {
-            Queue.Enqueue(SendNotificationEvent.Deserialize(photonEvent.CustomData as object[]).Message);
-        }
+        if (photonEvent.Code != (int)EventTypes.SendNotificationEvent) return;
+        var message = SendNotificationEvent.Deserialize(photonEvent.CustomData as object[]).Message;
+        Queue.Enqueue(message);
     }
 
     /// <summary>
@@ -45,7 +44,6 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
         var color = Players.PlayersList.Find(player => player.Name == SharedVariables.GetUsername()).Color;
         background.color = new Color(color.r, color.g, color.b, backgroundOpacity);
         canvas.enabled = false;
-        notificationCountLabel.color = color;
     }
 
     private void Update()
