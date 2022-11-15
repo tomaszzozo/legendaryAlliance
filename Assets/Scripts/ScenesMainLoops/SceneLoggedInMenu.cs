@@ -11,6 +11,7 @@ namespace ScenesMainLoops
         private void Start()
         {
             PhotonNetwork.Disconnect();
+            
             labelLoggedIn.GetComponent<TextMeshProUGUI>().text = $"Logged in as: {SharedVariables.GetUsername()}";
         }
     }

@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using RaiseEventOptions = Photon.Realtime.RaiseEventOptions;
 
 namespace ScenesMainLoops
 {
@@ -90,31 +91,42 @@ namespace ScenesMainLoops
         
         public void OnEvent(EventData photonEvent)
         {
-            if (new List<int> {(int)EventTypes.NextTurn, (int)EventTypes.CapitalSelected}.Contains(photonEvent.Code))
+            switch (photonEvent.Code)
             {
-                NextTurn();
-            }
-            else if (photonEvent.Code == (int)EventTypes.AfterAttackUpdateFields)
-            {
-                var data = AfterAttackUpdateFields.Deserialize((object[])photonEvent.CustomData);
-                for (var i = 0; i < data.FieldsUpdatedData.Count; i++)
+                case (int)EventTypes.NextTurn:
+                case (int)EventTypes.CapitalSelected:
+                    NextTurn();
+                    break;
+                case (int)EventTypes.AfterAttackUpdateFields:
                 {
-                    var dataElement = data.FieldsUpdatedData[i];
-                    var field = FieldsParameters.LookupTable[dataElement.FieldName];
-                    if (i == 0)
+                    var data = AfterAttackUpdateFields.Deserialize((object[])photonEvent.CustomData);
+                    for (var i = 0; i < data.FieldsUpdatedData.Count; i++)
                     {
-                        field.Owner = data.NewOwner;
-                        field.Instance.EnableAppropriateBorderSprite();
-                        field.Instance.EnableAppropriateGlowSprite();
+                        var dataElement = data.FieldsUpdatedData[i];
+                        var field = FieldsParameters.LookupTable[dataElement.FieldName];
+                        if (i == 0)
+                        {
+                            field.Owner = data.NewOwner;
+                            field.Instance.EnableAppropriateBorderSprite();
+                            field.Instance.EnableAppropriateGlowSprite();
+                        }
+                        field.AllUnits = dataElement.AllUnits;
+                        field.AvailableUnits = dataElement.AvailableUnits;
+                        field.Instance.unitsManager.EnableAppropriateSprites(field.AllUnits, Players.NameToIndex(field.Owner));
                     }
-                    field.AllUnits = dataElement.AllUnits;
-                    field.AvailableUnits = dataElement.AvailableUnits;
-                    field.Instance.unitsManager.EnableAppropriateSprites(field.AllUnits, Players.NameToIndex(field.Owner));
-                }
 
-                var thisPlayer = Players.PlayersList[Players.NameToIndex(SharedVariables.GetUsername())];
-                thisPlayer.Income = thisPlayer.CalculateIncome();
-                topStatsManager.RefreshValues();
+                    var thisPlayer = Players.PlayersList[Players.NameToIndex(SharedVariables.GetUsername())];
+                    thisPlayer.Income = thisPlayer.CalculateIncome();
+                    topStatsManager.RefreshValues();
+                    break;
+                }
+                case (int)EventTypes.SomeoneWon:
+                {
+                    var sceneLoader = gameObject.AddComponent<SceneLoader>();
+                    var whoWon = SomeoneWon.Deserialize(photonEvent.CustomData as object[]).winnerNickName;
+                    sceneLoader.LoadScene(whoWon == PhotonNetwork.NickName ? "SceneWonGame" : "SceneLostGame");
+                    break;
+                }
             }
         }
         
@@ -131,6 +143,15 @@ namespace ScenesMainLoops
         
         public void NextTurn()
         {
+            if (GameOverCheck())
+            {
+                PhotonNetwork.RaiseEvent((byte)EventTypes.SomeoneWon,
+                    new SomeoneWon(PhotonNetwork.NickName).Serialize(),
+                    new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                    SendOptions.SendReliable);
+                return;
+            }
+            
             _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
             if (!PhotonNetwork.InRoom) // TODO: delete on release
             {
@@ -149,17 +170,6 @@ namespace ScenesMainLoops
             labelButtonNextTurn.enabled = IsItMyTurn();
 
             if (!IsItMyTurn()) return;
-            if (PhotonNetwork.InRoom) // TODO: delete on release
-            {
-                if (CheckIfDefeat())
-                {
-                    RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
-                    PhotonNetwork.RaiseEvent((byte)EventTypes.NextTurn, null, options, SendOptions.SendReliable);
-                    gameObject.AddComponent<SceneLoader>().LoadScene("SceneLostGame");
-                    return;
-                }
-                if (CheckIfVictory()) gameObject.AddComponent<SceneLoader>().LoadScene("SceneWonGame");
-            }
 
             SharedVariables.IsOverUi = false;
             foreach (var (_, parameters) in FieldsParameters.LookupTable)
@@ -173,10 +183,10 @@ namespace ScenesMainLoops
             topStatsManager.RefreshValues();
             AudioPlayer.PlayYourTurn();
         }
-
+        
         private void Start()
         {
-            if (PhotonNetwork.InRoom) 
+            if (PhotonNetwork.InRoom)
             {
                 labelP1.text = (string)SharedVariables.SharedData[0];
                 labelP2.text = (string)SharedVariables.SharedData[1];
@@ -203,17 +213,17 @@ namespace ScenesMainLoops
             Players.Init(startingGold);
             _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
-                {0, labelP1},
-                {1, labelP2},
-                {2, labelP3},
-                {3, labelP4}
+                { 0, labelP1 },
+                { 1, labelP2 },
+                { 2, labelP3 },
+                { 3, labelP4 }
             };
-            
+
             // LABELS INIT
             if (BackgroundImage.Instance) BackgroundImage.Instance.Destroy();
-            
+
             topStatsManager.Init(_player);
-            
+
             labelP1.transform.Translate(new Vector2(LabelOffset, 0));
 
             buttonNextTurn.interactable = false;
@@ -222,19 +232,20 @@ namespace ScenesMainLoops
                 clockIcon.enabled = true;
                 labelButtonNextTurn.enabled = false;
             }
-            
+
             fieldInspectorManager.HideFieldInspector(true);
         }
-        
-        private bool CheckIfVictory()
-        {
-            return RoundCounter > 1 && !FieldsParameters.LookupTable.Values.Any(field =>
-                field.Owner != null && field.Owner != GetCurrentPlayer().Name);
-        }
 
-        private bool CheckIfDefeat()
+        private bool GameOverCheck()
         {
-            return RoundCounter > 1 && FieldsParameters.LookupTable.Values.All(field => field.Owner != GetCurrentPlayer().Name);
+            if (RoundCounter <= 1) return false;
+            var field = FieldsParameters.LookupTable.Values.FirstOrDefault(parameters => parameters.Owner != null);
+            if (field != null)
+                return !FieldsParameters.LookupTable.Values.Any(parameters =>
+                    parameters.Owner != field.Owner && parameters.Owner != null);
+            // TODO: tie?
+            Debug.Log("Tie?");
+            return true;
         }
     }
 }

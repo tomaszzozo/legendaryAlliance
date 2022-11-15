@@ -18,8 +18,7 @@ public class BackgroundImage : MonoBehaviour
     
     public void Destroy()
     {
-        Destroy(gameObject.GetComponent<SpriteRenderer>());
-        Destroy(this);    
+        Destroy(gameObject);    
     }
     
     private void Awake()

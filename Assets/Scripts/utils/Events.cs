@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using fields;
 
 public enum EventTypes
 {
@@ -13,7 +12,8 @@ public enum EventTypes
     CapitalSelected,
     RequestRoomData,
     BuyUnits,
-    AfterAttackUpdateFields
+    AfterAttackUpdateFields,
+    SomeoneWon
 }
 
 public class Event
@@ -194,5 +194,25 @@ public class AfterAttackUpdateFields : Event
         }
 
         return new AfterAttackUpdateFields(updatedData, newOwner);
+    }
+}
+
+public class SomeoneWon : Event
+{
+    public readonly string winnerNickName;
+
+    public SomeoneWon(string winner) : base(EventTypes.SomeoneWon)
+    {
+        winnerNickName = winner;
+    }
+
+    public object[] Serialize()
+    {
+        return new object[] { winnerNickName };
+    }
+
+    public static SomeoneWon Deserialize(object[] content)
+    {
+        return new SomeoneWon(content[0] as string);
     }
 }
