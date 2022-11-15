@@ -172,6 +172,7 @@ namespace fields
                 RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
                 PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
                     SendOptions.SendReliable);
+                NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} settled in {Translator.TranslateField(name)}");
                 return;
             }
 

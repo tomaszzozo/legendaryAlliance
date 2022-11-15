@@ -45,6 +45,24 @@ public class Players
             .Sum(field => field.Income);
     }
 
+    /// <summary>
+    /// Returns a string that can be used in notifications instead of players name.
+    /// <example>DescribeNameAsColor("tomaszzozo") returns "Red Player" if this players index is 0</example>
+    /// </summary>
+    /// <param name="name">Players nickname</param>
+    /// <returns>string that describes player by his color</returns>
+    public static string DescribeNameAsColor(string name)
+    {
+        return PlayersList.FindIndex(player => player.Name == name) switch
+        {
+            0 => "Red Player",
+            1 => "Blue Player",
+            2 => "Yellow Player",
+            3 => "Violet Player",
+            _ => "Player not found!"
+        };
+    }
+
     public string Name;
     public int Gold;
     public Color Color;

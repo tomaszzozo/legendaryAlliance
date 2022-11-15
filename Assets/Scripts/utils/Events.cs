@@ -13,7 +13,8 @@ public enum EventTypes
     RequestRoomData,
     BuyUnits,
     AfterAttackUpdateFields,
-    SomeoneWon
+    SomeoneWon,
+    SendNotificationEvent
 }
 
 public class Event
@@ -199,20 +200,40 @@ public class AfterAttackUpdateFields : Event
 
 public class SomeoneWon : Event
 {
-    public readonly string winnerNickName;
+    public readonly string WinnerNickName;
 
     public SomeoneWon(string winner) : base(EventTypes.SomeoneWon)
     {
-        winnerNickName = winner;
+        WinnerNickName = winner;
     }
 
     public object[] Serialize()
     {
-        return new object[] { winnerNickName };
+        return new object[] { WinnerNickName };
     }
 
     public static SomeoneWon Deserialize(object[] content)
     {
         return new SomeoneWon(content[0] as string);
+    }
+}
+
+public class SendNotificationEvent : Event
+{
+    public readonly string Message;
+
+    public SendNotificationEvent(string message) : base(EventTypes.SendNotificationEvent)
+    {
+        Message = message;
+    }
+
+    public object[] Serialize()
+    {
+        return new object[] { Message };
+    }
+
+    public static SendNotificationEvent Deserialize(object[] content)
+    {
+        return new SendNotificationEvent(content[0] as string);
     }
 }

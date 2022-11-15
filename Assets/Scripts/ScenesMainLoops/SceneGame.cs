@@ -6,7 +6,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using RaiseEventOptions = Photon.Realtime.RaiseEventOptions;
 
@@ -123,7 +122,7 @@ namespace ScenesMainLoops
                 case (int)EventTypes.SomeoneWon:
                 {
                     var sceneLoader = gameObject.AddComponent<SceneLoader>();
-                    var whoWon = SomeoneWon.Deserialize(photonEvent.CustomData as object[]).winnerNickName;
+                    var whoWon = SomeoneWon.Deserialize(photonEvent.CustomData as object[]).WinnerNickName;
                     sceneLoader.LoadScene(whoWon == PhotonNetwork.NickName ? "SceneWonGame" : "SceneLostGame");
                     break;
                 }

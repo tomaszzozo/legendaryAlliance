@@ -58,7 +58,8 @@ public class AttackModeManager : MonoBehaviour
             RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
                 SendOptions.SendReliable);
-            
+            NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} is now in control of {Translator.TranslateField(parameters.Instance.name)}");
+
             parameters.Instance.EnableAppropriateGlowSprite();
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, SceneGame.CurrentPlayerIndex);
             
@@ -101,9 +102,11 @@ public class AttackModeManager : MonoBehaviour
             RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
                 SendOptions.SendReliable);
+            NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} attacked {Translator.TranslateField(parameters.Instance.name)}!");
 
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, Players.NameToIndex(parameters.Owner));
             OnClickCancelButton();
+            
         }
         else
         {
@@ -124,7 +127,8 @@ public class AttackModeManager : MonoBehaviour
             RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
                 SendOptions.SendReliable);
-            
+            NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} attacked {Translator.TranslateField(parameters.Instance.name)}!");
+
             parameters.Instance.EnableAppropriateGlowSprite();
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, SceneGame.CurrentPlayerIndex);
             
