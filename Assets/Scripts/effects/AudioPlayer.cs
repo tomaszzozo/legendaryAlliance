@@ -7,10 +7,10 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     private static AudioSource _audioSourceFieldHover;
     private static AudioSource _audioSourceButtonClick;
-    private static AudioSource _audioSourceYourTurn;
     private static AudioSource _audioSourceAttack;
     private static AudioSource _audioSourceRegroup;
     private static AudioSource _audioSourceBuyUnit;
+    private static AudioSource _audioSourceNotification;
 
     public static void PlayFieldHover()
     {
@@ -24,7 +24,7 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public static void PlayYourTurn()
     {
-        _audioSourceYourTurn.Play();
+        NotificationsBarManager.EnqueueNotification("Your turn!");
     }
 
     public static void PlayAttack()
@@ -46,6 +46,11 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
     public static void PlayBuyUnit()
     {
         _audioSourceBuyUnit.Play();
+    }
+
+    public static void PlayNotification()
+    {
+        _audioSourceNotification.Play();
     }
 
     public void OnEvent(EventData photonEvent)
@@ -70,9 +75,6 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
         _audioSourceButtonClick = gameObject.AddComponent<AudioSource>();
         _audioSourceButtonClick.clip = Resources.Load("buttonClick") as AudioClip;
         
-        _audioSourceYourTurn = gameObject.AddComponent<AudioSource>();
-        _audioSourceYourTurn.clip = Resources.Load("yourTurn") as AudioClip;
-        
         _audioSourceAttack = gameObject.AddComponent<AudioSource>();
         _audioSourceAttack.clip = Resources.Load("attack") as AudioClip;
         _audioSourceAttack.volume = 0.5f;
@@ -83,5 +85,9 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
         
         _audioSourceBuyUnit = gameObject.AddComponent<AudioSource>();
         _audioSourceBuyUnit.clip = Resources.Load("buyUnit") as AudioClip;
+        
+        _audioSourceNotification = gameObject.AddComponent<AudioSource>();
+        _audioSourceNotification.clip = Resources.Load("notification") as AudioClip;
+        _audioSourceNotification.volume = 0.25f;
     }
 }

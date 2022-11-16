@@ -8,6 +8,6 @@ public class ScenePlayerLeftGame : MonoBehaviour
     public static string PlayerThatLeftNickname;
     private void Start()
     {
-        label.text = $"{PlayerThatLeftNickname} ({Players.DescribeNameAsColor(PlayerThatLeftNickname)})has left the game!";
+        label.text = $"{PlayerThatLeftNickname} ({Players.DescribeNameAsColor(PlayerThatLeftNickname)}) has left the game!";
     }
 }

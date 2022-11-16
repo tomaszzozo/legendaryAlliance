@@ -39,6 +39,15 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
             SendOptions.SendReliable);
     }
 
+    /// <summary>
+    /// Enqueues a notification that only the user will see, for example "your turn" notification.
+    /// </summary>
+    /// <param name="message">Notification to queue</param>
+    public static void EnqueueNotification(string message)
+    {
+        Queue.Enqueue(message);
+    }
+
     private void Start()
     {
         var color = Players.PlayersList.Find(player => player.Name == SharedVariables.GetUsername()).Color;
@@ -56,6 +65,7 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
 
     private IEnumerator DisplayNotification(int notificationsLeft, string message)
     {
+        AudioPlayer.PlayNotification();
         notificationCountBackground.enabled = notificationsLeft > 1;
         notificationCountLabel.enabled = notificationsLeft > 1;
         notificationCountLabel.text = notificationsLeft.ToString();
@@ -68,7 +78,7 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
         
         canvas.enabled = true;
 
-        for (float alpha = 0; alpha < 1; alpha += 0.1f)
+        for (float alpha = 0; alpha <= 1; alpha += 0.1f)
         {
             notificationCountBackground.canvasRenderer.SetAlpha(alpha);
             notificationCountLabel.canvasRenderer.SetAlpha(alpha);
@@ -77,9 +87,9 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
             yield return new WaitForSeconds(0.01f);
         }
 
-        yield return new WaitForSeconds(4);
+        yield return new WaitForSeconds(1.5f);
         
-        for (float alpha = 1; alpha > 0; alpha -= 0.01f)
+        for (float alpha = 1; alpha >= 0; alpha -= 0.01f)
         {
             notificationCountBackground.canvasRenderer.SetAlpha(alpha);
             notificationCountLabel.canvasRenderer.SetAlpha(alpha);
