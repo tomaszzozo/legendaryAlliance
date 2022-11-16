@@ -26,3 +26,4 @@ Tytuł roboczy gry to "Legendary Alliance". Jest przeznaczona dla od dwóch do c
 - System kontroli wersji: Git oraz Github
 - Obróbka dźwięku: FL Studio 20
 - Obróbka obrazów: Adobe Photoshop
+- Rozwiązania sieciowe: Photon Unity Networking 2
