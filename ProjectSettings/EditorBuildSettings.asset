@@ -41,4 +41,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SceneWonGame.unity
     guid: e561c07b760cf48a58051e08fa4324ba
+  - enabled: 1
+    path: Assets/Scenes/ScenePlayerLeftGame.unity
+    guid: b9345aedf92c6484f997ab498f5bfb95
   m_configObjects: {}

@@ -55,6 +55,8 @@ namespace ScenesMainLoops
         public override void OnPlayerLeftRoom(Player otherPlayer)
         {
             Debug.Log("Player left room! Implement save game screen here!");
+            ScenePlayerLeftGame.PlayerThatLeftNickname = otherPlayer.NickName;
+            gameObject.AddComponent<SceneLoader>().LoadScene("ScenePlayerLeftGame");
         }
 
         public void OnClickNextTurnButton()
