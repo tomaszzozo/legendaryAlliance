@@ -18,6 +18,12 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
 
     private static readonly Queue<string> Queue = new();
     private static bool _showingNotification;
+    private static bool _skip;
+
+    public static void SkipNotification()
+    {
+        _skip = true;
+    }
     
     public void OnEvent(EventData photonEvent)
     {
@@ -71,19 +77,29 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
         notificationCountLabel.text = notificationsLeft > 99 ? "99+" : notificationsLeft.ToString();
         notificationTextLabel.text = message;
 
+        notificationCountBackground.canvasRenderer.SetAlpha(1);
+        notificationCountLabel.canvasRenderer.SetAlpha(1);
+        notificationTextLabel.canvasRenderer.SetAlpha(1);
+        background.canvasRenderer.SetAlpha(1);
         canvas.enabled = true;
 
-        yield return new WaitForSeconds(2);
+        for (float i = 0; i < 1; i += 0.01f)
+        {
+            if (_skip) break;
+            yield return new WaitForSeconds(0.01f);
+        }
         
         for (var alpha = background.canvasRenderer.GetAlpha(); alpha >= 0; alpha -= 0.01f)
         {
+            if (_skip) break;
             notificationCountBackground.canvasRenderer.SetAlpha(alpha);
             notificationCountLabel.canvasRenderer.SetAlpha(alpha);
             notificationTextLabel.canvasRenderer.SetAlpha(alpha);
             background.canvasRenderer.SetAlpha(alpha);
             yield return new WaitForSeconds(0.01f);
         }
-        
+
+        _skip = false;
         canvas.enabled = false;
         _showingNotification = false;
     }
