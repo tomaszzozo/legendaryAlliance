@@ -24,6 +24,4 @@ Tytuł roboczy gry to "Legendary Alliance". Jest przeznaczona dla od dwóch do c
 - Serwer: EC2 (Amazon Web Services)
 - Silnik gry: Unity
 - System kontroli wersji: Git oraz Github
-- Obróbka dźwięku: FL Studio 20
-- Obróbka obrazów: Adobe Photoshop
 - Rozwiązania sieciowe: Photon Unity Networking 2
