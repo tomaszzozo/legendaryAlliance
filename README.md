@@ -9,7 +9,7 @@ Tytuł roboczy gry to "Legendary Alliance". Gra jest przeznaczona dla od dwóch 
 
 - Pobierz i wypakuj [archiwum](https://github.com/tomaszzozo/legendaryAlliance/releases/download/Release/MacOs.zip)
 - Uruchom plik Build.app
-- System MacOS może wyświetlić monit z pytaniem o pewność uruchomienia aplikacji pochodzącej z internetu. Zatwierdź uruchomienie aplikacji.
+- System MacOS może wyświetlić monit z pytaniem o potwierdzenie zamiaru uruchomienia aplikacji pochodzącej z internetu. Zatwierdź uruchomienie aplikacji.
 
 **Windows**
 
