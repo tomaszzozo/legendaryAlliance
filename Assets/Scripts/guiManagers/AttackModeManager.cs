@@ -68,6 +68,7 @@ public class AttackModeManager : MonoBehaviour
             topStatsManager.RefreshValues();
             
             OnClickCancelButton();
+            AudioPlayer.PlayRegroup();
         }
         else if (FieldInspectorManager.RegroupMode)
         {
@@ -86,6 +87,7 @@ public class AttackModeManager : MonoBehaviour
                 SendOptions.SendReliable);
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, SceneGame.CurrentPlayerIndex);
             OnClickCancelButton();
+            AudioPlayer.PlayRegroup();
         }
         else if (AllChosenUnits == parameters.AllUnits)
         {
@@ -109,6 +111,7 @@ public class AttackModeManager : MonoBehaviour
                 SendOptions.SendReliable);
             parameters.Instance.unitsManager.EnableAppropriateSprites(0, Players.NameToIndex(PhotonNetwork.NickName));
             OnClickCancelButton();
+            AudioPlayer.PlayAttack();
         }
         else if (AllChosenUnits < parameters.AllUnits)
         {
@@ -132,6 +135,7 @@ public class AttackModeManager : MonoBehaviour
 
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits, Players.NameToIndex(parameters.Owner));
             OnClickCancelButton();
+            AudioPlayer.PlayAttack();
         }
         else
         {
@@ -162,6 +166,7 @@ public class AttackModeManager : MonoBehaviour
             topStatsManager.RefreshValues();
             
             OnClickCancelButton();
+            AudioPlayer.PlayAttack();
         }
     }
 

@@ -14,7 +14,8 @@ public enum EventTypes
     BuyUnits,
     AfterAttackUpdateFields,
     SomeoneWon,
-    SendNotificationEvent
+    SendNotificationEvent,
+    PlaySound
 }
 
 public class Event
@@ -236,5 +237,25 @@ public class SendNotificationEvent : Event
     public static SendNotificationEvent Deserialize(object[] content)
     {
         return new SendNotificationEvent(content[0] as string);
+    }
+}
+
+public class PlaySound : Event
+{
+    public readonly string SoundName;
+
+    public PlaySound(string soundName) : base(EventTypes.PlaySound)
+    {
+        SoundName = soundName;
+    }
+
+    public object[] Serialize()
+    {
+        return new object[] { SoundName };
+    }
+
+    public static PlaySound Deserialize(object[] content)
+    {
+        return new PlaySound(content[0] as string);
     }
 }
