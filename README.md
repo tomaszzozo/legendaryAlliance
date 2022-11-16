@@ -1,7 +1,7 @@
 # Praca inżynierska
 
 To repozytorium zawiera kod programu, który jest tematem mojej pracy inżynierskiej.
-Tytuł roboczy gry to "Legendary Alliance". Jest przeznaczona dla od dwóch do czterech graczy. Gracze muszą połączyć się na różnych maszynach, co spowodowane jest działaniem wybranego systemu rozwiązań sieciowych. Nie istnieje konieczność łączenia się na tych samych systemach operacyjnych.
+Tytuł roboczy gry to "Legendary Alliance". Jest przeznaczona dla od dwóch do czterech graczy. Gracze muszą połączyć się na różnych maszynach, co spowodowane jest działaniem wybranego systemu rozwiązań sieciowych. Nie istnieje konieczność łączenia się na tych samych systemach operacyjnych. Użyte w grze obrazy są przechowywane na osobnym, prywatnym dysku ze względu na ich duży rozmiar. Nie jest więc możliwa własnoręczna kompilacja projektu po sklonowaniu repozytorium, ale istnieje możliwość pobrania gotowego do uruchomienia pliku.
 
 ## Instalacja
 
