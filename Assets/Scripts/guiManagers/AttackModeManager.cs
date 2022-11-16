@@ -33,6 +33,7 @@ public class AttackModeManager : MonoBehaviour
         SharedVariables.IsOverUi = false;
         fieldInspectorManager.EnableFieldInspector(_fieldName);
         canvas.enabled = false;
+        AudioPlayer.PlayButtonClick();
     }
 
     public void OnClickAttackButton()

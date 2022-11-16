@@ -72,6 +72,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= SceneGame.UnitBaseCost;
         SceneGame.GlobalVariables.SelectedFieldLocal.unitsManager.EnableAppropriateSprites(_parameters.AllUnits, SceneGame.CurrentPlayerIndex);
         unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
+        AudioPlayer.PlayBuyUnit();
     }
 
     public void OnClickAttackButton()
@@ -81,6 +82,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         attackModeManager.EnableAttackModule(_fieldName);
         HideFieldInspector();
+        AudioPlayer.PlayButtonClick();
     }
 
     private void Start()

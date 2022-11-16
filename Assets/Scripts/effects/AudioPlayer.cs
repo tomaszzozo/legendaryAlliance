@@ -10,6 +10,7 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
     private static AudioSource _audioSourceYourTurn;
     private static AudioSource _audioSourceAttack;
     private static AudioSource _audioSourceRegroup;
+    private static AudioSource _audioSourceBuyUnit;
 
     public static void PlayFieldHover()
     {
@@ -40,6 +41,11 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
         var eventData = new PlaySound("regroup");
         PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
             new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);
+    }
+
+    public static void PlayBuyUnit()
+    {
+        _audioSourceBuyUnit.Play();
     }
 
     public void OnEvent(EventData photonEvent)
@@ -74,5 +80,8 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
         _audioSourceRegroup = gameObject.AddComponent<AudioSource>();
         _audioSourceRegroup.clip = Resources.Load("regroup") as AudioClip;
         _audioSourceRegroup.volume = 0.5f;
+        
+        _audioSourceBuyUnit = gameObject.AddComponent<AudioSource>();
+        _audioSourceBuyUnit.clip = Resources.Load("buyUnit") as AudioClip;
     }
 }
