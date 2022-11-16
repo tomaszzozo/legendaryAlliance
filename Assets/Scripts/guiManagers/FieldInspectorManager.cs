@@ -20,6 +20,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject buyUnitButton;
     [SerializeField] private GameObject attackButton;
     [SerializeField] private AttackModeManager attackModeManager;
+    [SerializeField] private Button backButton;
 
     public static bool RegroupMode;
     
@@ -52,6 +53,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         EnableMoveButtonIfAbleToMove();
         canvas.enabled = true;
         SharedVariables.IsOverUi = true;
+        backButton.interactable = true;
     }
 
     public void HideFieldInspector(bool onStartup = false)
@@ -63,6 +65,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         SharedVariables.IsOverUi = false;
+        backButton.interactable = false;
     }
 
     public void OnClickBuyUnitButton()

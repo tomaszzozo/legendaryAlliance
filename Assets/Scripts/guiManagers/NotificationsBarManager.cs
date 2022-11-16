@@ -68,28 +68,14 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
         AudioPlayer.PlayNotification();
         notificationCountBackground.enabled = notificationsLeft > 1;
         notificationCountLabel.enabled = notificationsLeft > 1;
-        notificationCountLabel.text = notificationsLeft.ToString();
+        notificationCountLabel.text = notificationsLeft > 99 ? "99+" : notificationsLeft.ToString();
         notificationTextLabel.text = message;
-        
-        notificationTextLabel.canvasRenderer.SetAlpha(0);
-        background.canvasRenderer.SetAlpha(0);
-        notificationCountBackground.canvasRenderer.SetAlpha(0);
-        notificationCountLabel.canvasRenderer.SetAlpha(0);
-        
+
         canvas.enabled = true;
 
-        for (float alpha = 0; alpha <= 1; alpha += 0.1f)
-        {
-            notificationCountBackground.canvasRenderer.SetAlpha(alpha);
-            notificationCountLabel.canvasRenderer.SetAlpha(alpha);
-            notificationTextLabel.canvasRenderer.SetAlpha(alpha);
-            background.canvasRenderer.SetAlpha(alpha);
-            yield return new WaitForSeconds(0.01f);
-        }
-
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2);
         
-        for (float alpha = 1; alpha >= 0; alpha -= 0.01f)
+        for (var alpha = background.canvasRenderer.GetAlpha(); alpha >= 0; alpha -= 0.01f)
         {
             notificationCountBackground.canvasRenderer.SetAlpha(alpha);
             notificationCountLabel.canvasRenderer.SetAlpha(alpha);
