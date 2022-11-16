@@ -30,8 +30,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private Button _attackButton;
     private FieldsParameters _parameters;
     private string _fieldName;
-    
-    
+
     public void EnableFieldInspector(string fieldName)
     {
         _parameters = FieldsParameters.LookupTable[fieldName];
@@ -43,9 +42,18 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
         nameLabel.text = Translator.TranslateField(fieldName);
         ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
-        unitsCountLabel.text = _parameters.Owner != null ? 
-            "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits
-            : "";
+        if (_parameters.Owner == null)
+        {
+            unitsCountLabel.text = "";
+        }
+        else if (_parameters.Owner == SceneGame.GetCurrentPlayer().Name)
+        {
+            unitsCountLabel.text ="x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
+        }
+        else
+        {
+            unitsCountLabel.text = _parameters.UnitsCountDescription() == "0" ? "x 0" : _parameters.UnitsCountDescription();
+        }
         _buyUnitButton.image.enabled = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
         _buyUnitButton.interactable = _buyUnitButton.image.enabled && SceneGame.GetCurrentPlayer().Gold >= SceneGame.UnitBaseCost;
         _buyUnitButtonLabel.enabled = _buyUnitButton.image.enabled;

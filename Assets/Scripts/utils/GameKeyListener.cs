@@ -1,4 +1,5 @@
 using System;
+using ScenesMainLoops;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +7,6 @@ public class GameKeyListener : MonoBehaviour
 {
     [SerializeField] private Canvas fieldManagerCanvas;
     [SerializeField] private Canvas attackModeCanvas;
-    [SerializeField] private Canvas escMenuCanvas;
     [SerializeField] private Button fieldManagerBackButton;
     [SerializeField] private Button nextTurnButton;
     [SerializeField] private Button attackModeCancelButton;
@@ -23,6 +23,7 @@ public class GameKeyListener : MonoBehaviour
             else if (fieldManagerCanvas.enabled)
             {
                 fieldManagerBackButton.onClick.Invoke();
+                SharedVariables.IsOverUi = false;
             }
             else if (EscMenuManager.Instance.IsVisible())
             {

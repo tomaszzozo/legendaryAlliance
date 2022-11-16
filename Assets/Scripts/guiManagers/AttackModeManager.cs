@@ -178,7 +178,7 @@ public class AttackModeManager : MonoBehaviour
         _fieldName = fieldName;
         fieldNameLabel.text = Translator.TranslateField(fieldName);
         canvas.enabled = true;
-        theirUnitsLabel.text = FieldsParameters.LookupTable[fieldName].AllUnits.ToString();
+        theirUnitsLabel.text = FieldInspectorManager.RegroupMode ? FieldsParameters.LookupTable[fieldName].AllUnits.ToString() : FieldsParameters.LookupTable[fieldName].UnitsCountDescription();
         ourUnitsLabel.text = "0";
         attackModeNeighbourManager.EnableAppropriateComponents(fieldName);
         ourColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);

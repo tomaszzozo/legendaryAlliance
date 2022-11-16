@@ -6,29 +6,28 @@ public class AudioMainTheme : MonoBehaviour
     public static AudioMainTheme Instance { get; private set; }
     [SerializeField] private AudioClip mainTheme;
     [SerializeField] private float volume;
-    [SerializeField] private float secondsToFadeOut;
+    private const float SecondsToFadeOut = 5;
     private AudioSource _audioSource;
-    
-    
-    public void Play()
-    {
-        if (_audioSource.isPlaying) return;
-        _audioSource.Play();
-    }
     
     public void Stop()
     {
         StartCoroutine (Instance.FadeOut());
     }
     
+    private void Play()
+    {
+        if (_audioSource.isPlaying) return;
+        _audioSource.Play();
+    }
+    
     private IEnumerator FadeOut() {
         var startVolume = _audioSource.volume;
         while (_audioSource.volume > 0) {
-            _audioSource.volume -= startVolume * Time.deltaTime / secondsToFadeOut;
+            _audioSource.volume -= startVolume * Time.deltaTime / SecondsToFadeOut;
  
             yield return null;
         }
-        _audioSource.Stop ();
+        _audioSource.Stop();
         _audioSource.volume = startVolume;
     }
     
@@ -45,6 +44,7 @@ public class AudioMainTheme : MonoBehaviour
     {
         if (Instance != null && Instance != this) 
         { 
+            Instance.Play();
             Debug.Log("An instance of main theme already exists, destroying this object...");
             Destroy(gameObject); 
         } 

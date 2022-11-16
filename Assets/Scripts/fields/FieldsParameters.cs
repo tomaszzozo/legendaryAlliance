@@ -12,6 +12,23 @@ namespace fields
         public int AvailableUnits;
         public int AllUnits;
         public Field Instance { get; set; }
+
+        public string UnitsCountDescription()
+        {
+            return AllUnits switch
+            {
+                > 59 => "legion (60+)",
+                > 49 => "zounds (50-59)",
+                > 39 => "swarm (40-49)",
+                > 29 => "throng (30-39)",
+                > 19 => "horde (20-29)",
+                > 14 => "lots (15-19)",
+                > 9 => "pack (10-14)",
+                > 4 => "several (5-9)",
+                > 0 => "few (1-4)",
+                _ => "0"
+            };
+        }
         
         private FieldsParameters(float camSize, Vector2 camPosition, int income = 5)
         {
