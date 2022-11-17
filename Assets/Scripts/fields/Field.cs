@@ -52,8 +52,12 @@ namespace fields
                     var data = CapitalSelected.Deserialize((object[])photonEvent.CustomData);
                     if (name != data.FieldName) return;
                     _parameters.Owner = data.Owner;
+                    _parameters.HasTrenches = true;
+                    _parameters.AllUnits = 1;
+                    unitsManager.EnableAppropriateSprites(1, Players.NameToIndex(_parameters.Owner));
                     EnableAppropriateBorderSprite();
                     EnableAppropriateCapitalSprite();
+                    objectsManager.EnableAppropriateObjects(name);
                     break;
                 }
                 case (int)EventTypes.BuyUnits:
@@ -64,6 +68,15 @@ namespace fields
                     _parameters.AvailableUnits = data.AvailableUnits;
                     Players.PlayersList.Find(player => player.Name == data.Owner).Gold = data.Gold;
                     unitsManager.EnableAppropriateSprites(_parameters.AllUnits, Players.NameToIndex(_parameters.Owner));
+                    break;
+                }
+
+                case (int)EventTypes.TrenchesBought:
+                {
+                    var fieldName = TrenchesBought.Deserialize(photonEvent.CustomData as object[]).FieldName;
+                    if (fieldName != name) return;
+                    _parameters.HasTrenches = true;
+                    objectsManager.EnableAppropriateObjects(name);
                     break;
                 }
             }
@@ -176,8 +189,12 @@ namespace fields
 
                 DisableAllGlowSprites();
                 _parameters.Owner = SceneGame.GetCurrentPlayer().Name;
+                _parameters.AllUnits = 1;
+                unitsManager.EnableAppropriateSprites(1, SceneGame.CurrentPlayerIndex);
+                _parameters.HasTrenches = true;
                 EnableAppropriateBorderSprite();
                 EnableAppropriateCapitalSprite();
+                objectsManager.EnableAppropriateObjects(name);
                 mainLoop.NextTurn();
                 CapitalSelected newEvent = new(name, _parameters.Owner);
                 RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };

@@ -15,7 +15,8 @@ public enum EventTypes
     AfterAttackUpdateFields,
     SomeoneWon,
     SendNotificationEvent,
-    PlaySound
+    PlaySound,
+    TrenchesBought
 }
 
 public class Event
@@ -257,5 +258,25 @@ public class PlaySound : Event
     public static PlaySound Deserialize(object[] content)
     {
         return new PlaySound(content[0] as string);
+    }
+}
+
+public class TrenchesBought : Event
+{
+    public readonly string FieldName;
+
+    public TrenchesBought(string fieldName) : base(EventTypes.TrenchesBought)
+    {
+        FieldName = fieldName;
+    }
+
+    public object[] Serialize()
+    {
+        return new object[] { FieldName };
+    }
+
+    public static TrenchesBought Deserialize(object[] content)
+    {
+        return new TrenchesBought(content[0] as string);
     }
 }

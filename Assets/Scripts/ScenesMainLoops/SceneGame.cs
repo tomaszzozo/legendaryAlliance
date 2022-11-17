@@ -32,11 +32,12 @@ namespace ScenesMainLoops
         public FieldInspectorManager fieldInspectorManager;
         public TopStatsManager topStatsManager;
         
-        public int startingGold;
+        private const int StartingGold = 15;
         public static int RoundCounter { get; private set; }
         public static int CurrentPlayerIndex { get; private set; }
         public const int UnitBaseCost = 20;
         private const int LabelOffset = 30;
+        public const int TrenchesBaseCost = 50;
         private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
         private Players _player;
         
@@ -211,7 +212,7 @@ namespace ScenesMainLoops
             }
 
             // VARIABLES INIT
-            Players.Init(startingGold);
+            Players.Init(StartingGold);
             _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
                 { 0, labelP1 },

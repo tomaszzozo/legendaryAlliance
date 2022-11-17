@@ -43,7 +43,7 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
             new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);
     }
 
-    public static void PlayBuyUnit()
+    public static void PlayBuy()
     {
         _audioSourceBuyUnit.Play();
     }
