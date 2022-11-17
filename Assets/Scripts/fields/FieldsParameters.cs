@@ -11,6 +11,7 @@ namespace fields
         public int Income;
         public int AvailableUnits;
         public int AllUnits;
+        public bool HasTrenches;
         public Field Instance { get; set; }
 
         public string UnitsCountDescription()

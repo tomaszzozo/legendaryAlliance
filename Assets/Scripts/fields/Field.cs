@@ -25,6 +25,7 @@ namespace fields
         public SpriteRenderer capitalYellow;
         public SpriteRenderer capitalViolet;
         public UnitsManager unitsManager;
+        public FieldObjectsManager objectsManager;
         
         private FieldsParameters _parameters;
 
@@ -110,6 +111,13 @@ namespace fields
             else if (_parameters.Owner == Players.PlayersList[1].Name) capitalBlue.enabled = true;
             else if (_parameters.Owner == Players.PlayersList[2].Name) capitalYellow.enabled = true;
             else if (_parameters.Owner == Players.PlayersList[3].Name) capitalViolet.enabled = true;
+            else
+            {
+                capitalRed.enabled = false;
+                capitalBlue.enabled = false;
+                capitalYellow.enabled = false;
+                capitalViolet.enabled = false;
+            }
         }
 
         private void Start()
@@ -125,6 +133,9 @@ namespace fields
             yellowSprite.sortingOrder = 11;
             violetSprite.sortingOrder = 11;
             graySprite.sortingOrder = 11;
+            unitsManager.EnableAppropriateSprites(0, 0);
+            objectsManager.DisableAllObjects();
+            EnableAppropriateCapitalSprite();
         }
 
         private void OnMouseEnter()

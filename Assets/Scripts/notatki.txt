@@ -1,7 +1,7 @@
 -1 water
 0 - 9 fields
-11 selected field
 10 borders
+11 selected field
 12 - 19 capitals, objects
 20 - units
 
