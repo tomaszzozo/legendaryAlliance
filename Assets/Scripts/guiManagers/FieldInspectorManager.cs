@@ -65,9 +65,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         trenchesCountLabel.enabled = trenchesImage.enabled;
         trenchesCountLabel.text = _parameters.HasTrenches ? "x 1/1" : "x 0/1";
         buyTrenchesButtonGameObject.SetActive(_parameters.Owner == SceneGame.GetCurrentPlayer().Name);
-        _buyTrenchesButton.interactable = !_parameters.HasTrenches &&
-                                          SceneGame.GetCurrentPlayer().Gold >=
-                                          GameplayConstants.TrenchesBaseCost;
+        TrenchesButtonSetInteractable();
         
         EnableAttackButtonIfAbleToAttack();
         EnableMoveButtonIfAbleToMove();
@@ -93,7 +91,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _parameters.AllUnits++;
         SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.UnitBaseCost;
         _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
-        _buyTrenchesButton.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.TrenchesBaseCost;
+        TrenchesButtonSetInteractable();
         _parameters.Instance.unitsManager.EnableAppropriateSprites(_parameters.AllUnits, SceneGame.CurrentPlayerIndex);
         unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
         AudioPlayer.PlayBuy();
@@ -158,5 +156,15 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         {
             _attackButtonLabel.text = "Attack";
         }
+    }
+
+    private void TrenchesButtonSetInteractable()
+    {
+        var player = SceneGame.GetCurrentPlayer();
+        var trenchesCount =
+            FieldsParameters.LookupTable.Values.Count(field => field.HasTrenches && field.Owner == player.Name);
+        _buyTrenchesButton.interactable = !_parameters.HasTrenches &&
+                                          player.Gold >= GameplayConstants.TrenchesBaseCost && trenchesCount <
+                                          GameplayConstants.TrenchesLimits[player.TrenchesLimitLevel];
     }
 }

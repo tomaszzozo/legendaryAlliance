@@ -67,4 +67,5 @@ public class Players
     public int Gold;
     public Color Color;
     public int Income;
+    public int TrenchesLimitLevel = 0;
 }
