@@ -59,7 +59,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             unitsCountLabel.text = _parameters.UnitsCountDescription() == "0" ? "x 0" : _parameters.UnitsCountDescription();
         }
         buyUnitButton.SetActive(_parameters.Owner == SceneGame.GetCurrentPlayer().Name);
-        _buyUnitButton.interactable = _parameters.HasTrenches && SceneGame.GetCurrentPlayer().Gold >= SceneGame.UnitBaseCost;
+        _buyUnitButton.interactable = _parameters.HasTrenches && SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
 
         trenchesImage.enabled = _parameters.Owner != null;
         trenchesCountLabel.enabled = trenchesImage.enabled;
@@ -67,7 +67,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         buyTrenchesButtonGameObject.SetActive(_parameters.Owner == SceneGame.GetCurrentPlayer().Name);
         _buyTrenchesButton.interactable = !_parameters.HasTrenches &&
                                           SceneGame.GetCurrentPlayer().Gold >=
-                                          SceneGame.TrenchesBaseCost;
+                                          GameplayConstants.TrenchesBaseCost;
         
         EnableAttackButtonIfAbleToAttack();
         EnableMoveButtonIfAbleToMove();
@@ -91,8 +91,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     public void OnClickBuyUnitButton()
     {
         _parameters.AllUnits++;
-        SceneGame.GetCurrentPlayer().Gold -= SceneGame.UnitBaseCost;
-        _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= SceneGame.UnitBaseCost;
+        SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.UnitBaseCost;
+        _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
+        _buyTrenchesButton.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.TrenchesBaseCost;
         _parameters.Instance.unitsManager.EnableAppropriateSprites(_parameters.AllUnits, SceneGame.CurrentPlayerIndex);
         unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
         AudioPlayer.PlayBuy();
@@ -111,10 +112,10 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     public void OnClickBuyTrenchesButton()
     {
         _parameters.HasTrenches = true;
-        SceneGame.GetCurrentPlayer().Gold -= SceneGame.TrenchesBaseCost;
+        SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.TrenchesBaseCost;
         _buyTrenchesButton.interactable = false;
         _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
-        _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= SceneGame.UnitBaseCost;
+        _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
         trenchesCountLabel.text = "x 1/1";
         TrenchesBought eventData = new(_parameters.Instance.name);
         PhotonNetwork.RaiseEvent(
