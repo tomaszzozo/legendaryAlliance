@@ -26,20 +26,21 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject buyTrenchesButtonGameObject;
 
     public static bool RegroupMode;
-    
-    private TextMeshProUGUI _buyUnitButtonLabel;
-    private TextMeshProUGUI _attackButtonLabel;
-    private Button _buyUnitButton;
-    private Button _attackButton;
+
+    private ButtonWrapper _buyUnitButton;
+    private ButtonWrapper _attackModeButton;
+    private ButtonWrapper _buyTrenchesButton;
     private FieldsParameters _parameters;
     private string _fieldName;
-    private Button _buyTrenchesButton;
 
+    
     public void EnableFieldInspector(string fieldName)
     {
         _parameters = FieldsParameters.LookupTable[fieldName];
         _fieldName = fieldName;
         RegroupMode = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
+        _buyUnitButton.Label.text = $"x {GameplayConstants.UnitBaseCost}";
+        _buyTrenchesButton.Label.text = $"x {GameplayConstants.TrenchesBaseCost}";
  
         unitColorManager.EnableAppropriateImage(
             Players.PlayersList.FindIndex(player => player.Name == _parameters.Owner));
@@ -59,7 +60,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             unitsCountLabel.text = _parameters.UnitsCountDescription() == "0" ? "x 0" : _parameters.UnitsCountDescription();
         }
         buyUnitButton.SetActive(_parameters.Owner == SceneGame.GetCurrentPlayer().Name);
-        _buyUnitButton.interactable = _parameters.HasTrenches && SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
+        _buyUnitButton.Button.interactable = _parameters.HasTrenches && SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
 
         trenchesImage.enabled = _parameters.Owner != null;
         trenchesCountLabel.enabled = trenchesImage.enabled;
@@ -90,7 +91,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     {
         _parameters.AllUnits++;
         SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.UnitBaseCost;
-        _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
+        _buyUnitButton.Button.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
         TrenchesButtonSetInteractable();
         _parameters.Instance.unitsManager.EnableAppropriateSprites(_parameters.AllUnits, SceneGame.CurrentPlayerIndex);
         unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
@@ -111,9 +112,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     {
         _parameters.HasTrenches = true;
         SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.TrenchesBaseCost;
-        _buyTrenchesButton.interactable = false;
+        _buyTrenchesButton.Button.interactable = false;
         _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
-        _buyUnitButton.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
+        _buyUnitButton.Button.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
         trenchesCountLabel.text = "x 1/1";
         TrenchesBought eventData = new(_parameters.Instance.name);
         PhotonNetwork.RaiseEvent(
@@ -127,11 +128,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        _buyUnitButtonLabel = buyUnitButton.GetComponentInChildren<TextMeshProUGUI>();
-        _attackButtonLabel = attackButton.GetComponentInChildren<TextMeshProUGUI>();
-        _buyUnitButton = buyUnitButton.GetComponent<Button>();
-        _attackButton = attackButton.GetComponent<Button>();
-        _buyTrenchesButton = buyTrenchesButtonGameObject.GetComponent<Button>();
+        _buyUnitButton = new ButtonWrapper(buyUnitButton);
+        _attackModeButton = new ButtonWrapper(attackButton);
+        _buyTrenchesButton = new ButtonWrapper(buyTrenchesButtonGameObject);
     }
 
     private void EnableAttackButtonIfAbleToAttack()
@@ -139,8 +138,8 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         var enable = _parameters.Owner != SceneGame.GetCurrentPlayer().Name 
                      && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName => 
                          FieldsParameters.LookupTable[neighbourFieldName].Owner == SceneGame.GetCurrentPlayer().Name);
-        _attackButton.image.enabled = enable;
-        _attackButtonLabel.enabled = enable;
+        _attackModeButton.Button.image.enabled = enable;
+        _attackModeButton.Label.enabled = enable;
     }
 
     private void EnableMoveButtonIfAbleToMove()
@@ -148,13 +147,13 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         if (RegroupMode && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName => 
                 FieldsParameters.LookupTable[neighbourFieldName].Owner == SceneGame.GetCurrentPlayer().Name))
         {
-            _attackButton.image.enabled = true;
-            _attackButtonLabel.enabled = true;
-            _attackButtonLabel.text = "Move";
+            _attackModeButton.Button.image.enabled = true;
+            _attackModeButton.Label.enabled = true;
+            _attackModeButton.Label.text = "Move";
         }
         else
         {
-            _attackButtonLabel.text = "Attack";
+            _attackModeButton.Label.text = "Attack";
         }
     }
 
@@ -163,7 +162,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         var player = SceneGame.GetCurrentPlayer();
         var trenchesCount =
             FieldsParameters.LookupTable.Values.Count(field => field.HasTrenches && field.Owner == player.Name);
-        _buyTrenchesButton.interactable = !_parameters.HasTrenches &&
+        _buyTrenchesButton.Button.interactable = !_parameters.HasTrenches &&
                                           player.Gold >= GameplayConstants.TrenchesBaseCost && trenchesCount <
                                           GameplayConstants.TrenchesLimits[player.TrenchesLimitLevel];
     }
