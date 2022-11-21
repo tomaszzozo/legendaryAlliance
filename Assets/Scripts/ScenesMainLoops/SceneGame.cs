@@ -178,6 +178,7 @@ namespace ScenesMainLoops
             
             _player.Income = _player.CalculateIncome();
             _player.Gold += _player.Income;
+            _player.SciencePoints += _player.CalculateScienceIncome();
             
             topStatsManager.RefreshValues();
             AudioPlayer.PlayYourTurn();

@@ -4,6 +4,13 @@ using fields;
 using UnityEngine;
 public class Players
 {
+    public string Name;
+    public int Gold;
+    public Color Color;
+    public int Income;
+    public int TrenchesLimitLevel = 0;
+    public int SciencePoints = 0;
+    
     public static readonly List<Players> PlayersList = new()
     {
         new Players {Name = "", Color = new Color(255/255f, 0/255f ,0/255f), Gold = 0},
@@ -45,6 +52,16 @@ public class Players
             .Sum(field => field.Income);
     }
 
+    public int CalculateScienceIncome()
+    {
+        return 0;
+    }
+
+    public string ScienceIncomeAsString()
+    {
+        return $"(+{CalculateScienceIncome()})";
+    }
+
     /// <summary>
     /// Returns a string that can be used in notifications instead of players name.
     /// <example>DescribeNameAsColor("tomaszzozo") returns "Red Player" if this players index is 0</example>
@@ -62,10 +79,4 @@ public class Players
             _ => "Player not found!"
         };
     }
-
-    public string Name;
-    public int Gold;
-    public Color Color;
-    public int Income;
-    public int TrenchesLimitLevel = 0;
 }

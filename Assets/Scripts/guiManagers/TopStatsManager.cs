@@ -4,11 +4,17 @@ using UnityEngine.UI;
 
 public class TopStatsManager : MonoBehaviour
 {
-    [SerializeField] private Canvas canvas;
-    [SerializeField] private TextMeshProUGUI labelCoins;
     [SerializeField] private TextMeshProUGUI labelUsername;
-    [SerializeField] private TextMeshProUGUI labelIncome;
     [SerializeField] private Image decorationBar;
+
+    // COINS
+    [SerializeField] private TextMeshProUGUI labelCoins;
+    [SerializeField] private TextMeshProUGUI labelIncome;
+    
+    // SCIENCE
+    [SerializeField] private TextMeshProUGUI labelSciencePoints;
+    [SerializeField] private TextMeshProUGUI labelScienceIncome;
+    
     private Players _player;
     
     public void Init(Players player)
@@ -23,5 +29,7 @@ public class TopStatsManager : MonoBehaviour
         labelCoins.text = _player.Gold.ToString();
         labelUsername.text = _player.Name;
         labelIncome.text = _player.IncomeAsString();
+        labelScienceIncome.text = _player.ScienceIncomeAsString();
+        labelSciencePoints.text = _player.SciencePoints.ToString();
     }
 }

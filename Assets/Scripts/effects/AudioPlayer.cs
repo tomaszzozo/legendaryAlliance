@@ -88,6 +88,6 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
         
         _audioSourceNotification = gameObject.AddComponent<AudioSource>();
         _audioSourceNotification.clip = Resources.Load("notification") as AudioClip;
-        _audioSourceNotification.volume = 0.25f;
+        _audioSourceNotification.volume = 0.5f;
     }
 }
