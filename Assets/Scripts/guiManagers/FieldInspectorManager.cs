@@ -55,7 +55,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         RegroupMode = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
         _buyUnitButton.Label.text = $"BUY ({GameplayConstants.UnitBaseCost})";
         _buyTrenchesButton.Label.text = $"BUY ({GameplayConstants.TrenchesBaseCost})";
-        _buyLabButton.Label.text = $"BUY ({GameplayConstants.LabBaseCost})";
+        _buyLabButton.Label.text = $"BUY ({GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs})";
 
         unitColorManager.EnableAppropriateImage(
             Players.PlayersList.FindIndex(player => player.Name == _parameters.Owner));
@@ -95,7 +95,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         labCountLabel.text = $"x {_parameters.Labs}/{maxLabs}";
         buyLabButtonGameObject.SetActive(displayButtons);
         _buyLabButton.Button.interactable = _parameters.Labs < maxLabs &&
-                                            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost;
+                                            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs;
 
         EnableAttackButtonIfAbleToAttack();
         EnableMoveButtonIfAbleToMove();
@@ -126,7 +126,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         TrenchesButtonSetInteractable();
         _buyLabButton.Button.interactable =
             _parameters.Labs < GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel] &&
-            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost;
+            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs;
         _parameters.Instance.unitsManager.EnableAppropriateSprites(_parameters.AllUnits, SceneGame.CurrentPlayerIndex);
         unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
         AudioPlayer.PlayBuy();
@@ -152,7 +152,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyUnitButton.Button.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
         _buyLabButton.Button.interactable =
             _parameters.Labs < GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel] &&
-            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost;
+            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs;
         trenchesCountLabel.text = "x 1/1";
         SendEventObjectBought(ObjectBought.ObjectType.Trenches);
         NotificationsBarManager.SendNotification(
@@ -162,20 +162,20 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     public void OnClickBuyLabButton()
     {
-        _parameters.Labs++;
-        SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.LabBaseCost;
+        SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs++;
         TrenchesButtonSetInteractable();
         _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
         _buyUnitButton.Button.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
         _buyLabButton.Button.interactable =
             _parameters.Labs < GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel] &&
-            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost;
+            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs;
         var maxLabs = GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel];
         labCountLabel.text = $"x {_parameters.Labs}/{maxLabs}";
         AudioPlayer.PlayBuy();
         SendEventObjectBought(ObjectBought.ObjectType.Lab);
         NotificationsBarManager.SendNotification(
             $"{Players.DescribeNameAsColor(SceneGame.GetCurrentPlayer().Name)} has build a lab in {Translator.TranslateField(_parameters.Instance.name)}");
+        _buyLabButton.Label.text = $"BUY ({GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs})";
     }
 
     private void SendEventObjectBought(ObjectBought.ObjectType objectType)

@@ -5,5 +5,6 @@ public class GameplayConstants
     public const int StartingGold = 15;
     public const int LabBaseCost = 20;
     public static readonly int[] TrenchesLimits = { 2, 4, 8 };
-    public static readonly int[] ScienceLabLimits = { 3, 5, 10 };
+    public static readonly int[] ScienceLabLimits = { 5, 10, 20 };
+    public const int ScienceLabCostIncrement = 20;
 }
