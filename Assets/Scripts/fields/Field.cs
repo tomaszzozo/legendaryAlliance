@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using ExitGames.Client.Photon;
 using Photon.Pun;
@@ -71,11 +72,21 @@ namespace fields
                     break;
                 }
 
-                case (int)EventTypes.TrenchesBought:
+                case (int)EventTypes.ObjectBought:
                 {
-                    var fieldName = TrenchesBought.Deserialize(photonEvent.CustomData as object[]).FieldName;
-                    if (fieldName != name) return;
-                    _parameters.HasTrenches = true;
+                    var eventData = ObjectBought.Deserialize(photonEvent.CustomData as object[]);
+                    if (eventData.FieldName != name) return;
+                    switch (eventData.ObjectName)
+                    {
+                        case ObjectBought.ObjectType.Trenches:
+                            _parameters.HasTrenches = true;
+                            break;
+                        case ObjectBought.ObjectType.Lab:
+                            _parameters.Labs++;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                     objectsManager.EnableAppropriateObjects(name);
                     break;
                 }

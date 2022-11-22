@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using fields;
 using UnityEngine;
+
 public class Players
 {
     public string Name;
@@ -9,14 +10,15 @@ public class Players
     public Color Color;
     public int Income;
     public int TrenchesLimitLevel = 0;
+    public int LabsLimitLevel = 0;
     public int SciencePoints = 0;
-    
+
     public static readonly List<Players> PlayersList = new()
     {
-        new Players {Name = "", Color = new Color(255/255f, 0/255f ,0/255f), Gold = 0},
-        new Players {Name = "", Color = new Color(0/255f, 24/255f ,255/255f), Gold = 0},
-        new Players {Name = "", Color = new Color(255/255f, 246/255f, 0/255f), Gold = 0},
-        new Players {Name = "", Color = new Color(162/255f, 0/255f, 255/255f), Gold = 0}
+        new Players { Name = "", Color = new Color(255 / 255f, 0 / 255f, 0 / 255f), Gold = 0 },
+        new Players { Name = "", Color = new Color(0 / 255f, 24 / 255f, 255 / 255f), Gold = 0 },
+        new Players { Name = "", Color = new Color(255 / 255f, 246 / 255f, 0 / 255f), Gold = 0 },
+        new Players { Name = "", Color = new Color(162 / 255f, 0 / 255f, 255 / 255f), Gold = 0 }
     };
 
     public static void FillPlayerNames()
@@ -44,7 +46,7 @@ public class Players
     {
         return "(" + (Income < 0 ? "-" : "+") + Income + ")";
     }
-    
+
     public int CalculateIncome()
     {
         return FieldsParameters.LookupTable.Values
@@ -54,7 +56,8 @@ public class Players
 
     public int CalculateScienceIncome()
     {
-        return 0;
+        return FieldsParameters.LookupTable.Values.Where(parameters => parameters.Labs > 0)
+            .Sum(parameters => parameters.Labs);
     }
 
     public string ScienceIncomeAsString()

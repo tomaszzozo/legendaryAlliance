@@ -11,37 +11,52 @@ using UnityEngine.UI;
 
 public class FieldInspectorManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private ImageColorManager unitColorManager;
+    [FormerlySerializedAs("thisCanvas")] [SerializeField]
+    private Canvas canvas;
+
     [SerializeField] private TextMeshProUGUI incomeLabel;
     [SerializeField] private TextMeshProUGUI ownerLabel;
     [SerializeField] private TextMeshProUGUI nameLabel;
-    [SerializeField] private TextMeshProUGUI unitsCountLabel;
-    [FormerlySerializedAs("thisCanvas")] [SerializeField] private Canvas canvas;
-    [SerializeField] private GameObject buyUnitButton;
+    [SerializeField] private Button backButton;
+
+    // ATTACK
     [SerializeField] private GameObject attackButton;
     [SerializeField] private AttackModeManager attackModeManager;
-    [SerializeField] private Button backButton;
+    private ButtonWrapper _attackModeButton;
+
+    // UNIT
+    [SerializeField] private GameObject buyUnitButton;
+    [SerializeField] private TextMeshProUGUI unitsCountLabel;
+    [SerializeField] private ImageColorManager unitColorManager;
+    private ButtonWrapper _buyUnitButton;
+
+    // TRENCHES
     [SerializeField] private Image trenchesImage;
     [SerializeField] private TextMeshProUGUI trenchesCountLabel;
     [SerializeField] private GameObject buyTrenchesButtonGameObject;
+    private ButtonWrapper _buyTrenchesButton;
+
+    // LABS
+    [SerializeField] private Image labImage;
+    [SerializeField] private TextMeshProUGUI labCountLabel;
+    [SerializeField] private GameObject buyLabButtonGameObject;
+    private ButtonWrapper _buyLabButton;
 
     public static bool RegroupMode;
 
-    private ButtonWrapper _buyUnitButton;
-    private ButtonWrapper _attackModeButton;
-    private ButtonWrapper _buyTrenchesButton;
     private FieldsParameters _parameters;
     private string _fieldName;
 
-    
+
     public void EnableFieldInspector(string fieldName)
     {
         _parameters = FieldsParameters.LookupTable[fieldName];
         _fieldName = fieldName;
         RegroupMode = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
-        _buyUnitButton.Label.text = $"x {GameplayConstants.UnitBaseCost}";
-        _buyTrenchesButton.Label.text = $"x {GameplayConstants.TrenchesBaseCost}";
- 
+        _buyUnitButton.Label.text = $"BUY ({GameplayConstants.UnitBaseCost})";
+        _buyTrenchesButton.Label.text = $"BUY ({GameplayConstants.TrenchesBaseCost})";
+        _buyLabButton.Label.text = $"BUY ({GameplayConstants.LabBaseCost})";
+
         unitColorManager.EnableAppropriateImage(
             Players.PlayersList.FindIndex(player => player.Name == _parameters.Owner));
         incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
@@ -53,23 +68,38 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         }
         else if (_parameters.Owner == SceneGame.GetCurrentPlayer().Name)
         {
-            unitsCountLabel.text ="x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
+            unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
         }
         else
         {
-            unitsCountLabel.text = _parameters.UnitsCountDescription() == "0" ? "x 0" : _parameters.UnitsCountDescription();
+            unitsCountLabel.text =
+                _parameters.UnitsCountDescription() == "0" ? "x 0" : _parameters.UnitsCountDescription();
         }
-        buyUnitButton.SetActive(_parameters.Owner == SceneGame.GetCurrentPlayer().Name);
-        _buyUnitButton.Button.interactable = _parameters.HasTrenches && SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
 
-        trenchesImage.enabled = _parameters.Owner != null;
-        trenchesCountLabel.enabled = trenchesImage.enabled;
+        buyUnitButton.SetActive(_parameters.Owner == SceneGame.GetCurrentPlayer().Name);
+        _buyUnitButton.Button.interactable = _parameters.HasTrenches &&
+                                             SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
+
+        var displayBuildings = _parameters.Owner != null;
+        var displayButtons = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
+
+        trenchesImage.enabled = displayBuildings;
+        trenchesCountLabel.enabled = displayBuildings;
         trenchesCountLabel.text = _parameters.HasTrenches ? "x 1/1" : "x 0/1";
-        buyTrenchesButtonGameObject.SetActive(_parameters.Owner == SceneGame.GetCurrentPlayer().Name);
+        buyTrenchesButtonGameObject.SetActive(displayButtons);
         TrenchesButtonSetInteractable();
-        
+
+        var maxLabs = GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel];
+        labImage.enabled = displayBuildings;
+        labCountLabel.enabled = displayBuildings;
+        labCountLabel.text = $"x {_parameters.Labs}/{maxLabs}";
+        buyLabButtonGameObject.SetActive(displayButtons);
+        _buyLabButton.Button.interactable = _parameters.Labs < maxLabs &&
+                                            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost;
+
         EnableAttackButtonIfAbleToAttack();
         EnableMoveButtonIfAbleToMove();
+
         canvas.enabled = true;
         SharedVariables.IsOverUi = true;
         backButton.interactable = true;
@@ -79,8 +109,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     {
         canvas.enabled = false;
         if (onStartup || _parameters.Owner != SceneGame.GetCurrentPlayer().Name) return;
-        
-        BuyUnits data = new(_parameters.Instance.name, _parameters.AvailableUnits, _parameters.AllUnits, _parameters.Owner, SceneGame.GetCurrentPlayer().Gold);
+
+        BuyUnits data = new(_parameters.Instance.name, _parameters.AvailableUnits, _parameters.AllUnits,
+            _parameters.Owner, SceneGame.GetCurrentPlayer().Gold);
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         SharedVariables.IsOverUi = false;
@@ -93,6 +124,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.UnitBaseCost;
         _buyUnitButton.Button.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
         TrenchesButtonSetInteractable();
+        _buyLabButton.Button.interactable =
+            _parameters.Labs < GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel] &&
+            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost;
         _parameters.Instance.unitsManager.EnableAppropriateSprites(_parameters.AllUnits, SceneGame.CurrentPlayerIndex);
         unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
         AudioPlayer.PlayBuy();
@@ -100,7 +134,8 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     public void OnClickAttackButton()
     {
-        BuyUnits data = new(name, _parameters.AvailableUnits, _parameters.AllUnits, _parameters.Owner, SceneGame.GetCurrentPlayer().Gold);
+        BuyUnits data = new(name, _parameters.AvailableUnits, _parameters.AllUnits, _parameters.Owner,
+            SceneGame.GetCurrentPlayer().Gold);
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         attackModeManager.EnableAttackModule(_fieldName);
@@ -115,15 +150,42 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyTrenchesButton.Button.interactable = false;
         _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
         _buyUnitButton.Button.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
+        _buyLabButton.Button.interactable =
+            _parameters.Labs < GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel] &&
+            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost;
         trenchesCountLabel.text = "x 1/1";
-        TrenchesBought eventData = new(_parameters.Instance.name);
+        SendEventObjectBought(ObjectBought.ObjectType.Trenches);
+        NotificationsBarManager.SendNotification(
+            $"{Players.DescribeNameAsColor(SceneGame.GetCurrentPlayer().Name)} has build trenches in {Translator.TranslateField(_parameters.Instance.name)}");
+        AudioPlayer.PlayBuy();
+    }
+
+    public void OnClickBuyLabButton()
+    {
+        _parameters.Labs++;
+        SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.LabBaseCost;
+        TrenchesButtonSetInteractable();
+        _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
+        _buyUnitButton.Button.interactable = SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
+        _buyLabButton.Button.interactable =
+            _parameters.Labs < GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel] &&
+            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost;
+        var maxLabs = GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel];
+        labCountLabel.text = $"x {_parameters.Labs}/{maxLabs}";
+        AudioPlayer.PlayBuy();
+        SendEventObjectBought(ObjectBought.ObjectType.Lab);
+        NotificationsBarManager.SendNotification(
+            $"{Players.DescribeNameAsColor(SceneGame.GetCurrentPlayer().Name)} has build a lab in {Translator.TranslateField(_parameters.Instance.name)}");
+    }
+
+    private void SendEventObjectBought(ObjectBought.ObjectType objectType)
+    {
+        ObjectBought eventData = new(_parameters.Instance.name, objectType);
         PhotonNetwork.RaiseEvent(
             eventData.GetEventType(),
             eventData.Serialize(),
             new RaiseEventOptions { Receivers = ReceiverGroup.Others },
             SendOptions.SendReliable);
-        NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(SceneGame.GetCurrentPlayer().Name)} has build trenches in {Translator.TranslateField(_parameters.Instance.name)}");
-        AudioPlayer.PlayBuy();
     }
 
     private void Start()
@@ -131,12 +193,13 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyUnitButton = new ButtonWrapper(buyUnitButton);
         _attackModeButton = new ButtonWrapper(attackButton);
         _buyTrenchesButton = new ButtonWrapper(buyTrenchesButtonGameObject);
+        _buyLabButton = new ButtonWrapper(buyLabButtonGameObject);
     }
 
     private void EnableAttackButtonIfAbleToAttack()
     {
-        var enable = _parameters.Owner != SceneGame.GetCurrentPlayer().Name 
-                     && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName => 
+        var enable = _parameters.Owner != SceneGame.GetCurrentPlayer().Name
+                     && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName =>
                          FieldsParameters.LookupTable[neighbourFieldName].Owner == SceneGame.GetCurrentPlayer().Name);
         _attackModeButton.Button.image.enabled = enable;
         _attackModeButton.Label.enabled = enable;
@@ -144,7 +207,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     private void EnableMoveButtonIfAbleToMove()
     {
-        if (RegroupMode && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName => 
+        if (RegroupMode && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName =>
                 FieldsParameters.LookupTable[neighbourFieldName].Owner == SceneGame.GetCurrentPlayer().Name))
         {
             _attackModeButton.Button.image.enabled = true;
@@ -163,7 +226,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         var trenchesCount =
             FieldsParameters.LookupTable.Values.Count(field => field.HasTrenches && field.Owner == player.Name);
         _buyTrenchesButton.Button.interactable = !_parameters.HasTrenches &&
-                                          player.Gold >= GameplayConstants.TrenchesBaseCost && trenchesCount <
-                                          GameplayConstants.TrenchesLimits[player.TrenchesLimitLevel];
+                                                 player.Gold >= GameplayConstants.TrenchesBaseCost && trenchesCount <
+                                                 GameplayConstants.TrenchesLimits[player.TrenchesLimitLevel];
     }
 }

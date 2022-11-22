@@ -16,7 +16,7 @@ public enum EventTypes
     SomeoneWon,
     SendNotificationEvent,
     PlaySound,
-    TrenchesBought
+    ObjectBought
 }
 
 public class Event
@@ -261,22 +261,30 @@ public class PlaySound : Event
     }
 }
 
-public class TrenchesBought : Event
+public class ObjectBought : Event
 {
+    public enum ObjectType
+    {
+        Trenches,
+        Lab
+    }
+    
     public readonly string FieldName;
+    public readonly ObjectType ObjectName;
 
-    public TrenchesBought(string fieldName) : base(EventTypes.TrenchesBought)
+    public ObjectBought(string fieldName, ObjectType objectName) : base(EventTypes.ObjectBought)
     {
         FieldName = fieldName;
+        ObjectName = objectName;
     }
 
     public object[] Serialize()
     {
-        return new object[] { FieldName };
+        return new object[] { FieldName, (int) ObjectName };
     }
 
-    public static TrenchesBought Deserialize(object[] content)
+    public static ObjectBought Deserialize(object[] content)
     {
-        return new TrenchesBought(content[0] as string);
+        return new ObjectBought(content[0] as string, (ObjectType) content[1]);
     }
 }

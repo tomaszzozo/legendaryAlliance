@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace fields
 {
-    public class FieldsParameters 
+    public class FieldsParameters
     {
         public float CameraSize { get; }
         public Vector3 CameraPosition { get; }
@@ -12,6 +12,7 @@ namespace fields
         public int AvailableUnits;
         public int AllUnits;
         public bool HasTrenches;
+        public int Labs;
         public Field Instance { get; set; }
 
         public string UnitsCountDescription()
@@ -30,7 +31,7 @@ namespace fields
                 _ => "0"
             };
         }
-        
+
         private FieldsParameters(float camSize, Vector2 camPosition, int income = 5)
         {
             CameraSize = camSize;
@@ -39,14 +40,15 @@ namespace fields
             Income = income;
             AvailableUnits = 0;
             AllUnits = 0;
+            Labs = 0;
         }
 
         public static readonly Dictionary<string, FieldsParameters> LookupTable = new()
         {
-            {"argentyna", new FieldsParameters(14, new Vector2(-40f, -26f))},
-            {"brazylia", new FieldsParameters(12, new Vector2(-36f, -14f))},
-            {"peru", new FieldsParameters(12, new Vector2(-40f, -13f))},
-            {"wenezuela", new FieldsParameters(12, new Vector2(-41f, -4f))}
+            { "argentyna", new FieldsParameters(14, new Vector2(-40f, -26f)) },
+            { "brazylia", new FieldsParameters(12, new Vector2(-36f, -14f)) },
+            { "peru", new FieldsParameters(12, new Vector2(-40f, -13f)) },
+            { "wenezuela", new FieldsParameters(12, new Vector2(-41f, -4f)) }
         };
 
         public static readonly Dictionary<string, List<string>> Neighbours = new()
