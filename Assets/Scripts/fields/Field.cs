@@ -27,8 +27,99 @@ namespace fields
         public SpriteRenderer capitalViolet;
         public UnitsManager unitsManager;
         public FieldObjectsManager objectsManager;
-        
+
         private FieldsParameters _parameters;
+
+        private void Start()
+        {
+            _parameters = FieldsParameters.LookupTable[name];
+            _parameters.Instance = this;
+            redBorder.sortingOrder = 10;
+            blueBorder.sortingOrder = 10;
+            yellowBorder.sortingOrder = 10;
+            violetBorder.sortingOrder = 10;
+            redSprite.sortingOrder = 11;
+            blueSprite.sortingOrder = 11;
+            yellowSprite.sortingOrder = 11;
+            violetSprite.sortingOrder = 11;
+            graySprite.sortingOrder = 11;
+            unitsManager.EnableAppropriateSprites(0, 0);
+            objectsManager.DisableAllObjects();
+            EnableAppropriateCapitalSprite();
+        }
+
+        private void OnMouseDown()
+        {
+            if (SharedVariables.IsOverUi) return;
+            if (SceneGame.GlobalVariables.SelectedFieldLocal != null || !mainLoop.IsItMyTurn()) return;
+
+            AudioPlayer.PlayButtonClick();
+
+            if (SceneGame.RoundCounter == 0)
+            {
+                if (_parameters.Owner != null)
+                {
+                    MessageBoxFactory.ShowAlertDialog("This area is already settled!", gameObject);
+                    return;
+                }
+
+                if (FieldsParameters.Neighbours[name].Any(neighbourField =>
+                        FieldsParameters.LookupTable[neighbourField].Owner != null))
+                {
+                    MessageBoxFactory.ShowAlertDialog("Can not settle so close to other players!", gameObject);
+                    return;
+                }
+
+                DisableAllGlowSprites();
+                _parameters.Owner = SceneGame.GetCurrentPlayer().Name;
+                _parameters.AllUnits = 1;
+                _parameters.IsCapital = true;
+                unitsManager.EnableAppropriateSprites(1, SceneGame.CurrentPlayerIndex);
+                _parameters.HasTrenches = true;
+                EnableAppropriateBorderSprite();
+                EnableAppropriateCapitalSprite();
+                objectsManager.EnableAppropriateObjects(name);
+                mainLoop.NextTurn();
+                CapitalSelected newEvent = new(name, _parameters.Owner);
+                RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
+                PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
+                    SendOptions.SendReliable);
+                NotificationsBarManager.SendNotification(
+                    $"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} settled in {Translator.TranslateField(name)}");
+                return;
+            }
+
+            mainLoop.fieldInspectorManager.EnableFieldInspector(name);
+            mainLoop.canvas.enabled = false;
+
+            CameraController.MovementEnabled = false;
+
+            mainLoop.camera.transform.position = _parameters.CameraPosition;
+            mainLoop.camera.orthographicSize = _parameters.CameraSize;
+
+            SceneGame.GlobalVariables.SelectedFieldOnline = this;
+            SceneGame.GlobalVariables.SelectedFieldLocal = this;
+
+            OnlineSelectedFieldChange data = new(name);
+            RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
+        }
+
+        private void OnMouseEnter()
+        {
+            if (!mainLoop.IsItMyTurn()) return;
+            if (SharedVariables.IsOverUi) return;
+            if (SceneGame.GlobalVariables.SelectedFieldLocal != null) return;
+            EnableAppropriateGlowSprite();
+            AudioPlayer.PlayFieldHover();
+        }
+
+        private void OnMouseExit()
+        {
+            if (!mainLoop.IsItMyTurn()) return;
+            if (SceneGame.GlobalVariables.SelectedFieldLocal != null) return;
+            DisableAllGlowSprites();
+        }
 
         public void OnEvent(EventData photonEvent)
         {
@@ -59,6 +150,7 @@ namespace fields
                     EnableAppropriateBorderSprite();
                     EnableAppropriateCapitalSprite();
                     objectsManager.EnableAppropriateObjects(name);
+                    _parameters.IsCapital = true;
                     break;
                 }
                 case (int)EventTypes.BuyUnits:
@@ -87,6 +179,7 @@ namespace fields
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
                     objectsManager.EnableAppropriateObjects(name);
                     break;
                 }
@@ -118,7 +211,7 @@ namespace fields
             yellowBorder.enabled = false;
             violetBorder.enabled = false;
         }
-        
+
         public void EnableAppropriateGlowSprite()
         {
             DisableAllGlowSprites();
@@ -128,13 +221,25 @@ namespace fields
             else if (_parameters.Owner == Players.PlayersList[2].Name) yellowSprite.enabled = true;
             else if (_parameters.Owner == Players.PlayersList[3].Name) violetSprite.enabled = true;
         }
-        
+
         private void EnableAppropriateCapitalSprite()
         {
-            if (_parameters.Owner == Players.PlayersList[0].Name) capitalRed.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[1].Name) capitalBlue.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[2].Name) capitalYellow.enabled = true;
-            else if (_parameters.Owner == Players.PlayersList[3].Name) capitalViolet.enabled = true;
+            if (_parameters.Owner == Players.PlayersList[0].Name)
+            {
+                capitalRed.enabled = true;
+            }
+            else if (_parameters.Owner == Players.PlayersList[1].Name)
+            {
+                capitalBlue.enabled = true;
+            }
+            else if (_parameters.Owner == Players.PlayersList[2].Name)
+            {
+                capitalYellow.enabled = true;
+            }
+            else if (_parameters.Owner == Players.PlayersList[3].Name)
+            {
+                capitalViolet.enabled = true;
+            }
             else
             {
                 capitalRed.enabled = false;
@@ -142,93 +247,6 @@ namespace fields
                 capitalYellow.enabled = false;
                 capitalViolet.enabled = false;
             }
-        }
-
-        private void Start()
-        {
-            _parameters = FieldsParameters.LookupTable[name];
-            _parameters.Instance = this;
-            redBorder.sortingOrder = 10;
-            blueBorder.sortingOrder = 10;
-            yellowBorder.sortingOrder = 10;
-            violetBorder.sortingOrder = 10;
-            redSprite.sortingOrder = 11;
-            blueSprite.sortingOrder = 11;
-            yellowSprite.sortingOrder = 11;
-            violetSprite.sortingOrder = 11;
-            graySprite.sortingOrder = 11;
-            unitsManager.EnableAppropriateSprites(0, 0);
-            objectsManager.DisableAllObjects();
-            EnableAppropriateCapitalSprite();
-        }
-
-        private void OnMouseEnter()
-        {
-            if (!mainLoop.IsItMyTurn()) return;
-            if (SharedVariables.IsOverUi) return;
-            if (SceneGame.GlobalVariables.SelectedFieldLocal != null) return;
-            EnableAppropriateGlowSprite();
-            AudioPlayer.PlayFieldHover();
-        }
-
-        private void OnMouseExit()
-        {
-            if (!mainLoop.IsItMyTurn()) return;
-            if (SceneGame.GlobalVariables.SelectedFieldLocal != null) return;
-            DisableAllGlowSprites();
-        }
-
-        private void OnMouseDown()
-        {
-            if (SharedVariables.IsOverUi) return;
-            if (SceneGame.GlobalVariables.SelectedFieldLocal != null || !mainLoop.IsItMyTurn()) return;
-            
-            AudioPlayer.PlayButtonClick();
-
-            if (SceneGame.RoundCounter == 0)
-            {
-                if (_parameters.Owner != null)
-                {
-                    MessageBoxFactory.ShowAlertDialog("This area is already settled!", gameObject);
-                    return;
-                }
-                if (FieldsParameters.Neighbours[name].Any(neighbourField => FieldsParameters.LookupTable[neighbourField].Owner != null))
-                {
-                    MessageBoxFactory.ShowAlertDialog("Can not settle so close to other players!", gameObject);
-                    return;
-                }
-
-                DisableAllGlowSprites();
-                _parameters.Owner = SceneGame.GetCurrentPlayer().Name;
-                _parameters.AllUnits = 1;
-                unitsManager.EnableAppropriateSprites(1, SceneGame.CurrentPlayerIndex);
-                _parameters.HasTrenches = true;
-                EnableAppropriateBorderSprite();
-                EnableAppropriateCapitalSprite();
-                objectsManager.EnableAppropriateObjects(name);
-                mainLoop.NextTurn();
-                CapitalSelected newEvent = new(name, _parameters.Owner);
-                RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
-                PhotonNetwork.RaiseEvent(newEvent.GetEventType(), newEvent.Serialize(), eventOptions,
-                    SendOptions.SendReliable);
-                NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(PhotonNetwork.NickName)} settled in {Translator.TranslateField(name)}");
-                return;
-            }
-
-            mainLoop.fieldInspectorManager.EnableFieldInspector(name);
-            mainLoop.canvas.enabled = false;
-
-            CameraController.MovementEnabled = false;
-            
-            mainLoop.camera.transform.position = _parameters.CameraPosition;
-            mainLoop.camera.orthographicSize = _parameters.CameraSize;
-            
-            SceneGame.GlobalVariables.SelectedFieldOnline = this;
-            SceneGame.GlobalVariables.SelectedFieldLocal = this;
-
-            OnlineSelectedFieldChange data = new(name);
-            RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
-            PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         }
     }
 }

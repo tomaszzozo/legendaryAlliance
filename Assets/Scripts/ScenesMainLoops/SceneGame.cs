@@ -7,17 +7,12 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using RaiseEventOptions = Photon.Realtime.RaiseEventOptions;
 
 namespace ScenesMainLoops
 {
     public class SceneGame : MonoBehaviourPunCallbacks, IOnEventCallback
     {
-        public struct Globals
-        {
-            public Field SelectedFieldLocal { get; set; }
-            public Field SelectedFieldOnline { get; set; }
-        }
+        private const int LabelOffset = 30;
         public static Globals GlobalVariables;
 
         public Button buttonNextTurn;
@@ -31,159 +26,12 @@ namespace ScenesMainLoops
         public TextMeshProUGUI labelButtonNextTurn;
         public FieldInspectorManager fieldInspectorManager;
         public TopStatsManager topStatsManager;
-        
+        private Players _player;
+        private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
+
         public static int RoundCounter { get; private set; }
         public static int CurrentPlayerIndex { get; private set; }
-        private const int LabelOffset = 30;
-        private Dictionary<int, TextMeshProUGUI> _playerLabelOfIndex;
-        private Players _player;
-        
-        public override void OnDisconnected(DisconnectCause cause)
-        {
-            Debug.Log("Disconnected! Implement save game screen here!");
-            gameObject.AddComponent<SceneLoader>().LoadScene("SceneDisconnected");
-        }
 
-        public override void OnPlayerEnteredRoom(Player newPlayer)
-        {
-            RaiseEventOptions options = new() { TargetActors =  new[] { newPlayer.ActorNumber } };
-            PhotonNetwork.RaiseEvent((byte)EventTypes.RoomAlreadyInGameSignal, null, options, SendOptions.SendReliable);
-        }
-
-        public override void OnPlayerLeftRoom(Player otherPlayer)
-        {
-            Debug.Log("Player left room! Implement save game screen here!");
-            ScenePlayerLeftGame.PlayerThatLeftNickname = otherPlayer.NickName;
-            gameObject.AddComponent<SceneLoader>().LoadScene("ScenePlayerLeftGame");
-        }
-
-        public void OnClickNextTurnButton()
-        {
-            AudioPlayer.PlayButtonClick();
-            NextTurn();
-            RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
-            PhotonNetwork.RaiseEvent((byte)EventTypes.NextTurn, null, options, SendOptions.SendReliable);
-        }
-
-        public void OnClickBackButton()
-        {
-            AudioPlayer.PlayButtonClick();
-            
-            fieldInspectorManager.HideFieldInspector();
-            canvas.enabled = true;
-            
-            camera.orthographicSize += 4;
-            CameraController.MovementEnabled = true;
-            
-            GlobalVariables.SelectedFieldLocal.DisableAllGlowSprites();
-            GlobalVariables.SelectedFieldLocal = null;
-            GlobalVariables.SelectedFieldOnline = null;
-
-            RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
-            PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
-        }
-
-        public void SetUiHover(bool set)
-        {
-            SharedVariables.IsOverUi = set;
-        }
-        
-        public void OnEvent(EventData photonEvent)
-        {
-            switch (photonEvent.Code)
-            {
-                case (int)EventTypes.NextTurn:
-                case (int)EventTypes.CapitalSelected:
-                    NextTurn();
-                    break;
-                case (int)EventTypes.AfterAttackUpdateFields:
-                {
-                    var data = AfterAttackUpdateFields.Deserialize((object[])photonEvent.CustomData);
-                    for (var i = 0; i < data.FieldsUpdatedData.Count; i++)
-                    {
-                        var dataElement = data.FieldsUpdatedData[i];
-                        var field = FieldsParameters.LookupTable[dataElement.FieldName];
-                        field.Owner = dataElement.NewOwner;
-                        field.Instance.EnableAppropriateBorderSprite();
-                        if (i == 0)
-                        {
-                            field.Instance.EnableAppropriateGlowSprite();
-                        }
-                        field.AllUnits = dataElement.AllUnits;
-                        field.AvailableUnits = dataElement.AvailableUnits;
-                        field.Instance.unitsManager.EnableAppropriateSprites(field.AllUnits, Players.NameToIndex(field.Owner));
-                    }
-
-                    var thisPlayer = Players.PlayersList[Players.NameToIndex(SharedVariables.GetUsername())];
-                    thisPlayer.Income = thisPlayer.CalculateIncome();
-                    topStatsManager.RefreshValues();
-                    break;
-                }
-                case (int)EventTypes.SomeoneWon:
-                {
-                    var sceneLoader = gameObject.AddComponent<SceneLoader>();
-                    var whoWon = SomeoneWon.Deserialize(photonEvent.CustomData as object[]).WinnerNickName;
-                    sceneLoader.LoadScene(whoWon == PhotonNetwork.NickName ? "SceneWonGame" : "SceneLostGame");
-                    break;
-                }
-            }
-        }
-        
-        public bool IsItMyTurn()
-        {
-            if (!PhotonNetwork.InRoom) return true; // TODO: delete on release
-            return Players.PlayersList[CurrentPlayerIndex] == _player;
-        }
-
-        public static Players GetCurrentPlayer()
-        {
-            return Players.PlayersList[CurrentPlayerIndex];
-        }
-        
-        public void NextTurn()
-        {
-            if (PhotonNetwork.InRoom && GameOverCheck())
-            {
-                PhotonNetwork.RaiseEvent((byte)EventTypes.SomeoneWon,
-                    new SomeoneWon(PhotonNetwork.NickName).Serialize(),
-                    new RaiseEventOptions { Receivers = ReceiverGroup.All },
-                    SendOptions.SendReliable);
-                return;
-            }
-            
-            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
-            if (!PhotonNetwork.InRoom) // TODO: delete on release
-            {
-                CurrentPlayerIndex = 0;
-                RoundCounter++;
-            }
-            else if (++CurrentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
-            {
-                CurrentPlayerIndex = 0;
-                RoundCounter++;
-            }
-
-            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
-            buttonNextTurn.interactable = IsItMyTurn() && RoundCounter != 0;
-            clockIcon.enabled = !IsItMyTurn();
-            labelButtonNextTurn.enabled = IsItMyTurn();
-
-            if (!IsItMyTurn()) return;
-
-            SharedVariables.IsOverUi = false;
-            foreach (var (_, parameters) in FieldsParameters.LookupTable)
-            {
-                if (parameters.Owner == GetCurrentPlayer().Name) parameters.AvailableUnits = parameters.AllUnits;
-            }
-            
-            _player.Income = _player.CalculateIncome();
-            _player.Gold += _player.Income;
-            _player.SciencePoints += _player.CalculateScienceIncome();
-            
-            topStatsManager.RefreshValues();
-            AudioPlayer.PlayYourTurn();
-        }
-        
         private void Start()
         {
             if (PhotonNetwork.InRoom)
@@ -236,6 +84,149 @@ namespace ScenesMainLoops
             fieldInspectorManager.HideFieldInspector(true);
         }
 
+        public void OnEvent(EventData photonEvent)
+        {
+            switch (photonEvent.Code)
+            {
+                case (int)EventTypes.NextTurn:
+                case (int)EventTypes.CapitalSelected:
+                    NextTurn();
+                    break;
+                case (int)EventTypes.AfterAttackUpdateFields:
+                {
+                    var data = AfterAttackUpdateFields.Deserialize((object[])photonEvent.CustomData);
+                    for (var i = 0; i < data.FieldsUpdatedData.Count; i++)
+                    {
+                        var dataElement = data.FieldsUpdatedData[i];
+                        var field = FieldsParameters.LookupTable[dataElement.FieldName];
+                        field.Owner = dataElement.NewOwner;
+                        field.Instance.EnableAppropriateBorderSprite();
+                        if (i == 0) field.Instance.EnableAppropriateGlowSprite();
+                        field.AllUnits = dataElement.AllUnits;
+                        field.AvailableUnits = dataElement.AvailableUnits;
+                        field.Instance.unitsManager.EnableAppropriateSprites(field.AllUnits,
+                            Players.NameToIndex(field.Owner));
+                    }
+
+                    var thisPlayer = Players.PlayersList[Players.NameToIndex(SharedVariables.GetUsername())];
+                    thisPlayer.Income = thisPlayer.CalculateIncome();
+                    topStatsManager.RefreshValues();
+                    break;
+                }
+                case (int)EventTypes.SomeoneWon:
+                {
+                    var sceneLoader = gameObject.AddComponent<SceneLoader>();
+                    var whoWon = SomeoneWon.Deserialize(photonEvent.CustomData as object[]).WinnerNickName;
+                    sceneLoader.LoadScene(whoWon == PhotonNetwork.NickName ? "SceneWonGame" : "SceneLostGame");
+                    break;
+                }
+            }
+        }
+
+        public override void OnDisconnected(DisconnectCause cause)
+        {
+            Debug.Log("Disconnected! Implement save game screen here!");
+            gameObject.AddComponent<SceneLoader>().LoadScene("SceneDisconnected");
+        }
+
+        public override void OnPlayerEnteredRoom(Player newPlayer)
+        {
+            RaiseEventOptions options = new() { TargetActors = new[] { newPlayer.ActorNumber } };
+            PhotonNetwork.RaiseEvent((byte)EventTypes.RoomAlreadyInGameSignal, null, options, SendOptions.SendReliable);
+        }
+
+        public override void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            Debug.Log("Player left room! Implement save game screen here!");
+            ScenePlayerLeftGame.PlayerThatLeftNickname = otherPlayer.NickName;
+            gameObject.AddComponent<SceneLoader>().LoadScene("ScenePlayerLeftGame");
+        }
+
+        public void OnClickNextTurnButton()
+        {
+            AudioPlayer.PlayButtonClick();
+            NextTurn();
+            RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent((byte)EventTypes.NextTurn, null, options, SendOptions.SendReliable);
+        }
+
+        public void OnClickBackButton()
+        {
+            AudioPlayer.PlayButtonClick();
+
+            fieldInspectorManager.HideFieldInspector();
+            canvas.enabled = true;
+
+            camera.orthographicSize += 4;
+            CameraController.MovementEnabled = true;
+
+            GlobalVariables.SelectedFieldLocal.DisableAllGlowSprites();
+            GlobalVariables.SelectedFieldLocal = null;
+            GlobalVariables.SelectedFieldOnline = null;
+
+            RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent((byte)EventTypes.OnlineDeselectField, null, options, SendOptions.SendReliable);
+        }
+
+        public void SetUiHover(bool set)
+        {
+            SharedVariables.IsOverUi = set;
+        }
+
+        public bool IsItMyTurn()
+        {
+            if (!PhotonNetwork.InRoom) return true; // TODO: delete on release
+            return Players.PlayersList[CurrentPlayerIndex] == _player;
+        }
+
+        public static Players GetCurrentPlayer()
+        {
+            return Players.PlayersList[CurrentPlayerIndex];
+        }
+
+        public void NextTurn()
+        {
+            if (PhotonNetwork.InRoom && GameOverCheck())
+            {
+                PhotonNetwork.RaiseEvent((byte)EventTypes.SomeoneWon,
+                    new SomeoneWon(PhotonNetwork.NickName).Serialize(),
+                    new RaiseEventOptions { Receivers = ReceiverGroup.All },
+                    SendOptions.SendReliable);
+                return;
+            }
+
+            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
+            if (!PhotonNetwork.InRoom) // TODO: delete on release
+            {
+                CurrentPlayerIndex = 0;
+                RoundCounter++;
+            }
+            else if (++CurrentPlayerIndex == PhotonNetwork.CurrentRoom.PlayerCount)
+            {
+                CurrentPlayerIndex = 0;
+                RoundCounter++;
+            }
+
+            _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(LabelOffset, 0));
+            buttonNextTurn.interactable = IsItMyTurn() && RoundCounter != 0;
+            clockIcon.enabled = !IsItMyTurn();
+            labelButtonNextTurn.enabled = IsItMyTurn();
+
+            if (!IsItMyTurn()) return;
+
+            SharedVariables.IsOverUi = false;
+            foreach (var (_, parameters) in FieldsParameters.LookupTable)
+                if (parameters.Owner == GetCurrentPlayer().Name)
+                    parameters.AvailableUnits = parameters.AllUnits;
+
+            _player.Income = _player.CalculateIncome();
+            _player.Gold += _player.Income;
+            _player.SciencePoints += _player.CalculateScienceIncome();
+
+            topStatsManager.RefreshValues();
+            AudioPlayer.PlayYourTurn();
+        }
+
         private bool GameOverCheck()
         {
             if (RoundCounter <= 1) return false;
@@ -246,6 +237,12 @@ namespace ScenesMainLoops
             // TODO: tie?
             Debug.Log("Tie?");
             return true;
+        }
+
+        public struct Globals
+        {
+            public Field SelectedFieldLocal { get; set; }
+            public Field SelectedFieldOnline { get; set; }
         }
     }
 }

@@ -19,20 +19,20 @@ namespace ScenesMainLoops
         public GameObject labelStatus4;
         public GameObject labelButtonReady;
 
-        private TextMeshProUGUI _labelRoomId;
+        private readonly bool _disconnectedIntentionally = false;
         private TextMeshProUGUI _labelAdminUsername;
+        private TextMeshProUGUI _labelButtonReady;
         private TextMeshProUGUI _labelP2;
         private TextMeshProUGUI _labelP3;
         private TextMeshProUGUI _labelP4;
+
+        private TextMeshProUGUI _labelRoomId;
         private TextMeshProUGUI _labelStatus1;
         private TextMeshProUGUI _labelStatus2;
         private TextMeshProUGUI _labelStatus3;
         private TextMeshProUGUI _labelStatus4;
-        private TextMeshProUGUI _labelButtonReady;
 
-        private bool _disconnectedIntentionally = false;
-
-        void Start()
+        private void Start()
         {
             _labelRoomId = labelRoomId.GetComponent<TextMeshProUGUI>();
             _labelAdminUsername = labelAdminUsername.GetComponent<TextMeshProUGUI>();
@@ -51,6 +51,22 @@ namespace ScenesMainLoops
             // UpdateUi(UpdateRoomUi.Deserialize(SharedVariables.SharedData));
         }
 
+        void IOnEventCallback.OnEvent(EventData photonEvent)
+        {
+            if (photonEvent.Code == (int)EventTypes.UpdateRoomUI)
+            {
+                UpdateUi(UpdateRoomUi.Deserialize((object[])photonEvent.CustomData));
+            }
+            else if (photonEvent.Code == (int)EventTypes.GoToGameScene)
+            {
+                SharedVariables.SharedData = new object[]
+                    { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
+                SharedVariables.SetIsAdmin(false);
+                AudioMainTheme.Instance.Stop();
+                gameObject.AddComponent<SceneLoader>().LoadScene("SceneGame");
+            }
+        }
+
         public override void OnDisconnected(DisconnectCause cause)
         {
             gameObject.AddComponent<SceneLoader>()
@@ -59,10 +75,7 @@ namespace ScenesMainLoops
 
         public override void OnPlayerLeftRoom(Player otherPlayer)
         {
-            if (otherPlayer.NickName.Equals(_labelAdminUsername.text))
-            {
-                PhotonNetwork.Disconnect();
-            }
+            if (otherPlayer.NickName.Equals(_labelAdminUsername.text)) PhotonNetwork.Disconnect();
         }
 
         // public void Disconnect()
@@ -78,21 +91,6 @@ namespace ScenesMainLoops
             ClientClickedReady data = new(PhotonNetwork.NickName);
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
-        }
-
-        void IOnEventCallback.OnEvent(EventData photonEvent)
-        {
-            if (photonEvent.Code == (int)EventTypes.UpdateRoomUI)
-            {
-                UpdateUi(UpdateRoomUi.Deserialize((object[])photonEvent.CustomData));
-            }
-            else if (photonEvent.Code == (int)EventTypes.GoToGameScene)
-            {
-                SharedVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
-                SharedVariables.SetIsAdmin(false);
-                AudioMainTheme.Instance.Stop();
-                gameObject.AddComponent<SceneLoader>().LoadScene("SceneGame");
-            }
         }
 
         private void UpdateUi(UpdateRoomUi data)

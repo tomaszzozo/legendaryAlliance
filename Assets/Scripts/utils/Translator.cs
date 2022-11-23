@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 public static class Translator
 {
@@ -15,31 +13,31 @@ public static class Translator
     private static readonly Dictionary<string, Dictionary<Language, string>> Fields = new()
     {
         {
-            "argentyna", new()
+            "argentyna", new Dictionary<Language, string>
             {
-                { Language.English, "Argentina"},
-                { Language.Polish, "Argentyna"}
+                { Language.English, "Argentina" },
+                { Language.Polish, "Argentyna" }
             }
         },
         {
-            "peru", new()
+            "peru", new Dictionary<Language, string>
             {
-                { Language.English, "Peru"},
-                { Language.Polish, "Peru"}
+                { Language.English, "Peru" },
+                { Language.Polish, "Peru" }
             }
         },
         {
-            "brazylia", new()
+            "brazylia", new Dictionary<Language, string>
             {
-                { Language.English, "Brazil"},
-                { Language.Polish, "Brazylia"}
+                { Language.English, "Brazil" },
+                { Language.Polish, "Brazylia" }
             }
         },
         {
-            "wenezuela", new()
+            "wenezuela", new Dictionary<Language, string>
             {
-                { Language.English, "Venezuela"},
-                { Language.Polish, "Wenezuela"}
+                { Language.English, "Venezuela" },
+                { Language.Polish, "Wenezuela" }
             }
         }
     };

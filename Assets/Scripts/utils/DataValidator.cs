@@ -1,5 +1,5 @@
-﻿using System.Text.RegularExpressions;
-using System.Linq;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 public static class DataValidator
 {
@@ -16,7 +16,7 @@ public static class DataValidator
         if (password.Length == 0) return "Enter password first.";
         if (repeatPassword.Length == 0) return "Repeat your password.";
 
-        string verificationResult = ValidateUsername(username);
+        var verificationResult = ValidateUsername(username);
         if (!verificationResult.Equals(StatusOk)) return verificationResult;
 
         verificationResult = ValidatePassword(password);
@@ -33,7 +33,8 @@ public static class DataValidator
         if (!ContainsLowercase.IsMatch(password)) return "Password must contain at least one lowercase letter.";
         if (!ContainsUppercase.IsMatch(password)) return "Password must contain at least one uppercase letter.";
         if (!ContainsDigit.IsMatch(password)) return "Password must contain at least one digit.";
-        if (!ContainsSpecialCharacter.IsMatch(password)) return "Password must contain at least one special non-white character.";
+        if (!ContainsSpecialCharacter.IsMatch(password))
+            return "Password must contain at least one special non-white character.";
         if (password.Any(char.IsWhiteSpace)) return "Password can not contain white characters.";
         return StatusOk;
     }
@@ -42,7 +43,8 @@ public static class DataValidator
     {
         if (username.Length < 5) return "Username must have at least 5 characters.";
         if (username.Length > 20) return "Username must have less than 20 characters.";
-        if (!ContainsLowercase.IsMatch(username) && !ContainsUppercase.IsMatch(username)) return "Username must contain uppercase or lowercase letters.";
+        if (!ContainsLowercase.IsMatch(username) && !ContainsUppercase.IsMatch(username))
+            return "Username must contain uppercase or lowercase letters.";
         if (ContainsSpecialCharacter.IsMatch(username)) return "Username can only consist of digits and characters";
         return StatusOk;
     }

@@ -9,7 +9,7 @@ public class KeyCapturer : MonoBehaviour
     public TMP_InputField input2;
     public TMP_InputField input3;
     private int _inputsCount;
-    
+
     private void Start()
     {
         _inputsCount = input3 == null ? 2 : 3;

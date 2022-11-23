@@ -12,6 +12,44 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
     private static AudioSource _audioSourceBuyUnit;
     private static AudioSource _audioSourceNotification;
 
+    private void Start()
+    {
+        _audioSourceFieldHover = gameObject.AddComponent<AudioSource>();
+        _audioSourceFieldHover.clip = Resources.Load("fieldHover") as AudioClip;
+
+        _audioSourceButtonClick = gameObject.AddComponent<AudioSource>();
+        _audioSourceButtonClick.clip = Resources.Load("buttonClick") as AudioClip;
+
+        _audioSourceAttack = gameObject.AddComponent<AudioSource>();
+        _audioSourceAttack.clip = Resources.Load("attack") as AudioClip;
+        _audioSourceAttack.volume = 0.5f;
+
+        _audioSourceRegroup = gameObject.AddComponent<AudioSource>();
+        _audioSourceRegroup.clip = Resources.Load("regroup") as AudioClip;
+        _audioSourceRegroup.volume = 0.5f;
+
+        _audioSourceBuyUnit = gameObject.AddComponent<AudioSource>();
+        _audioSourceBuyUnit.clip = Resources.Load("buyUnit") as AudioClip;
+
+        _audioSourceNotification = gameObject.AddComponent<AudioSource>();
+        _audioSourceNotification.clip = Resources.Load("notification") as AudioClip;
+        _audioSourceNotification.volume = 0.5f;
+    }
+
+    public void OnEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code != (int)EventTypes.PlaySound) return;
+        switch (PlaySound.Deserialize(photonEvent.CustomData as object[]).SoundName)
+        {
+            case "attack":
+                PlayAttack();
+                break;
+            case "regroup":
+                PlayRegroup();
+                break;
+        }
+    }
+
     public static void PlayFieldHover()
     {
         _audioSourceFieldHover.Play();
@@ -51,43 +89,5 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
     public static void PlayNotification()
     {
         _audioSourceNotification.Play();
-    }
-
-    public void OnEvent(EventData photonEvent)
-    {
-        if (photonEvent.Code != (int)EventTypes.PlaySound) return;
-        switch (PlaySound.Deserialize(photonEvent.CustomData as object[]).SoundName)
-        {
-            case "attack":
-                PlayAttack();
-                break;
-            case "regroup":
-                PlayRegroup();
-                break;
-        }
-    }
-
-    private void Start()
-    {
-        _audioSourceFieldHover = gameObject.AddComponent<AudioSource>();
-        _audioSourceFieldHover.clip = Resources.Load("fieldHover") as AudioClip;
-        
-        _audioSourceButtonClick = gameObject.AddComponent<AudioSource>();
-        _audioSourceButtonClick.clip = Resources.Load("buttonClick") as AudioClip;
-        
-        _audioSourceAttack = gameObject.AddComponent<AudioSource>();
-        _audioSourceAttack.clip = Resources.Load("attack") as AudioClip;
-        _audioSourceAttack.volume = 0.5f;
-        
-        _audioSourceRegroup = gameObject.AddComponent<AudioSource>();
-        _audioSourceRegroup.clip = Resources.Load("regroup") as AudioClip;
-        _audioSourceRegroup.volume = 0.5f;
-        
-        _audioSourceBuyUnit = gameObject.AddComponent<AudioSource>();
-        _audioSourceBuyUnit.clip = Resources.Load("buyUnit") as AudioClip;
-        
-        _audioSourceNotification = gameObject.AddComponent<AudioSource>();
-        _audioSourceNotification.clip = Resources.Load("notification") as AudioClip;
-        _audioSourceNotification.volume = 0.5f;
     }
 }

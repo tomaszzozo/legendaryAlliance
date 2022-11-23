@@ -27,19 +27,15 @@ public class AttackModeNeighbourManager : MonoBehaviour
         _fieldName = fieldName;
         var neighbours = FieldsParameters.Neighbours[fieldName];
         var c = 0;
-        foreach (var neighbour in neighbours.Where(neighbour => FieldsParameters.LookupTable[neighbour].Owner == SceneGame.GetCurrentPlayer().Name))
-        {
+        foreach (var neighbour in neighbours.Where(neighbour =>
+                     FieldsParameters.LookupTable[neighbour].Owner == SceneGame.GetCurrentPlayer().Name))
             _components[c++].Enable(neighbour);
-        }
 
-        for (; c < 6; c++)
-        {
-            _components[c].Disable();
-        }
+        for (; c < 6; c++) _components[c].Disable();
     }
 
     /// <summary>
-    /// Sets units count in neighbour fields. Refreshes sprites. Returns list with updated parameters.
+    ///     Sets units count in neighbour fields. Refreshes sprites. Returns list with updated parameters.
     /// </summary>
     public List<AfterAttackUpdateFields.FieldUpdatedData> UpdateNeighbours()
     {
@@ -50,15 +46,17 @@ public class AttackModeNeighbourManager : MonoBehaviour
             component.Parameters.AvailableUnits -= component.SelectedUnitsCount;
             if (component.Parameters.AllUnits == 0)
             {
-                NotificationsBarManager.SendNotification($"{Players.DescribeNameAsColor(component.Parameters.Owner)} lost control of {Translator.TranslateField(component.Parameters.Instance.name)} due to lack of units!");
+                NotificationsBarManager.SendNotification(
+                    $"{Players.DescribeNameAsColor(component.Parameters.Owner)} lost control of {Translator.TranslateField(component.Parameters.Instance.name)} due to lack of units!");
                 component.Parameters.Owner = null;
                 component.Parameters.Instance.DisableAllBorderSprites();
             }
+
             component.Parameters.Instance.unitsManager.EnableAppropriateSprites(component.Parameters.AllUnits,
                 Players.NameToIndex(component.Parameters.Owner));
             updatedData.Add(new AfterAttackUpdateFields.FieldUpdatedData
             {
-                FieldName = component.Parameters.Instance.name, 
+                FieldName = component.Parameters.Instance.name,
                 AllUnits = component.Parameters.AllUnits,
                 AvailableUnits = component.Parameters.AvailableUnits,
                 NewOwner = component.Parameters.Owner

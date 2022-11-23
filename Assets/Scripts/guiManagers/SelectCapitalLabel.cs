@@ -6,6 +6,7 @@ public class SelectCapitalLabel : MonoBehaviour
 {
     [SerializeField] private SceneGame mainLoop;
     [SerializeField] private TextMeshProUGUI thisLabel;
+
     private void Start()
     {
         thisLabel.enabled = false;
@@ -16,8 +17,8 @@ public class SelectCapitalLabel : MonoBehaviour
         if (SceneGame.RoundCounter == 0)
         {
             thisLabel.enabled = mainLoop.IsItMyTurn();
-        } 
-        else 
+        }
+        else
         {
             Destroy(thisLabel);
             Destroy(this);

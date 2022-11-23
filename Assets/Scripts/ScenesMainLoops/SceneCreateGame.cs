@@ -19,18 +19,18 @@ namespace ScenesMainLoops
         public GameObject labelStatus4;
         public GameObject labelButtonReady;
 
-        private TextMeshProUGUI _labelRoomId;
+        private bool _disconnectedIntentionally;
         private TextMeshProUGUI _labelAdminUsername;
+        private TextMeshProUGUI _labelButtonReady;
         private TextMeshProUGUI _labelP2;
         private TextMeshProUGUI _labelP3;
         private TextMeshProUGUI _labelP4;
+
+        private TextMeshProUGUI _labelRoomId;
         private TextMeshProUGUI _labelStatus1;
         private TextMeshProUGUI _labelStatus2;
         private TextMeshProUGUI _labelStatus3;
         private TextMeshProUGUI _labelStatus4;
-        private TextMeshProUGUI _labelButtonReady;
-
-        private bool _disconnectedIntentionally;
 
         private void Start()
         {
@@ -50,6 +50,25 @@ namespace ScenesMainLoops
             _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
         }
 
+        void IOnEventCallback.OnEvent(EventData photonEvent)
+        {
+            if (photonEvent.Code == (int)EventTypes.ClientClickedReady)
+            {
+                var nickName = ClientClickedReady.Deserialize((object[])photonEvent.CustomData).NickName;
+                if (_labelP2.text.Equals(nickName))
+                    _labelStatus2.text = _labelStatus2.text.Equals("Not ready") ? "Ready" : "Not ready";
+                else if (_labelP3.text.Equals(nickName))
+                    _labelStatus3.text = _labelStatus3.text.Equals("Not ready") ? "Ready" : "Not ready";
+                else
+                    _labelStatus4.text = _labelStatus4.text.Equals("Not ready") ? "Ready" : "Not ready";
+                RaiseEventUpdateRoomUi();
+            }
+            else if (photonEvent.Code == (int)EventTypes.RequestRoomData)
+            {
+                RaiseEventUpdateRoomUi();
+            }
+        }
+
         public override void OnDisconnected(DisconnectCause cause)
         {
             gameObject.AddComponent<SceneLoader>()
@@ -63,17 +82,11 @@ namespace ScenesMainLoops
             Debug.Log($"{newPlayer.NickName} has joined the room");
 
             if (_labelP2.text.Equals("Not connected"))
-            {
                 _labelP2.text = newPlayer.NickName;
-            }
             else if (_labelP3.text.Equals("Not connected"))
-            {
                 _labelP3.text = newPlayer.NickName;
-            }
             else
-            {
                 _labelP4.text = newPlayer.NickName;
-            }
 
             RaiseEventUpdateRoomUi();
         }
@@ -127,44 +140,22 @@ namespace ScenesMainLoops
 
             if (_labelStatus1.text.Equals("Not ready")
                 || (!_labelP2.text.Equals("Not connected") && _labelStatus2.text.Equals("Not ready"))
-                || (PhotonNetwork.CurrentRoom.PlayerCount > 2 && !_labelP3.text.Equals("Not connected") && _labelStatus3.text.Equals("Not ready"))
-                || (PhotonNetwork.CurrentRoom.PlayerCount == 4 && !_labelP4.text.Equals("Not connected") && _labelStatus4.text.Equals("Not ready")))
+                || (PhotonNetwork.CurrentRoom.PlayerCount > 2 && !_labelP3.text.Equals("Not connected") &&
+                    _labelStatus3.text.Equals("Not ready"))
+                || (PhotonNetwork.CurrentRoom.PlayerCount == 4 && !_labelP4.text.Equals("Not connected") &&
+                    _labelStatus4.text.Equals("Not ready")))
             {
                 MessageBoxFactory.ShowAlertDialog("All players must be ready!", gameObject);
                 return;
             }
-            
+
             SharedVariables.SetIsAdmin(true);
-            
+
             AudioMainTheme.Instance.Stop();
             RaiseEventGoToGameScene();
-            SharedVariables.SharedData = new object[] { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
+            SharedVariables.SharedData = new object[]
+                { _labelAdminUsername.text, _labelP2.text, _labelP3.text, _labelP4.text };
             gameObject.AddComponent<SceneLoader>().LoadScene("SceneGame");
-        }
-
-        void IOnEventCallback.OnEvent(EventData photonEvent)
-        {
-            if (photonEvent.Code == (int)EventTypes.ClientClickedReady)
-            {
-                string nickName = ClientClickedReady.Deserialize((object[])photonEvent.CustomData).NickName;
-                if (_labelP2.text.Equals(nickName))
-                {
-                    _labelStatus2.text = _labelStatus2.text.Equals("Not ready") ? "Ready" : "Not ready";
-                }
-                else if (_labelP3.text.Equals(nickName))
-                {
-                    _labelStatus3.text = _labelStatus3.text.Equals("Not ready") ? "Ready" : "Not ready";
-                }
-                else
-                {
-                    _labelStatus4.text = _labelStatus4.text.Equals("Not ready") ? "Ready" : "Not ready";
-                }
-                RaiseEventUpdateRoomUi();
-            }
-            else if (photonEvent.Code == (int)EventTypes.RequestRoomData)
-            {
-                RaiseEventUpdateRoomUi();
-            }
         }
 
         private void RaiseEventUpdateRoomUi()

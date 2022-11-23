@@ -5,14 +5,6 @@ using UnityEngine;
 
 public class Players
 {
-    public string Name;
-    public int Gold;
-    public Color Color;
-    public int Income;
-    public int TrenchesLimitLevel = 0;
-    public int LabsLimitLevel = 0;
-    public int SciencePoints = 0;
-
     public static readonly List<Players> PlayersList = new()
     {
         new Players { Name = "", Color = new Color(255 / 255f, 0 / 255f, 0 / 255f), Gold = 0 },
@@ -20,6 +12,14 @@ public class Players
         new Players { Name = "", Color = new Color(255 / 255f, 246 / 255f, 0 / 255f), Gold = 0 },
         new Players { Name = "", Color = new Color(162 / 255f, 0 / 255f, 255 / 255f), Gold = 0 }
     };
+
+    public Color Color;
+    public int Gold;
+    public int Income;
+    public int LabsLimitLevel = 0;
+    public string Name;
+    public int SciencePoints = 0;
+    public int TrenchesLimitLevel = 0;
 
     public static void FillPlayerNames()
     {
@@ -31,10 +31,7 @@ public class Players
 
     public static void Init(int gold)
     {
-        foreach (var player in PlayersList)
-        {
-            player.Gold = gold;
-        }
+        foreach (var player in PlayersList) player.Gold = gold;
     }
 
     public static int NameToIndex(string name)
@@ -44,14 +41,22 @@ public class Players
 
     public string IncomeAsString()
     {
-        return "(" + (Income < 0 ? "-" : "+") + Income + ")";
+        return $"({Income})";
     }
 
     public int CalculateIncome()
     {
-        return FieldsParameters.LookupTable.Values
+        var incomeSum = FieldsParameters.LookupTable.Values
             .Where(field => field.Owner == Name)
             .Sum(field => field.Income);
+        var capitalBonus = FieldsParameters.LookupTable.Values.Count(field => field.Owner == Name && field.IsCapital) *
+                           GameplayConstants.CapitalBonus;
+        var trenchesPenalty = FieldsParameters.LookupTable.Values
+            .Count(field => field.Owner == Name && field.HasTrenches) * GameplayConstants.TrenchesIncomeCost;
+        var labsPenalty = FieldsParameters.LookupTable.Values
+            .Where(field => field.Owner == Name)
+            .Sum(field => field.Labs) * GameplayConstants.LabIncomeCost;
+        return incomeSum + capitalBonus - trenchesPenalty - labsPenalty;
     }
 
     public int CalculateScienceIncome()
@@ -66,8 +71,8 @@ public class Players
     }
 
     /// <summary>
-    /// Returns a string that can be used in notifications instead of players name.
-    /// <example>DescribeNameAsColor("tomaszzozo") returns "Red Player" if this players index is 0</example>
+    ///     Returns a string that can be used in notifications instead of players name.
+    ///     <example>DescribeNameAsColor("tomaszzozo") returns "Red Player" if this players index is 0</example>
     /// </summary>
     /// <param name="name">Players nickname</param>
     /// <returns>string that describes player by his color</returns>

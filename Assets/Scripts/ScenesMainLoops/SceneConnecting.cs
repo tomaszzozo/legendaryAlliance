@@ -3,16 +3,17 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using Random = System.Random;
 
 namespace ScenesMainLoops
 {
     public class SceneConnecting : MonoBehaviourPunCallbacks
     {
         public GameObject labelTitle;
+        private int _counter;
         private TextMeshProUGUI _labelTitle;
-        private int _counter = 0;
 
-        void Start()
+        private void Start()
         {
             _labelTitle = labelTitle.GetComponent<TextMeshProUGUI>();
             InvokeRepeating(nameof(AnimateText), 0, 0.5f);
@@ -23,10 +24,7 @@ namespace ScenesMainLoops
         {
             if (!_labelTitle.text.StartsWith("Connecting")) return;
             _labelTitle.text += '.';
-            if (_labelTitle.text.EndsWith("....."))
-            {
-                _labelTitle.text = "Connecting to servers.";
-            }
+            if (_labelTitle.text.EndsWith(".....")) _labelTitle.text = "Connecting to servers.";
         }
 
         // networking
@@ -64,6 +62,7 @@ namespace ScenesMainLoops
                 CreateRoom();
                 return;
             }
+
             _labelTitle.text = $"Could not create room! ({message})";
             StartCoroutine(GoBackToMainMenu());
         }
@@ -75,8 +74,8 @@ namespace ScenesMainLoops
 
         private void CreateRoom()
         {
-            string roomId = new System.Random().Next(100, 999).ToString();
-            PhotonNetwork.CreateRoom(roomId, new RoomOptions() { MaxPlayers = 4 });
+            var roomId = new Random().Next(100, 999).ToString();
+            PhotonNetwork.CreateRoom(roomId, new RoomOptions { MaxPlayers = 4 });
         }
     }
 }

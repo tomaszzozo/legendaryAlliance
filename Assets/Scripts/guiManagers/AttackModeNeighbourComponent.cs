@@ -11,12 +11,20 @@ public class AttackModeNeighbourComponent : MonoBehaviour
     [SerializeField] private TextMeshProUGUI selectedUnitsCountLabel;
 
     private Button _addButton;
-    private Button _subtractButton;
     private TextMeshProUGUI _addButtonLabel;
+    private Button _subtractButton;
     private TextMeshProUGUI _subtractButtonLabel;
-    
+
     public int SelectedUnitsCount { get; private set; }
     public FieldsParameters Parameters { get; private set; }
+
+    private void Start()
+    {
+        _addButton = addButton.GetComponent<Button>();
+        _subtractButton = subtractButton.GetComponent<Button>();
+        _addButtonLabel = addButton.GetComponentInChildren<TextMeshProUGUI>();
+        _subtractButtonLabel = subtractButton.GetComponentInChildren<TextMeshProUGUI>();
+    }
 
     public void OnClickAddButton()
     {
@@ -36,10 +44,10 @@ public class AttackModeNeighbourComponent : MonoBehaviour
     {
         Parameters = FieldsParameters.LookupTable[fieldName];
         SelectedUnitsCount = 0;
-        
+
         fieldNameLabel.text = Translator.TranslateField(fieldName);
-        selectedUnitsCountLabel.text =  "0/" + Parameters.AvailableUnits;
-        
+        selectedUnitsCountLabel.text = "0/" + Parameters.AvailableUnits;
+
         _addButton.image.enabled = true;
         _addButtonLabel.enabled = true;
         _subtractButton.image.enabled = true;
@@ -57,13 +65,5 @@ public class AttackModeNeighbourComponent : MonoBehaviour
         fieldNameLabel.enabled = false;
         selectedUnitsCountLabel.enabled = false;
         Parameters = null;
-    }
-
-    private void Start()
-    {
-        _addButton = addButton.GetComponent<Button>();
-        _subtractButton = subtractButton.GetComponent<Button>();
-        _addButtonLabel = addButton.GetComponentInChildren<TextMeshProUGUI>();
-        _subtractButtonLabel = subtractButton.GetComponentInChildren<TextMeshProUGUI>();
     }
 }

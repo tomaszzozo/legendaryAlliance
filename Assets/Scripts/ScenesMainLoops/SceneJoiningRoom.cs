@@ -11,9 +11,9 @@ namespace ScenesMainLoops
     public class SceneJoiningRoom : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         public GameObject labelTitle;
-        private TextMeshProUGUI _labelTitle;
         private bool _executeNoResponse = true;
-        
+        private TextMeshProUGUI _labelTitle;
+
         private void Start()
         {
             _labelTitle = labelTitle.GetComponent<TextMeshProUGUI>();
@@ -21,14 +21,20 @@ namespace ScenesMainLoops
             Connect();
         }
 
+        void IOnEventCallback.OnEvent(EventData photonEvent)
+        {
+            if (photonEvent.Code == (int)EventTypes.UpdateRoomUI)
+            {
+                SharedVariables.SharedData = (object[])photonEvent.CustomData;
+                gameObject.AddComponent<SceneLoader>().LoadScene("SceneJoinGame");
+            }
+        }
+
         private void AnimateText()
         {
             if (!_labelTitle.text.StartsWith("Joining")) return;
             _labelTitle.text += '.';
-            if (_labelTitle.text.EndsWith("....."))
-            {
-                _labelTitle.text = "Joining room.";
-            }
+            if (_labelTitle.text.EndsWith(".....")) _labelTitle.text = "Joining room.";
         }
 
         // networking
@@ -74,16 +80,8 @@ namespace ScenesMainLoops
                 StartCoroutine(SameUsername());
                 return;
             }
-            StartCoroutine(IfNoResponseGoBack());
-        }
 
-        void IOnEventCallback.OnEvent(EventData photonEvent)
-        {
-            if (photonEvent.Code == (int)EventTypes.UpdateRoomUI)
-            {
-                SharedVariables.SharedData = (object[])photonEvent.CustomData;
-                gameObject.AddComponent<SceneLoader>().LoadScene("SceneJoinGame");
-            }
+            StartCoroutine(IfNoResponseGoBack());
         }
 
         private IEnumerator IfNoResponseGoBack()

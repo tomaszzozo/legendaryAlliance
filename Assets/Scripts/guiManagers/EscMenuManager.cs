@@ -6,10 +6,23 @@ using UnityEngine.UI;
 public class EscMenuManager : MonoBehaviour
 {
     [SerializeField] private Button buttonNextTurn;
-    
-    public static EscMenuManager Instance { get; private set; }
     private Canvas _canvas;
     private SceneLoader _sceneLoader;
+
+    public static EscMenuManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null) Destroy(gameObject);
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        _canvas = gameObject.GetComponent<Canvas>();
+        _canvas.enabled = false;
+        _sceneLoader = gameObject.AddComponent<SceneLoader>();
+    }
 
     public void Show()
     {
@@ -35,21 +48,5 @@ public class EscMenuManager : MonoBehaviour
     public bool IsVisible()
     {
         return _canvas.enabled;
-    }
-
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(gameObject);   
-        }
-        Instance = this;
-    }
-
-    private void Start()
-    {
-        _canvas = gameObject.GetComponent<Canvas>();
-        _canvas.enabled = false;
-        _sceneLoader = gameObject.AddComponent<SceneLoader>();
     }
 }

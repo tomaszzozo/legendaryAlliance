@@ -1,5 +1,3 @@
-using System;
-using ScenesMainLoops;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,8 +8,8 @@ public class GameKeyListener : MonoBehaviour
     [SerializeField] private Button fieldManagerBackButton;
     [SerializeField] private Button nextTurnButton;
     [SerializeField] private Button attackModeCancelButton;
-    
-    
+
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -38,17 +36,14 @@ public class GameKeyListener : MonoBehaviour
         {
             if (attackModeCanvas.enabled)
             {
-                
             }
             else if (fieldManagerCanvas.enabled)
             {
-                
             }
             else if (nextTurnButton.interactable)
             {
                 nextTurnButton.onClick.Invoke();
             }
         }
-        
     }
 }

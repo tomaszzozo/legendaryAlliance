@@ -1,14 +1,14 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using TMPro;
 
 public class MessageBoxFactory : MonoBehaviour
 {
-    private int _width = 0, _height = 0;
-    private string _content = "";
     private Canvas _canvas;
     private GameObject _canvasObject;
+    private string _content = "";
+    private int _width, _height;
 
     public static void ShowAlertDialog(string content, GameObject gameObject)
     {
@@ -38,7 +38,7 @@ public class MessageBoxFactory : MonoBehaviour
     {
         GameObject titleObject = new("MessageBoxTitle");
         titleObject.transform.SetParent(_canvas.transform);
-        TextMeshProUGUI text = titleObject.AddComponent<TextMeshProUGUI>();
+        var text = titleObject.AddComponent<TextMeshProUGUI>();
         text.text = _content;
         text.fontSize = 40;
         text.alignment = TextAlignmentOptions.Midline;
@@ -54,13 +54,13 @@ public class MessageBoxFactory : MonoBehaviour
         float height = Screen.height / 8;
 
         GameObject buttonObject = new("MessageBoxButton");
-        Image buttonImage = buttonObject.AddComponent<Image>();
+        var buttonImage = buttonObject.AddComponent<Image>();
         buttonImage.transform.SetParent(_canvas.transform, false);
         buttonImage.rectTransform.sizeDelta = new Vector2(width, height);
-        buttonImage.rectTransform.anchoredPosition = new Vector2(0, height*-2);
+        buttonImage.rectTransform.anchoredPosition = new Vector2(0, height * -2);
         buttonImage.color = new Color(.2f, .2f, .2f, .99f);
 
-        Button button = buttonObject.AddComponent<Button>();
+        var button = buttonObject.AddComponent<Button>();
         button.targetGraphic = buttonImage;
         button.onClick.AddListener(() =>
         {
@@ -70,7 +70,7 @@ public class MessageBoxFactory : MonoBehaviour
 
         GameObject textObject = new("MessageBoxButtonText");
         textObject.transform.SetParent(buttonObject.transform, false);
-        TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+        var text = textObject.AddComponent<TextMeshProUGUI>();
         text.text = "OK";
         text.rectTransform.sizeDelta = Vector2.zero;
         text.rectTransform.anchorMin = Vector2.zero;
@@ -84,7 +84,7 @@ public class MessageBoxFactory : MonoBehaviour
     private void CreateBackground()
     {
         GameObject backgroundObject = new("MessageBoxBackground");
-        Image background = backgroundObject.AddComponent<Image>();
+        var background = backgroundObject.AddComponent<Image>();
         background.transform.SetParent(_canvas.transform, false);
         background.rectTransform.sizeDelta = new Vector2(_width, _height);
         background.rectTransform.anchoredPosition = Vector3.zero;
@@ -95,11 +95,12 @@ public class MessageBoxFactory : MonoBehaviour
     {
         GameObject canvasObject = new("MessageBoxCanvas");
         _canvasObject = canvasObject;
-        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        var canvas = canvasObject.AddComponent<Canvas>();
         canvasObject.AddComponent<GraphicRaycaster>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 10;
-        canvasObject.transform.position = new Vector3(canvasObject.transform.position.x, canvasObject.transform.position.y, 10);
+        canvasObject.transform.position =
+            new Vector3(canvasObject.transform.position.x, canvasObject.transform.position.y, 10);
         _canvas = canvas;
     }
 }

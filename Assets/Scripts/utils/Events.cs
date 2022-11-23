@@ -37,8 +37,8 @@ public class Event
 public class UpdateRoomUi : Event
 {
     public readonly int RoomId;
-    public readonly string[] Usernames;
     public readonly string[] Statuses;
+    public readonly string[] Usernames;
 
     public UpdateRoomUi(int roomId, string[] usernames, string[] statuses) : base(EventTypes.UpdateRoomUI)
     {
@@ -126,11 +126,11 @@ public class CapitalSelected : Event
 
 public class BuyUnits : Event
 {
-    public readonly string FieldName;
-    public readonly int AvailableUnits;
     public readonly int AllUnits;
-    public readonly string Owner;
+    public readonly int AvailableUnits;
+    public readonly string FieldName;
     public readonly int Gold;
+    public readonly string Owner;
 
     public BuyUnits(string fieldName, int availableUnits, int allUnits, string owner, int gold) : base(
         EventTypes.BuyUnits)
@@ -156,16 +156,8 @@ public class BuyUnits : Event
 
 public class AfterAttackUpdateFields : Event
 {
-    public struct FieldUpdatedData
-    {
-        public string FieldName;
-        public int AllUnits;
-        public int AvailableUnits;
-        public string NewOwner;
-    }
-
     /// <summary>
-    /// First field is the one under display, other fields are neighbours to that field
+    ///     First field is the one under display, other fields are neighbours to that field
     /// </summary>
     public readonly List<FieldUpdatedData> FieldsUpdatedData;
 
@@ -176,12 +168,12 @@ public class AfterAttackUpdateFields : Event
 
     public object[] Serialize()
     {
-        var array = new object [FieldsUpdatedData.Count*4];
-        for (int i = 0, d = 0; i < array.Length; i+=4, d++)
+        var array = new object [FieldsUpdatedData.Count * 4];
+        for (int i = 0, d = 0; i < array.Length; i += 4, d++)
         {
             array[i] = FieldsUpdatedData[d].FieldName;
-            array[i+1] = FieldsUpdatedData[d].AllUnits;
-            array[i+2] = FieldsUpdatedData[d].AvailableUnits;
+            array[i + 1] = FieldsUpdatedData[d].AllUnits;
+            array[i + 2] = FieldsUpdatedData[d].AvailableUnits;
             array[i + 3] = FieldsUpdatedData[d].NewOwner;
         }
 
@@ -191,13 +183,23 @@ public class AfterAttackUpdateFields : Event
     public static AfterAttackUpdateFields Deserialize(object[] content)
     {
         var updatedData = new List<FieldUpdatedData>();
-        
-        for (var i = 0; i < content.Length; i+=4)
-        {
-            updatedData.Add(new FieldUpdatedData{FieldName = content[i] as string, AllUnits = (int)content[i+1], AvailableUnits = (int)content[i+2], NewOwner = content[i+3] as string});
-        }
+
+        for (var i = 0; i < content.Length; i += 4)
+            updatedData.Add(new FieldUpdatedData
+            {
+                FieldName = content[i] as string, AllUnits = (int)content[i + 1], AvailableUnits = (int)content[i + 2],
+                NewOwner = content[i + 3] as string
+            });
 
         return new AfterAttackUpdateFields(updatedData);
+    }
+
+    public struct FieldUpdatedData
+    {
+        public string FieldName;
+        public int AllUnits;
+        public int AvailableUnits;
+        public string NewOwner;
     }
 }
 
@@ -268,7 +270,7 @@ public class ObjectBought : Event
         Trenches,
         Lab
     }
-    
+
     public readonly string FieldName;
     public readonly ObjectType ObjectName;
 
@@ -280,11 +282,11 @@ public class ObjectBought : Event
 
     public object[] Serialize()
     {
-        return new object[] { FieldName, (int) ObjectName };
+        return new object[] { FieldName, (int)ObjectName };
     }
 
     public static ObjectBought Deserialize(object[] content)
     {
-        return new ObjectBought(content[0] as string, (ObjectType) content[1]);
+        return new ObjectBought(content[0] as string, (ObjectType)content[1]);
     }
 }

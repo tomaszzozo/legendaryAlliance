@@ -7,7 +7,7 @@ public class FieldObjectsManager : MonoBehaviour
     [SerializeField] private SpriteRenderer lab;
 
     /// <summary>
-    /// Does not disable capitals.
+    ///     Does not disable capitals.
     /// </summary>
     public void DisableAllObjects()
     {

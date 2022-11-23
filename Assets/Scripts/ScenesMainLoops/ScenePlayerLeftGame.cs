@@ -3,11 +3,12 @@ using UnityEngine;
 
 public class ScenePlayerLeftGame : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI label;
-    
     public static string PlayerThatLeftNickname;
+    [SerializeField] private TextMeshProUGUI label;
+
     private void Start()
     {
-        label.text = $"{PlayerThatLeftNickname} ({Players.DescribeNameAsColor(PlayerThatLeftNickname)}) has left the game!";
+        label.text =
+            $"{PlayerThatLeftNickname} ({Players.DescribeNameAsColor(PlayerThatLeftNickname)}) has left the game!";
     }
 }

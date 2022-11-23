@@ -9,50 +9,15 @@ using UnityEngine.UI;
 
 public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
+    private static readonly Queue<string> Queue = new();
+    private static bool _showingNotification;
+    private static bool _skip;
     [SerializeField] private float backgroundOpacity;
     [SerializeField] private Canvas canvas;
     [SerializeField] private TextMeshProUGUI notificationTextLabel;
     [SerializeField] private Image background;
     [SerializeField] private Image notificationCountBackground;
     [SerializeField] private TextMeshProUGUI notificationCountLabel;
-
-    private static readonly Queue<string> Queue = new();
-    private static bool _showingNotification;
-    private static bool _skip;
-
-    public static void SkipNotification()
-    {
-        _skip = true;
-    }
-    
-    public void OnEvent(EventData photonEvent)
-    {
-        if (photonEvent.Code != (int)EventTypes.SendNotificationEvent) return;
-        var message = SendNotificationEvent.Deserialize(photonEvent.CustomData as object[]).Message;
-        Queue.Enqueue(message);
-    }
-
-    /// <summary>
-    /// Raises <see cref="SendNotificationEvent"/> that queues notification for all other clients
-    /// </summary>
-    /// <param name="message">message to display in notification</param>
-    public static void SendNotification(string message)
-    {
-        PhotonNetwork.RaiseEvent(
-            (byte)EventTypes.SendNotificationEvent,
-            new SendNotificationEvent(message).Serialize(),
-            new RaiseEventOptions { Receivers = ReceiverGroup.Others }, 
-            SendOptions.SendReliable);
-    }
-
-    /// <summary>
-    /// Enqueues a notification that only the user will see, for example "your turn" notification.
-    /// </summary>
-    /// <param name="message">Notification to queue</param>
-    public static void EnqueueNotification(string message)
-    {
-        Queue.Enqueue(message);
-    }
 
     private void Start()
     {
@@ -67,6 +32,40 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
         if (_showingNotification) return;
         _showingNotification = true;
         StartCoroutine(DisplayNotification(Queue.Count, Queue.Dequeue()));
+    }
+
+    public void OnEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code != (int)EventTypes.SendNotificationEvent) return;
+        var message = SendNotificationEvent.Deserialize(photonEvent.CustomData as object[]).Message;
+        Queue.Enqueue(message);
+    }
+
+    public static void SkipNotification()
+    {
+        _skip = true;
+    }
+
+    /// <summary>
+    ///     Raises <see cref="SendNotificationEvent" /> that queues notification for all other clients
+    /// </summary>
+    /// <param name="message">message to display in notification</param>
+    public static void SendNotification(string message)
+    {
+        PhotonNetwork.RaiseEvent(
+            (byte)EventTypes.SendNotificationEvent,
+            new SendNotificationEvent(message).Serialize(),
+            new RaiseEventOptions { Receivers = ReceiverGroup.Others },
+            SendOptions.SendReliable);
+    }
+
+    /// <summary>
+    ///     Enqueues a notification that only the user will see, for example "your turn" notification.
+    /// </summary>
+    /// <param name="message">Notification to queue</param>
+    public static void EnqueueNotification(string message)
+    {
+        Queue.Enqueue(message);
     }
 
     private IEnumerator DisplayNotification(int notificationsLeft, string message)
@@ -88,7 +87,7 @@ public class NotificationsBarManager : MonoBehaviourPunCallbacks, IOnEventCallba
             if (_skip) break;
             yield return new WaitForSeconds(0.01f);
         }
-        
+
         for (var alpha = background.canvasRenderer.GetAlpha(); alpha >= 0; alpha -= 0.01f)
         {
             if (_skip) break;

@@ -1,8 +1,8 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class REST : MonoBehaviour
 {
@@ -15,10 +15,10 @@ public class REST : MonoBehaviour
     public void SignUp()
     {
         _username = usernameInput.GetComponent<TMP_InputField>().text;
-        string password = passwordInput.GetComponent<TMP_InputField>().text;
-        string repeatPassword = repeatPasswordInput.GetComponent<TMP_InputField>().text;
+        var password = passwordInput.GetComponent<TMP_InputField>().text;
+        var repeatPassword = repeatPasswordInput.GetComponent<TMP_InputField>().text;
 
-        string verificationResult = DataValidator.ValidateSignUpData(_username, password, repeatPassword);
+        var verificationResult = DataValidator.ValidateSignUpData(_username, password, repeatPassword);
         if (!verificationResult.Equals(DataValidator.StatusOk))
         {
             MessageBoxFactory.ShowAlertDialog(verificationResult, gameObject);
@@ -31,14 +31,14 @@ public class REST : MonoBehaviour
     public void SignIn()
     {
         _username = usernameInput.GetComponent<TMP_InputField>().text;
-        string password = passwordInput.GetComponent<TMP_InputField>().text;
+        var password = passwordInput.GetComponent<TMP_InputField>().text;
 
         StartCoroutine(SignInRequest($"http://54.93.126.7/signIn.php?username={_username}&password={password}"));
     }
 
     private IEnumerator SignURequest(string uri)
     {
-        using UnityWebRequest webRequest = UnityWebRequest.Get(uri);
+        using var webRequest = UnityWebRequest.Get(uri);
         // Request and wait for the desired page.
         yield return webRequest.SendWebRequest();
 
@@ -60,7 +60,7 @@ public class REST : MonoBehaviour
 
     private IEnumerator SignInRequest(string uri)
     {
-        using UnityWebRequest webRequest = UnityWebRequest.Get(uri);
+        using var webRequest = UnityWebRequest.Get(uri);
         // Request and wait for the desired page.
         yield return webRequest.SendWebRequest();
 
