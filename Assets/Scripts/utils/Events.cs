@@ -16,7 +16,8 @@ public enum EventTypes
     SomeoneWon,
     SendNotificationEvent,
     PlaySound,
-    ObjectBought
+    ObjectBought,
+    SellEverything
 }
 
 public class Event
@@ -288,5 +289,25 @@ public class ObjectBought : Event
     public static ObjectBought Deserialize(object[] content)
     {
         return new ObjectBought(content[0] as string, (ObjectType)content[1]);
+    }
+}
+
+public class SellEverything : Event
+{
+    public readonly string PlayerName;
+
+    public SellEverything(string playerName) : base(EventTypes.SellEverything)
+    {
+        PlayerName = playerName;
+    }
+    
+    public object[] Serialize()
+    {
+        return new object[] { PlayerName };
+    }
+
+    public static SellEverything Deserialize(object[] content)
+    {
+        return new SellEverything(content[0] as string);
     }
 }

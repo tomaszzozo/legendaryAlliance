@@ -6,7 +6,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Playables;
 using UnityEngine.UI;
 
 namespace ScenesMainLoops
@@ -132,6 +131,14 @@ namespace ScenesMainLoops
                         sceneLoader.LoadScene("SceneLostGame");
                     break;
                 }
+                case (int)EventTypes.SellEverything:
+                {
+                    var playerName = SellEverything.Deserialize(photonEvent.CustomData as object[]).PlayerName;
+                    SellEveryAsset(playerName);
+                    Players.PlayersList[Players.NameToIndex(playerName)].Conquered = true;
+                    NextTurn();
+                    break;
+                }
             }
         }
 
@@ -251,6 +258,35 @@ namespace ScenesMainLoops
             }
 
             if (!IsItMyTurn()) return;
+
+            _player.Income = _player.CalculateIncome();
+            _player.Gold += _player.Income;
+            _player.SciencePoints += _player.CalculateScienceIncome();
+
+            if (_player.Gold < 0)
+            {
+                if (_player.InDebt)
+                {
+                    _player.Conquered = true;
+                    SellEveryAsset(_player.Name);
+
+                    SellEverything eventData = new(_player.Name);
+                    PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
+                        new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);
+
+                    NotificationsBarManager.EnqueueNotification("You lost the game due to your debt!");
+                    NotificationsBarManager.SendNotification(
+                        $"{Players.DescribeNameAsColor(_player.Name)} lost the game due to his debt!");
+                    
+                    NextTurn();
+                    return;
+                }
+
+                _player.InDebt = true;
+                NotificationsBarManager.EnqueueNotification(
+                    "You need to get out of debt that you have, otherwise you will loose in your next turn!");
+            }
+
             if (PhotonNetwork.InRoom && DidThisPlayerWin())
             {
                 SomeoneWon eventData = new(_player.Name);
@@ -264,9 +300,6 @@ namespace ScenesMainLoops
                 if (parameters.Owner == GetCurrentPlayer().Name)
                     parameters.AvailableUnits = parameters.AllUnits;
 
-            _player.Income = _player.CalculateIncome();
-            _player.Gold += _player.Income;
-            _player.SciencePoints += _player.CalculateScienceIncome();
 
             topStatsManager.RefreshValues();
             AudioPlayer.PlayYourTurn();
@@ -285,9 +318,25 @@ namespace ScenesMainLoops
 
         private bool DidThisPlayerWin()
         {
-            if (RoundCounter < 1) return false;
+            if (RoundCounter < 1 || _player.InDebt) return false;
             return FieldsParameters.LookupTable.Values.All(parameters =>
                 parameters.Owner == _player.Name || parameters.Owner == null);
+        }
+
+        private static void SellEveryAsset(string playerName)
+        {
+            foreach (var parameters in FieldsParameters.LookupTable.Values.Where(parameters =>
+                         parameters.Owner == playerName))
+            {
+                parameters.Owner = null;
+                parameters.Labs = 0;
+                parameters.AllUnits = 0;
+                parameters.AvailableUnits = 0;
+                parameters.HasTrenches = false;
+                parameters.Instance.EnableAppropriateBorderSprite();
+                parameters.Instance.EnableAppropriateGlowSprite();
+                parameters.Instance.unitsManager.EnableAppropriateSprites(0, 0);
+            }
         }
 
         private static void ResetAllStaticVariables()

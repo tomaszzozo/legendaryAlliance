@@ -21,6 +21,7 @@ public class Players
     public int SciencePoints;
     public int TrenchesLimitLevel;
     public bool Conquered;
+    public bool InDebt;
 
     public static void FillPlayerNames()
     {
@@ -40,6 +41,7 @@ public class Players
             player.TrenchesLimitLevel = 0;
             player.Conquered = false;
             player.SciencePoints = 0;
+            player.InDebt = false;
         }
     }
 
