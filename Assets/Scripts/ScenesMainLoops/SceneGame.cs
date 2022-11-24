@@ -6,6 +6,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.UI;
 
 namespace ScenesMainLoops
@@ -58,7 +59,9 @@ namespace ScenesMainLoops
             }
 
             // VARIABLES INIT
+            ResetAllStaticVariables();
             Players.Init(GameplayConstants.StartingGold);
+            FieldsParameters.ResetAllFields();
             _playerLabelOfIndex = new Dictionary<int, TextMeshProUGUI>
             {
                 { 0, labelP1 },
@@ -88,8 +91,12 @@ namespace ScenesMainLoops
         {
             switch (photonEvent.Code)
             {
-                case (int)EventTypes.NextTurn:
                 case (int)EventTypes.CapitalSelected:
+                    var eventData = CapitalSelected.Deserialize(photonEvent.CustomData as object[]);
+                    FieldsParameters.LookupTable[eventData.FieldName].Owner = eventData.Owner;
+                    NextTurn();
+                    break;
+                case (int)EventTypes.NextTurn:
                     NextTurn();
                     break;
                 case (int)EventTypes.AfterAttackUpdateFields:
@@ -117,7 +124,12 @@ namespace ScenesMainLoops
                 {
                     var sceneLoader = gameObject.AddComponent<SceneLoader>();
                     var whoWon = SomeoneWon.Deserialize(photonEvent.CustomData as object[]).WinnerNickName;
-                    sceneLoader.LoadScene(whoWon == PhotonNetwork.NickName ? "SceneWonGame" : "SceneLostGame");
+                    if (whoWon == "")
+                        sceneLoader.LoadScene("SceneTie");
+                    else if (whoWon == PhotonNetwork.NickName)
+                        sceneLoader.LoadScene("SceneWonGame");
+                    else
+                        sceneLoader.LoadScene("SceneLostGame");
                     break;
                 }
             }
@@ -137,6 +149,13 @@ namespace ScenesMainLoops
 
         public override void OnPlayerLeftRoom(Player otherPlayer)
         {
+            if (Players.PlayersList[Players.NameToIndex(otherPlayer.NickName)].Conquered)
+            {
+                NotificationsBarManager.EnqueueNotification(
+                    $"{Players.DescribeNameAsColor(otherPlayer.NickName)} has left the game");
+                return;
+            }
+
             Debug.Log("Player left room! Implement save game screen here!");
             ScenePlayerLeftGame.PlayerThatLeftNickname = otherPlayer.NickName;
             gameObject.AddComponent<SceneLoader>().LoadScene("ScenePlayerLeftGame");
@@ -186,15 +205,6 @@ namespace ScenesMainLoops
 
         public void NextTurn()
         {
-            if (PhotonNetwork.InRoom && GameOverCheck())
-            {
-                PhotonNetwork.RaiseEvent((byte)EventTypes.SomeoneWon,
-                    new SomeoneWon(PhotonNetwork.NickName).Serialize(),
-                    new RaiseEventOptions { Receivers = ReceiverGroup.All },
-                    SendOptions.SendReliable);
-                return;
-            }
-
             _playerLabelOfIndex[CurrentPlayerIndex].transform.Translate(new Vector2(-LabelOffset, 0));
             if (!PhotonNetwork.InRoom) // TODO: delete on release
             {
@@ -212,7 +222,42 @@ namespace ScenesMainLoops
             clockIcon.enabled = !IsItMyTurn();
             labelButtonNextTurn.enabled = IsItMyTurn();
 
+            if (PhotonNetwork.InRoom && IsTie())
+            {
+                SomeoneWon eventData = new("");
+                PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
+                    new RaiseEventOptions { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+                return;
+            }
+
+            if (PhotonNetwork.InRoom)
+            {
+                if (GetCurrentPlayer().Conquered)
+                {
+                    NextTurn();
+                    return;
+                }
+
+                if (IsThisPlayerConquered())
+                {
+                    NotificationsBarManager.EnqueueNotification(GetCurrentPlayer().Name == _player.Name
+                        ? "You got conquered!"
+                        : $"{Players.DescribeNameAsColor(GetCurrentPlayer().Name)} got conquered!");
+
+                    GetCurrentPlayer().Conquered = true;
+                    NextTurn();
+                    return;
+                }
+            }
+
             if (!IsItMyTurn()) return;
+            if (PhotonNetwork.InRoom && DidThisPlayerWin())
+            {
+                SomeoneWon eventData = new(_player.Name);
+                PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
+                    new RaiseEventOptions { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+                return;
+            }
 
             SharedVariables.IsOverUi = false;
             foreach (var (_, parameters) in FieldsParameters.LookupTable)
@@ -227,16 +272,30 @@ namespace ScenesMainLoops
             AudioPlayer.PlayYourTurn();
         }
 
-        private bool GameOverCheck()
+        private static bool IsThisPlayerConquered()
         {
-            if (RoundCounter <= 1) return false;
-            var field = FieldsParameters.LookupTable.Values.FirstOrDefault(parameters => parameters.Owner != null);
-            if (field != null)
-                return !FieldsParameters.LookupTable.Values.Any(parameters =>
-                    parameters.Owner != field.Owner && parameters.Owner != null);
-            // TODO: tie?
-            Debug.Log("Tie?");
-            return true;
+            return RoundCounter >= 1 &&
+                   FieldsParameters.LookupTable.Values.All(parameters => parameters.Owner != GetCurrentPlayer().Name);
+        }
+
+        private static bool IsTie()
+        {
+            return RoundCounter >= 1 && FieldsParameters.LookupTable.Values.All(parameters => parameters.Owner == null);
+        }
+
+        private bool DidThisPlayerWin()
+        {
+            if (RoundCounter < 1) return false;
+            return FieldsParameters.LookupTable.Values.All(parameters =>
+                parameters.Owner == _player.Name || parameters.Owner == null);
+        }
+
+        private static void ResetAllStaticVariables()
+        {
+            GlobalVariables.SelectedFieldLocal = null;
+            GlobalVariables.SelectedFieldOnline = null;
+            RoundCounter = 0;
+            CurrentPlayerIndex = 0;
         }
 
         public struct Globals

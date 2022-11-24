@@ -5,7 +5,7 @@ namespace fields
 {
     public class FieldsParameters
     {
-        public static readonly Dictionary<string, FieldsParameters> LookupTable = new()
+        public static Dictionary<string, FieldsParameters> LookupTable = new()
         {
             { "argentyna", new FieldsParameters(14, new Vector2(-40f, -26f)) },
             { "brazylia", new FieldsParameters(12, new Vector2(-36f, -14f)) },
@@ -43,6 +43,17 @@ namespace fields
         public Vector3 CameraPosition { get; }
         public string Owner { get; set; }
         public Field Instance { get; set; }
+
+        public static void ResetAllFields()
+        {
+            LookupTable = new Dictionary<string, FieldsParameters>
+            {
+                { "argentyna", new FieldsParameters(14, new Vector2(-40f, -26f)) },
+                { "brazylia", new FieldsParameters(12, new Vector2(-36f, -14f)) },
+                { "peru", new FieldsParameters(12, new Vector2(-40f, -13f)) },
+                { "wenezuela", new FieldsParameters(12, new Vector2(-41f, -4f)) }
+            };
+        }
 
         public string UnitsCountDescription()
         {

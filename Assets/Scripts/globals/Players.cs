@@ -16,10 +16,11 @@ public class Players
     public Color Color;
     public int Gold;
     public int Income;
-    public int LabsLimitLevel = 0;
+    public int LabsLimitLevel;
     public string Name;
-    public int SciencePoints = 0;
-    public int TrenchesLimitLevel = 0;
+    public int SciencePoints;
+    public int TrenchesLimitLevel;
+    public bool Conquered;
 
     public static void FillPlayerNames()
     {
@@ -31,7 +32,15 @@ public class Players
 
     public static void Init(int gold)
     {
-        foreach (var player in PlayersList) player.Gold = gold;
+        foreach (var player in PlayersList)
+        {
+            player.Gold = gold;
+            player.Income = 0;
+            player.LabsLimitLevel = 0;
+            player.TrenchesLimitLevel = 0;
+            player.Conquered = false;
+            player.SciencePoints = 0;
+        }
     }
 
     public static int NameToIndex(string name)
@@ -41,7 +50,7 @@ public class Players
 
     public string IncomeAsString()
     {
-        return $"({Income})";
+        return Income >= 0 ? $"(+{Income})" : $"({Income})";
     }
 
     public int CalculateIncome()
@@ -61,7 +70,7 @@ public class Players
 
     public int CalculateScienceIncome()
     {
-        return FieldsParameters.LookupTable.Values.Where(parameters => parameters.Labs > 0)
+        return FieldsParameters.LookupTable.Values.Where(parameters => parameters.Labs > 0 && parameters.Owner == Name)
             .Sum(parameters => parameters.Labs);
     }
 

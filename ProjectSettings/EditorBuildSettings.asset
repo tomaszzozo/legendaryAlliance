@@ -44,4 +44,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ScenePlayerLeftGame.unity
     guid: b9345aedf92c6484f997ab498f5bfb95
+  - enabled: 1
+    path: Assets/Scenes/SceneTie.unity
+    guid: 8dfaa7f601ba341b7b9b9ef20c01a655
   m_configObjects: {}
