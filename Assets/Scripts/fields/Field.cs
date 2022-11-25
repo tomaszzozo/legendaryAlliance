@@ -164,22 +164,21 @@ namespace fields
                     break;
                 }
 
-                case (int)EventTypes.ObjectBought:
+                case (int)EventTypes.ObjectChanged:
                 {
-                    var eventData = ObjectBought.Deserialize(photonEvent.CustomData as object[]);
+                    var eventData = ObjectChanged.Deserialize(photonEvent.CustomData as object[]);
                     if (eventData.FieldName != name) return;
                     switch (eventData.ObjectName)
                     {
-                        case ObjectBought.ObjectType.Trenches:
-                            _parameters.HasTrenches = true;
+                        case ObjectChanged.ObjectType.Trenches:
+                            _parameters.HasTrenches = !eventData.Sold;
                             break;
-                        case ObjectBought.ObjectType.Lab:
-                            _parameters.Labs++;
+                        case ObjectChanged.ObjectType.Lab:
+                            _parameters.Labs = eventData.Sold ? _parameters.Labs - 1 : _parameters.Labs + 1;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-
                     objectsManager.EnableAppropriateObjects(name);
                     break;
                 }

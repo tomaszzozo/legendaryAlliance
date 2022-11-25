@@ -8,6 +8,6 @@ public class GameplayConstants
     public const int LabIncomeCost = 2;
     public const int TrenchesIncomeCost = 5;
     public const int ScienceLabCostIncrement = 20;
-    public static readonly int[] TrenchesLimits = { 2, 4, 8 };
+    public static readonly int[] TrenchesLimits = { 1, 3, 6 };
     public static readonly int[] ScienceLabLimits = { 5, 10, 20 };
 }

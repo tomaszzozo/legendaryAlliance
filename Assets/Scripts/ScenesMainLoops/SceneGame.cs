@@ -332,7 +332,7 @@ namespace ScenesMainLoops
                 parameters.Labs = 0;
                 parameters.AllUnits = 0;
                 parameters.AvailableUnits = 0;
-                parameters.HasTrenches = false;
+                parameters.HasTrenches = parameters.IsCapital;
                 parameters.Instance.EnableAppropriateBorderSprite();
                 parameters.Instance.EnableAppropriateGlowSprite();
                 parameters.Instance.unitsManager.EnableAppropriateSprites(0, 0);
