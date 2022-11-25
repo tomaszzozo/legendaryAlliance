@@ -68,7 +68,24 @@ namespace fields
                 > 9 => "pack (10-14)",
                 > 4 => "several (5-9)",
                 > 0 => "few (1-4)",
-                _ => "0"
+                _ => "none (0)"
+            };
+        }
+
+        public static string BuildingCountDescription(int count)
+        {
+            return count switch
+            {
+                > 59 => "monopoly (60+)",
+                > 49 => "hectares (50-59)",
+                > 39 => "acres (40-49)",
+                > 29 => "lots (30-39)",
+                > 19 => "manufactures (20-29)",
+                > 14 => "pack (15-19)",
+                > 9 => "several (10-14)",
+                > 4 => "couple (5-9)",
+                > 0 => "few (1-4)",
+                _ => "none (0)"
             };
         }
     }
