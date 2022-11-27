@@ -44,6 +44,7 @@ namespace fields
             violetSprite.sortingOrder = 11;
             graySprite.sortingOrder = 11;
             unitsManager.EnableAppropriateSprites(0, 0);
+            objectsManager.Parameters = _parameters;
             objectsManager.DisableAllObjects();
             EnableAppropriateCapitalSprite();
         }
@@ -78,7 +79,7 @@ namespace fields
                 _parameters.HasTrenches = true;
                 EnableAppropriateBorderSprite();
                 EnableAppropriateCapitalSprite();
-                objectsManager.EnableAppropriateObjects(name);
+                objectsManager.EnableAppropriateObjects();
                 mainLoop.NextTurn();
                 CapitalSelected newEvent = new(name, _parameters.Owner);
                 RaiseEventOptions eventOptions = new() { Receivers = ReceiverGroup.Others };
@@ -149,7 +150,7 @@ namespace fields
                     unitsManager.EnableAppropriateSprites(1, Players.NameToIndex(_parameters.Owner));
                     EnableAppropriateBorderSprite();
                     EnableAppropriateCapitalSprite();
-                    objectsManager.EnableAppropriateObjects(name);
+                    objectsManager.EnableAppropriateObjects();
                     _parameters.IsCapital = true;
                     break;
                 }
@@ -174,12 +175,12 @@ namespace fields
                             _parameters.HasTrenches = !eventData.Sold;
                             break;
                         case ObjectChanged.ObjectType.Lab:
-                            _parameters.Labs = eventData.Sold ? _parameters.Labs - 1 : _parameters.Labs + 1;
+                            _parameters.Labs = eventData.Sold ? _parameters.Labs - eventData.Count : _parameters.Labs + eventData.Count;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    objectsManager.EnableAppropriateObjects(name);
+                    objectsManager.EnableAppropriateObjects();
                     break;
                 }
             }

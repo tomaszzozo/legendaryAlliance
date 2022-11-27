@@ -1,3 +1,4 @@
+using System.Linq;
 using ExitGames.Client.Photon;
 using fields;
 using Photon.Pun;
@@ -54,6 +55,7 @@ public class AttackModeManager : MonoBehaviour
     {
         if (AllChosenUnits == 0) return;
         var parameters = FieldsParameters.LookupTable[_fieldName];
+        var battleOutcome = CalculateBattleResult(parameters);
         if (parameters.Owner == null)
         {
             parameters.Owner = SceneGame.GetCurrentPlayer().Name;
@@ -81,6 +83,9 @@ public class AttackModeManager : MonoBehaviour
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits,
                 SceneGame.CurrentPlayerIndex);
 
+            SellObjectIfOverLimit(parameters);
+            parameters.Instance.objectsManager.EnableAppropriateObjects();
+
             SceneGame.GetCurrentPlayer().Income = SceneGame.GetCurrentPlayer().CalculateIncome();
             topStatsManager.RefreshValues();
 
@@ -107,7 +112,7 @@ public class AttackModeManager : MonoBehaviour
             OnClickCancelButton();
             AudioPlayer.PlayRegroup();
         }
-        else if (AllChosenUnits == parameters.AllUnits)
+        else if (battleOutcome == 0)
         {
             parameters.AllUnits = 0;
             NotificationsBarManager.SendNotification(
@@ -132,7 +137,7 @@ public class AttackModeManager : MonoBehaviour
             OnClickCancelButton();
             AudioPlayer.PlayAttack();
         }
-        else if (AllChosenUnits < parameters.AllUnits)
+        else if (battleOutcome < 0)
         {
             parameters.AllUnits -= AllChosenUnits;
             if (parameters.AvailableUnits > parameters.AllUnits) parameters.AvailableUnits = parameters.AllUnits;
@@ -185,6 +190,9 @@ public class AttackModeManager : MonoBehaviour
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits,
                 SceneGame.CurrentPlayerIndex);
 
+            SellObjectIfOverLimit(parameters);
+            parameters.Instance.objectsManager.EnableAppropriateObjects();
+
             SceneGame.GetCurrentPlayer().Income = SceneGame.GetCurrentPlayer().CalculateIncome();
             topStatsManager.RefreshValues();
 
@@ -215,5 +223,56 @@ public class AttackModeManager : MonoBehaviour
                 player.Name == FieldsParameters.LookupTable[fieldName].Owner));
         SharedVariables.IsOverUi = true;
         attackButtonLabel.text = FieldInspectorManager.RegroupMode ? "move" : "to glory!";
+    }
+
+    /**
+     * <summary>Calculates the outcome of a battle</summary>
+     * <returns>More than zero if attacker won, less than zero if defender won, zero if tie</returns>
+     */
+    private static int CalculateBattleResult(FieldsParameters parameters)
+    {
+        return AllChosenUnits - parameters.AllUnits;
+    }
+
+    /**
+     * <summary>This methods sells objects that player has just acquired through attack but is not able to maintain.</summary>
+     * <param name="parameters">Parameters of a field that was just conquered by the player</param>
+     */
+    private static void SellObjectIfOverLimit(FieldsParameters parameters)
+    {
+        var player = Players.PlayersList[Players.NameToIndex(parameters.Owner)];
+
+        // SELL LABS
+        var maxLabs = GameplayConstants.ScienceLabLimits[player.LabsLimitLevel];
+        if (parameters.Labs > maxLabs)
+        {
+            var difference = parameters.Labs - maxLabs;
+            for (var i = 0; i < difference; i++)
+            {
+                player.Gold += parameters.CalculateCostOfBuyingLab();
+                parameters.Labs--;
+            }
+
+            ObjectChanged eventData = new(parameters.Instance.name, ObjectChanged.ObjectType.Lab, true, difference);
+            PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
+                new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);
+            NotificationsBarManager.EnqueueNotification(
+                $"Some labs in {Translator.TranslateField(parameters.Instance.name)} had to be sold");
+        }
+
+        // SELL TRENCHES
+        var maxTrenches = GameplayConstants.TrenchesLimits[player.TrenchesLimitLevel];
+        var countTrenches =
+            FieldsParameters.LookupTable.Values.Count(p => p.Owner == player.Name && p.HasTrenches && !p.IsCapital);
+        if (countTrenches > maxTrenches)
+        {
+            player.Gold += GameplayConstants.TrenchesBaseCost / 2;
+            parameters.HasTrenches = false;
+            ObjectChanged eventData = new(parameters.Instance.name, ObjectChanged.ObjectType.Trenches, true);
+            PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
+                new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);
+            NotificationsBarManager.EnqueueNotification(
+                $"Trenches in {Translator.TranslateField(parameters.Instance.name)} had to be sold");
+        }
     }
 }

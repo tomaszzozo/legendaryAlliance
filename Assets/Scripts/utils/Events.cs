@@ -275,22 +275,24 @@ public class ObjectChanged : Event
     public readonly string FieldName;
     public readonly ObjectType ObjectName;
     public readonly bool Sold;
+    public readonly int Count;
 
-    public ObjectChanged(string fieldName, ObjectType objectName, bool sold = false) : base(EventTypes.ObjectChanged)
+    public ObjectChanged(string fieldName, ObjectType objectName, bool sold = false, int count = 1) : base(EventTypes.ObjectChanged)
     {
         FieldName = fieldName;
         ObjectName = objectName;
         Sold = sold;
+        Count = count;
     }
 
     public object[] Serialize()
     {
-        return new object[] { FieldName, (int)ObjectName, Sold};
+        return new object[] { FieldName, (int)ObjectName, Sold, Count};
     }
 
     public static ObjectChanged Deserialize(object[] content)
     {
-        return new ObjectChanged(content[0] as string, (ObjectType)content[1], (bool)content[2]);
+        return new ObjectChanged(content[0] as string, (ObjectType)content[1], (bool)content[2], (int)content[3]);
     }
 }
 

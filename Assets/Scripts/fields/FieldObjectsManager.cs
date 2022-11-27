@@ -6,6 +6,8 @@ public class FieldObjectsManager : MonoBehaviour
     [SerializeField] private SpriteRenderer trenches;
     [SerializeField] private SpriteRenderer lab;
 
+    public FieldsParameters Parameters { private get; set; }
+
     /// <summary>
     ///     Does not disable capitals.
     /// </summary>
@@ -15,10 +17,9 @@ public class FieldObjectsManager : MonoBehaviour
         lab.enabled = false;
     }
 
-    public void EnableAppropriateObjects(string fieldName)
+    public void EnableAppropriateObjects()
     {
-        var parameters = FieldsParameters.LookupTable[fieldName];
-        trenches.enabled = parameters.HasTrenches;
-        lab.enabled = parameters.Labs > 0;
+        trenches.enabled = Parameters.HasTrenches;
+        lab.enabled = Parameters.Labs > 0;
     }
 }

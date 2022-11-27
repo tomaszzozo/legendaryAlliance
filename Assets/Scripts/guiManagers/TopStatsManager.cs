@@ -15,10 +15,13 @@ public class TopStatsManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI labelSciencePoints;
     [SerializeField] private TextMeshProUGUI labelScienceIncome;
 
+    public static TopStatsManager Instance { get; private set; }
+    
     private Players _player;
 
     public void Init(Players player)
     {
+        Instance = this;
         _player = player;
         decorationBar.color = _player.Color;
         RefreshValues();

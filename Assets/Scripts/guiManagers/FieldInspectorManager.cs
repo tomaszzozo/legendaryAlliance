@@ -113,54 +113,58 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     public void OnClickBuyTrenchesButton()
     {
+        var player = SceneGame.GetCurrentPlayer();
         _parameters.HasTrenches = true;
-        SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.TrenchesBaseCost;
-        _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
+        player.Income = player.CalculateIncome();
+        player.Gold -= GameplayConstants.TrenchesBaseCost;
+        _parameters.Instance.objectsManager.EnableAppropriateObjects();
         Refresh();
         SendEventObjectChanged(ObjectChanged.ObjectType.Trenches);
         NotificationsBarManager.SendNotification(
-            $"{Players.DescribeNameAsColor(SceneGame.GetCurrentPlayer().Name)} has build trenches in {Translator.TranslateField(_parameters.Instance.name)}");
+            $"{Players.DescribeNameAsColor(player.Name)} has build trenches in {Translator.TranslateField(_parameters.Instance.name)}");
         AudioPlayer.PlayBuy();
-        SceneGame.GetCurrentPlayer().Income = SceneGame.GetCurrentPlayer().CalculateIncome();
     }
 
     public void OnClickSellTrenchesButton()
     {
+        var player = SceneGame.GetCurrentPlayer();
         _parameters.HasTrenches = false;
-        SceneGame.GetCurrentPlayer().Gold += GameplayConstants.TrenchesBaseCost / 2;
-        SceneGame.GetCurrentPlayer().Income = SceneGame.GetCurrentPlayer().CalculateIncome();
-        _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
+        player.Gold += GameplayConstants.TrenchesBaseCost / 2;
+        player.Income = player.CalculateIncome();
+        _parameters.Instance.objectsManager.EnableAppropriateObjects();
         Refresh();
         SendEventObjectChanged(ObjectChanged.ObjectType.Trenches, true);
         AudioPlayer.PlayBuy();
         NotificationsBarManager.SendNotification(
-            $"{Players.DescribeNameAsColor(SceneGame.GetCurrentPlayer().Name)} has sold trenches in {Translator.TranslateField(_parameters.Instance.name)}");
+            $"{Players.DescribeNameAsColor(player.Name)} has sold trenches in {Translator.TranslateField(_parameters.Instance.name)}");
     }
 
     public void OnClickSellLabButton()
     {
-        SceneGame.GetCurrentPlayer().Gold += (GameplayConstants.LabBaseCost +
-                                              GameplayConstants.ScienceLabCostIncrement * --_parameters.Labs) / 2;
-        SceneGame.GetCurrentPlayer().Income = SceneGame.GetCurrentPlayer().CalculateIncome();
-        _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
+        var player = SceneGame.GetCurrentPlayer();
+        player.Gold += _parameters.CalculateCostOfSellingLab();
+        _parameters.Labs--;
+        player.Income = player.CalculateIncome();
+        _parameters.Instance.objectsManager.EnableAppropriateObjects();
         Refresh();
         SendEventObjectChanged(ObjectChanged.ObjectType.Lab, true);
         AudioPlayer.PlayBuy();
         NotificationsBarManager.SendNotification(
-            $"{Players.DescribeNameAsColor(SceneGame.GetCurrentPlayer().Name)} has sold a lab in {Translator.TranslateField(_parameters.Instance.name)}");
+            $"{Players.DescribeNameAsColor(player.Name)} has sold a lab in {Translator.TranslateField(_parameters.Instance.name)}");
     }
 
     public void OnClickBuyLabButton()
     {
-        SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.LabBaseCost +
-                                             GameplayConstants.ScienceLabCostIncrement * _parameters.Labs++;
-        _parameters.Instance.objectsManager.EnableAppropriateObjects(_parameters.Instance.name);
-        SceneGame.GetCurrentPlayer().Income = SceneGame.GetCurrentPlayer().CalculateIncome();
+        var player = SceneGame.GetCurrentPlayer();
+        player.Gold -= _parameters.CalculateCostOfBuyingLab();
+        _parameters.Labs++;
+        _parameters.Instance.objectsManager.EnableAppropriateObjects();
+        player.Income = player.CalculateIncome();
         Refresh();
         AudioPlayer.PlayBuy();
         SendEventObjectChanged(ObjectChanged.ObjectType.Lab);
         NotificationsBarManager.SendNotification(
-            $"{Players.DescribeNameAsColor(SceneGame.GetCurrentPlayer().Name)} has build a lab in {Translator.TranslateField(_parameters.Instance.name)}");
+            $"{Players.DescribeNameAsColor(player.Name)} has build a lab in {Translator.TranslateField(_parameters.Instance.name)}");
     }
 
     private void SendEventObjectChanged(ObjectChanged.ObjectType objectType, bool sold = false)

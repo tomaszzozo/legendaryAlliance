@@ -88,5 +88,16 @@ namespace fields
                 _ => "none (0)"
             };
         }
+
+        public int CalculateCostOfBuyingLab()
+        {
+            return GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * Labs;
+        }
+
+        public int CalculateCostOfSellingLab()
+        {
+            return (GameplayConstants.LabBaseCost +
+                    GameplayConstants.ScienceLabCostIncrement * Labs-1) / 2;
+        }
     }
 }
