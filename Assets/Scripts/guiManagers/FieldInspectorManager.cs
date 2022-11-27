@@ -215,7 +215,6 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private void Refresh()
     {
         // VARIABLES
-        var displayBuildings = _parameters.Owner != null;
         var maxLabs = GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel];
 
         // BUTTONS TEXT
@@ -245,9 +244,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
                                              SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
 
         // LABELS
-        trenchesCountLabel.enabled = displayBuildings;
+        trenchesCountLabel.enabled = true;
         trenchesCountLabel.text = _parameters.HasTrenches ? "x 1/1" : "x 0/1";
-        labCountLabel.enabled = displayBuildings;
+        labCountLabel.enabled = true;
         labCountLabel.text = _parameters.Owner == SceneGame.GetCurrentPlayer().Name
             ? $"x {_parameters.Labs}/{maxLabs}"
             : FieldsParameters.BuildingCountDescription(_parameters.Labs);
@@ -263,8 +262,8 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
                 _parameters.UnitsCountDescription() == "0" ? "x 0" : _parameters.UnitsCountDescription();
 
         // IMAGES
-        trenchesImage.enabled = displayBuildings;
-        labImage.enabled = displayBuildings;
+        trenchesImage.enabled = true;
+        labImage.enabled = true;
         unitColorManager.EnableAppropriateImage(
             Players.PlayersList.FindIndex(player => player.Name == _parameters.Owner));
 
