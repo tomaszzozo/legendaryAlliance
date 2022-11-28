@@ -6,19 +6,13 @@ using Photon.Realtime;
 using ScenesMainLoops;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class FieldInspectorManager : MonoBehaviourPunCallbacks
 {
     public static bool RegroupMode;
-
-    // DEPENDENCIES
-    [SerializeField] private TopStatsManager topStatsManager;
-
-    // ITSELF
-    [FormerlySerializedAs("thisCanvas")] [SerializeField]
-    private Canvas canvas;
+    
+    [SerializeField] private Canvas canvas;
 
     [SerializeField] private TextMeshProUGUI incomeLabel;
     [SerializeField] private TextMeshProUGUI ownerLabel;
@@ -53,6 +47,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private ButtonWrapper _sellTrenchesButton;
     private ButtonWrapper _sellLabButton;
     private string _fieldName;
+   
 
     private FieldsParameters _parameters;
 
@@ -216,6 +211,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     {
         // VARIABLES
         var maxLabs = GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel];
+        var currentPlayer = SceneGame.GetCurrentPlayer();
 
         // BUTTONS TEXT
         _buyUnitButton.Label.text = $"BUY ({GameplayConstants.UnitBaseCost})";
@@ -228,34 +224,35 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             : "";
 
         // BUTTONS ACTIVE/INTERACTABLE
-        sellTrenchesButtonGameObject.SetActive(_parameters.HasTrenches && _parameters.Owner == SceneGame.GetCurrentPlayer().Name && !_parameters.IsCapital);
-        sellLabButtonGameObject.SetActive(_parameters.Labs > 0 && _parameters.Owner == SceneGame.GetCurrentPlayer().Name);
+        sellTrenchesButtonGameObject.SetActive(_parameters.HasTrenches && _parameters.Owner == currentPlayer.Name && !_parameters.IsCapital);
+        sellLabButtonGameObject.SetActive(_parameters.Labs > 0 && _parameters.Owner == currentPlayer.Name);
         TrenchesButtonSetInteractable();
         EnableAttackButtonIfAbleToAttack();
         EnableMoveButtonIfAbleToMove();
-        var displayButtons = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
+        var displayButtons = _parameters.Owner == currentPlayer.Name;
         buyTrenchesButtonGameObject.SetActive(displayButtons && !_parameters.IsCapital);
         buyLabButtonGameObject.SetActive(displayButtons);
         _buyLabButton.Button.interactable = _parameters.Labs < maxLabs &&
-                                            SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.LabBaseCost +
+                                            currentPlayer.Gold >= GameplayConstants.LabBaseCost +
                                             GameplayConstants.ScienceLabCostIncrement * _parameters.Labs;
-        buyUnitButton.SetActive(_parameters.Owner == SceneGame.GetCurrentPlayer().Name);
+        buyUnitButton.SetActive(_parameters.Owner == currentPlayer.Name);
         _buyUnitButton.Button.interactable = _parameters.HasTrenches &&
-                                             SceneGame.GetCurrentPlayer().Gold >= GameplayConstants.UnitBaseCost;
+                                             currentPlayer.Gold >= GameplayConstants.UnitBaseCost;
 
         // LABELS
         trenchesCountLabel.enabled = true;
         trenchesCountLabel.text = _parameters.HasTrenches ? "x 1/1" : "x 0/1";
         labCountLabel.enabled = true;
-        labCountLabel.text = _parameters.Owner == SceneGame.GetCurrentPlayer().Name
-            ? $"x {_parameters.Labs}/{maxLabs}"
-            : FieldsParameters.BuildingCountDescription(_parameters.Labs);
+        if (_parameters.Owner == currentPlayer.Name) labCountLabel.text = $"x {_parameters.Labs}/{maxLabs}";
+        else if (_parameters.Owner != null)
+            labCountLabel.text = FieldsParameters.BuildingCountDescription(_parameters.Labs);
+        else labCountLabel.text = $"x {_parameters.Labs}";
         incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
         nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
         ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
         if (_parameters.Owner == null)
             unitsCountLabel.text = "";
-        else if (_parameters.Owner == SceneGame.GetCurrentPlayer().Name)
+        else if (_parameters.Owner == currentPlayer.Name)
             unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
         else
             unitsCountLabel.text =
@@ -267,6 +264,6 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         unitColorManager.EnableAppropriateImage(
             Players.PlayersList.FindIndex(player => player.Name == _parameters.Owner));
 
-        topStatsManager.RefreshValues();
+        TopStatsManager.Instance.RefreshValues();
     }
 }

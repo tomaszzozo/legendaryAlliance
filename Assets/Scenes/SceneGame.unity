@@ -19366,7 +19366,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08059483b10124e5b8b57061ff5d8ad7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topStatsManager: {fileID: 852483785}
   canvas: {fileID: 1072390521}
   incomeLabel: {fileID: 895008552}
   ownerLabel: {fileID: 1738168808}
@@ -28539,6 +28538,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 529f39009fca94bcbb498f14905bed0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableDebugMode: 0
 --- !u!4 &1477160457
 Transform:
   m_ObjectHideFlags: 0
