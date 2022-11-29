@@ -231,12 +231,13 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
             nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
             ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
+            unitsCountLabel.enabled = true;
             unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
 
             // IMAGES
             trenchesImage.enabled = true;
             labImage.enabled = true;
-            unitColorManager.enabled = true;
+            unitColorManager.gameObject.SetActive(true);
             unitColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
 
             // BUTTONS ACTIVE/INTERACTABLE

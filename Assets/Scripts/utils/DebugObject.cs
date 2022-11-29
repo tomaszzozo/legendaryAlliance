@@ -44,7 +44,7 @@ public class DebugObject : MonoBehaviour
         FieldsParameters.LookupTable["peru"].Instance.objectsManager.EnableAppropriateObjects();
         FieldsParameters.LookupTable["wenezuela"].Labs = 4;
         FieldsParameters.LookupTable["wenezuela"].Instance.objectsManager.EnableAppropriateObjects();
-        FieldsParameters.LookupTable["brazylia"].Labs = 1;
+        FieldsParameters.LookupTable["brazylia"].Labs = 10;
         FieldsParameters.LookupTable["brazylia"].Instance.objectsManager.EnableAppropriateObjects();
         
         // MOCK UNITS
