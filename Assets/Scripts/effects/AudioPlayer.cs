@@ -22,18 +22,18 @@ public class AudioPlayer : MonoBehaviourPunCallbacks, IOnEventCallback
 
         _audioSourceAttack = gameObject.AddComponent<AudioSource>();
         _audioSourceAttack.clip = Resources.Load("attack") as AudioClip;
-        _audioSourceAttack.volume = 0.5f;
+        _audioSourceAttack.volume = 1f;
 
         _audioSourceRegroup = gameObject.AddComponent<AudioSource>();
         _audioSourceRegroup.clip = Resources.Load("regroup") as AudioClip;
-        _audioSourceRegroup.volume = 0.5f;
+        _audioSourceRegroup.volume = 1f;
 
         _audioSourceBuyUnit = gameObject.AddComponent<AudioSource>();
         _audioSourceBuyUnit.clip = Resources.Load("buyUnit") as AudioClip;
 
         _audioSourceNotification = gameObject.AddComponent<AudioSource>();
         _audioSourceNotification.clip = Resources.Load("notification") as AudioClip;
-        _audioSourceNotification.volume = 0.5f;
+        _audioSourceNotification.volume = 1f;
     }
 
     public void OnEvent(EventData photonEvent)

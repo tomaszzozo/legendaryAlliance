@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using ExitGames.Client.Photon;
 using fields;
@@ -11,7 +12,7 @@ using UnityEngine.UI;
 public class FieldInspectorManager : MonoBehaviourPunCallbacks
 {
     public static bool RegroupMode;
-    
+
     [SerializeField] private Canvas canvas;
 
     [SerializeField] private TextMeshProUGUI incomeLabel;
@@ -27,6 +28,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject buyUnitButton;
     [SerializeField] private TextMeshProUGUI unitsCountLabel;
     [SerializeField] private ImageColorManager unitColorManager;
+    [SerializeField] private GameObject sellUnitMockButton;
 
     // TRENCHES
     [SerializeField] private Image trenchesImage;
@@ -47,9 +49,15 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private ButtonWrapper _sellTrenchesButton;
     private ButtonWrapper _sellLabButton;
     private string _fieldName;
-   
 
     private FieldsParameters _parameters;
+    private Vector3 _iconStartingPosition;
+    private Vector3 _labelStartingPosition;
+    private Vector3 _buyButtonStartingPosition;
+    private Vector3 _sellButtonStartingPosition;
+    private float _iconDifference;
+    private float _labelDifference;
+    private float _buttonDifference;
 
     private void Start()
     {
@@ -59,6 +67,14 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyLabButton = new ButtonWrapper(buyLabButtonGameObject);
         _sellTrenchesButton = new ButtonWrapper(sellTrenchesButtonGameObject);
         _sellLabButton = new ButtonWrapper(sellLabButtonGameObject);
+        _iconStartingPosition = unitColorManager.blueImage.transform.position;
+        _labelStartingPosition = unitsCountLabel.transform.position;
+        _buyButtonStartingPosition = buyUnitButton.transform.position;
+        _sellButtonStartingPosition = sellUnitMockButton.transform.position;
+        _iconDifference = Math.Abs(_iconStartingPosition.y - trenchesImage.transform.position.y);
+        _labelDifference = Math.Abs(_iconStartingPosition.y - trenchesCountLabel.transform.position.y);
+        _buttonDifference = Math.Abs(_buyButtonStartingPosition.y - buyTrenchesButtonGameObject.transform.position.y);
+        sellUnitMockButton.SetActive(false);
     }
 
 
@@ -68,6 +84,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _fieldName = fieldName;
         RegroupMode = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
         Refresh();
+        CorrectPlacement();
         canvas.enabled = true;
         SharedVariables.IsOverUi = true;
         backButton.interactable = true;
@@ -142,6 +159,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         player.Income = player.CalculateIncome();
         _parameters.Instance.objectsManager.EnableAppropriateObjects();
         Refresh();
+        CorrectPlacement();
         SendEventObjectChanged(ObjectChanged.ObjectType.Lab, true);
         AudioPlayer.PlayBuy();
         NotificationsBarManager.SendNotification(
@@ -196,74 +214,173 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         }
     }
 
-    private void TrenchesButtonSetInteractable()
-    {
-        var player = SceneGame.GetCurrentPlayer();
-        var trenchesCount =
-            FieldsParameters.LookupTable.Values.Count(field =>
-                field.HasTrenches && field.Owner == player.Name && !field.IsCapital);
-        _buyTrenchesButton.Button.interactable = !_parameters.HasTrenches &&
-                                                 player.Gold >= GameplayConstants.TrenchesBaseCost && trenchesCount <
-                                                 GameplayConstants.TrenchesLimits[player.TrenchesLimitLevel];
-    }
-
     private void Refresh()
     {
         // VARIABLES
         var maxLabs = GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel];
         var currentPlayer = SceneGame.GetCurrentPlayer();
 
-        // BUTTONS TEXT
-        _buyUnitButton.Label.text = $"BUY ({GameplayConstants.UnitBaseCost})";
-        _buyTrenchesButton.Label.text = $"BUY ({GameplayConstants.TrenchesBaseCost})";
-        _buyLabButton.Label.text =
-            $"BUY ({GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs})";
-        _sellTrenchesButton.Label.text = $"SELL ({GameplayConstants.TrenchesBaseCost / 2})";
-        _sellLabButton.Label.text = _parameters.Labs > 0
-            ? $"SELL ({(GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * (_parameters.Labs - 1)) / 2})"
-            : "";
-
-        // BUTTONS ACTIVE/INTERACTABLE
-        sellTrenchesButtonGameObject.SetActive(_parameters.HasTrenches && _parameters.Owner == currentPlayer.Name && !_parameters.IsCapital);
-        sellLabButtonGameObject.SetActive(_parameters.Labs > 0 && _parameters.Owner == currentPlayer.Name);
-        TrenchesButtonSetInteractable();
-        EnableAttackButtonIfAbleToAttack();
-        EnableMoveButtonIfAbleToMove();
-        var displayButtons = _parameters.Owner == currentPlayer.Name;
-        buyTrenchesButtonGameObject.SetActive(displayButtons && !_parameters.IsCapital);
-        buyLabButtonGameObject.SetActive(displayButtons);
-        _buyLabButton.Button.interactable = _parameters.Labs < maxLabs &&
-                                            currentPlayer.Gold >= GameplayConstants.LabBaseCost +
-                                            GameplayConstants.ScienceLabCostIncrement * _parameters.Labs;
-        buyUnitButton.SetActive(_parameters.Owner == currentPlayer.Name);
-        _buyUnitButton.Button.interactable = _parameters.HasTrenches &&
-                                             currentPlayer.Gold >= GameplayConstants.UnitBaseCost;
-
-        // LABELS
-        trenchesCountLabel.enabled = true;
-        trenchesCountLabel.text = _parameters.HasTrenches ? "x 1/1" : "x 0/1";
-        labCountLabel.enabled = true;
-        if (_parameters.Owner == currentPlayer.Name) labCountLabel.text = $"x {_parameters.Labs}/{maxLabs}";
-        else if (_parameters.Owner != null)
-            labCountLabel.text = FieldsParameters.BuildingCountDescription(_parameters.Labs);
-        else labCountLabel.text = $"x {_parameters.Labs}";
-        incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
-        nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
-        ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
-        if (_parameters.Owner == null)
-            unitsCountLabel.text = "";
-        else if (_parameters.Owner == currentPlayer.Name)
+        if (_parameters.Owner == currentPlayer.Name)
+        {
+            // FIELD BELONGS TO CURRENT PLAYER
+            // LABELS
+            trenchesCountLabel.enabled = true;
+            trenchesCountLabel.text = _parameters.HasTrenches || _parameters.IsCapital ? "x 1/1" : "x 0/1";
+            labCountLabel.enabled = true;
+            labCountLabel.text = $"x {_parameters.Labs}/{maxLabs}";
+            incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
+            nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
+            ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
             unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
-        else
-            unitsCountLabel.text =
-                _parameters.UnitsCountDescription() == "0" ? "x 0" : _parameters.UnitsCountDescription();
 
-        // IMAGES
-        trenchesImage.enabled = true;
-        labImage.enabled = true;
+            // IMAGES
+            trenchesImage.enabled = true;
+            labImage.enabled = true;
+            unitColorManager.enabled = true;
+            unitColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
+
+            // BUTTONS ACTIVE/INTERACTABLE
+            sellTrenchesButtonGameObject.SetActive(!_parameters.IsCapital && _parameters.HasTrenches);
+            sellLabButtonGameObject.SetActive(_parameters.Labs > 0);
+            buyUnitButton.SetActive(true);
+            buyTrenchesButtonGameObject.SetActive(!_parameters.IsCapital);
+            buyLabButtonGameObject.SetActive(true);
+
+            EnableAttackButtonIfAbleToAttack();
+            EnableMoveButtonIfAbleToMove();
+
+            _buyLabButton.Button.interactable = _parameters.Labs < maxLabs &&
+                                                currentPlayer.Gold >= GameplayConstants.LabBaseCost +
+                                                GameplayConstants.ScienceLabCostIncrement * _parameters.Labs;
+            var boughtTrenches = FieldsParameters.LookupTable.Values.Count(parameters =>
+                parameters.Owner == currentPlayer.Name && !parameters.IsCapital && parameters.HasTrenches);
+            var trenchesLimitForThisPlayer = GameplayConstants.TrenchesLimits[currentPlayer.TrenchesLimitLevel];
+            _buyTrenchesButton.Button.interactable = boughtTrenches < trenchesLimitForThisPlayer &&
+                                                     currentPlayer.Gold >= GameplayConstants.TrenchesBaseCost;
+            _buyUnitButton.Button.interactable = _parameters.HasTrenches &&
+                                                 currentPlayer.Gold >= GameplayConstants.UnitBaseCost;
+            _sellTrenchesButton.Button.interactable = _parameters.HasTrenches;
+            _sellLabButton.Button.interactable = _parameters.Labs > 0;
+            _sellTrenchesButton.Button.interactable = _parameters.HasTrenches;
+
+            // BUTTONS TEXT
+            _buyUnitButton.Label.text = $"BUY ({GameplayConstants.UnitBaseCost})";
+            _buyTrenchesButton.Label.text = $"BUY ({GameplayConstants.TrenchesBaseCost})";
+            _buyLabButton.Label.text =
+                $"BUY ({GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs})";
+            _sellTrenchesButton.Label.text = $"SELL ({GameplayConstants.TrenchesBaseCost / 2})";
+            _sellLabButton.Label.text = _parameters.Labs > 0
+                ? $"SELL ({(GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * (_parameters.Labs - 1)) / 2})"
+                : "";
+        }
+        else if (_parameters.Owner == null)
+        {
+            // FIELD BELONGS TO NONE
+            // LABELS
+            trenchesCountLabel.enabled = _parameters.HasTrenches;
+            trenchesCountLabel.text = "x 1/1";
+            labCountLabel.enabled = _parameters.Labs > 0;
+            labCountLabel.text = $"x {_parameters.Labs}";
+            incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
+            nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
+            ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
+            unitsCountLabel.enabled = false;
+
+            // IMAGES
+            trenchesImage.enabled = _parameters.HasTrenches;
+            labImage.enabled = _parameters.Labs > 0;
+            unitColorManager.gameObject.SetActive(_parameters.AllUnits > 0);
+            unitColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
+
+            // BUTTONS ACTIVE/INTERACTABLE
+            sellTrenchesButtonGameObject.SetActive(false);
+            sellLabButtonGameObject.SetActive(false);
+            EnableAttackButtonIfAbleToAttack();
+            EnableMoveButtonIfAbleToMove();
+            buyTrenchesButtonGameObject.SetActive(false);
+            buyLabButtonGameObject.SetActive(false);
+            buyUnitButton.SetActive(false);
+        }
+        else
+        {
+            // FIELD BELONGS TO SOMEONE ELSE
+            // LABELS
+            trenchesCountLabel.enabled = _parameters.HasTrenches;
+            trenchesCountLabel.text = "x 1/1";
+            labCountLabel.enabled = _parameters.Labs > 0;
+            labCountLabel.text = FieldsParameters.BuildingCountDescription(_parameters.Labs);
+            incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
+            nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
+            ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
+            unitsCountLabel.enabled = _parameters.AllUnits > 0;
+            unitsCountLabel.text = _parameters.UnitsCountDescription();
+
+            // IMAGES
+            trenchesImage.enabled = _parameters.HasTrenches;
+            labImage.enabled = _parameters.Labs > 0;
+            unitColorManager.gameObject.SetActive(_parameters.AllUnits > 0);
+            unitColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
+
+            // BUTTONS ACTIVE/INTERACTABLE
+            sellTrenchesButtonGameObject.SetActive(false);
+            sellLabButtonGameObject.SetActive(false);
+            EnableAttackButtonIfAbleToAttack();
+            EnableMoveButtonIfAbleToMove();
+            buyTrenchesButtonGameObject.SetActive(false);
+            buyLabButtonGameObject.SetActive(false);
+            buyUnitButton.SetActive(false);
+        }
+
         unitColorManager.EnableAppropriateImage(
             Players.PlayersList.FindIndex(player => player.Name == _parameters.Owner));
-
         TopStatsManager.Instance.RefreshValues();
+    }
+
+    private void CorrectPlacement()
+    {
+        var currentPlayer = SceneGame.GetCurrentPlayer();
+        var takenSpacesCounter = 0;
+
+        if (_parameters.AllUnits > 0 || _parameters.Owner == currentPlayer.Name)
+        {
+            unitColorManager.transform.position = _iconStartingPosition;
+            unitsCountLabel.transform.position = _labelStartingPosition;
+            buyUnitButton.transform.position = _buyButtonStartingPosition;
+            takenSpacesCounter++;
+        }
+
+        if (_parameters.HasTrenches || _parameters.Owner == currentPlayer.Name)
+        {
+            trenchesImage.transform.position = _iconStartingPosition;
+            trenchesImage.transform.Translate(0, -_iconDifference * takenSpacesCounter, 0);
+
+            trenchesCountLabel.transform.position = _labelStartingPosition;
+            trenchesCountLabel.transform.Translate(0, -_labelDifference * takenSpacesCounter, 0);
+
+            buyTrenchesButtonGameObject.transform.position = _buyButtonStartingPosition;
+            buyTrenchesButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
+
+            sellTrenchesButtonGameObject.transform.position = _sellButtonStartingPosition;
+            sellTrenchesButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
+            
+            takenSpacesCounter++;
+        }
+
+        if (_parameters.Labs > 0 || _parameters.Owner == currentPlayer.Name)
+        {
+            labImage.transform.position = _iconStartingPosition;
+            labImage.transform.Translate(0, -_iconDifference * takenSpacesCounter, 0);
+
+            labCountLabel.transform.position = _labelStartingPosition;
+            labCountLabel.transform.Translate(0, -_labelDifference * takenSpacesCounter, 0);
+            
+            buyLabButtonGameObject.transform.position = _buyButtonStartingPosition;
+            buyLabButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
+
+            sellLabButtonGameObject.transform.position = _sellButtonStartingPosition;
+            sellLabButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
+            
+            takenSpacesCounter++;
+        }
     }
 }

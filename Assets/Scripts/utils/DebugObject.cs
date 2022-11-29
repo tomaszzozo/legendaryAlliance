@@ -27,12 +27,14 @@ public class DebugObject : MonoBehaviour
         // FieldsParameters.LookupTable["wenezuela"].Instance.objectsManager.EnableAppropriateObjects();
 
         // MOCK PLAYER
-        // Players.PlayersList[1].Name = "mock player";
-        // Players.PlayersList[0].Gold = 1000;
+        Players.PlayersList[1].Name = "mock player";
+        Players.PlayersList[0].Gold = 1000;
         
         // MOCK FIELDS
-        // FieldsParameters.LookupTable["peru"].Owner = Players.PlayersList[1].Name;
-        // FieldsParameters.LookupTable["peru"].Instance.EnableAppropriateBorderSprite();
+        FieldsParameters.LookupTable["peru"].Owner = Players.PlayersList[1].Name;
+        FieldsParameters.LookupTable["peru"].Instance.EnableAppropriateBorderSprite();
+        FieldsParameters.LookupTable["wenezuela"].Owner = Players.PlayersList[1].Name;
+        FieldsParameters.LookupTable["wenezuela"].Instance.EnableAppropriateBorderSprite();
         //
         // FieldsParameters.LookupTable["brazylia"].Owner = Players.PlayersList[0].Name;
         // FieldsParameters.LookupTable["brazylia"].Instance.EnableAppropriateBorderSprite();
@@ -40,7 +42,15 @@ public class DebugObject : MonoBehaviour
         // MOCK LABS
         FieldsParameters.LookupTable["peru"].Labs = 3;
         FieldsParameters.LookupTable["peru"].Instance.objectsManager.EnableAppropriateObjects();
+        FieldsParameters.LookupTable["wenezuela"].Labs = 4;
+        FieldsParameters.LookupTable["wenezuela"].Instance.objectsManager.EnableAppropriateObjects();
+        FieldsParameters.LookupTable["brazylia"].Labs = 1;
+        FieldsParameters.LookupTable["brazylia"].Instance.objectsManager.EnableAppropriateObjects();
         
+        // MOCK UNITS
+        FieldsParameters.LookupTable["wenezuela"].AllUnits = 10;
+        FieldsParameters.LookupTable["wenezuela"].Instance.unitsManager.EnableAppropriateSprites(10, 1);
+
         TopStatsManager.Instance.RefreshValues();
     }
 }
