@@ -57,6 +57,16 @@ public static class Translator
         };
     }
 
+    public static string TranslateIncome()
+    {
+        return ChosenLanguage switch
+        {
+            Language.English => "Income: ???",
+            Language.Polish => "Przychód: ???",
+            _ => "How did we get here?"
+        };
+    }
+
     public static string TranslateOwner(string owner)
     {
         return ChosenLanguage switch

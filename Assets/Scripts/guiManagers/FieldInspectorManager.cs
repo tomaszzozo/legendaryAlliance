@@ -309,7 +309,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             trenchesCountLabel.text = "x 1/1";
             labCountLabel.enabled = _parameters.Labs > 0;
             labCountLabel.text = FieldsParameters.BuildingCountDescription(_parameters.Labs);
-            incomeLabel.text = Translator.TranslateIncome(_parameters.Income);
+            incomeLabel.text = Translator.TranslateIncome();
             nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
             ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
             unitsCountLabel.enabled = _parameters.AllUnits > 0;
