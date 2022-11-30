@@ -184,11 +184,19 @@ namespace fields
                                 ? _parameters.Farms - eventData.Count
                                 : _parameters.Farms + eventData.Count;
                             break;
+                        case ObjectChanged.ObjectType.Unit:
+                            _parameters.AllUnits = eventData.Sold
+                                ? _parameters.AllUnits - eventData.Count
+                                : _parameters.AllUnits + eventData.Count;
+                            if (_parameters.AllUnits < _parameters.AvailableUnits)
+                                _parameters.AvailableUnits = _parameters.AllUnits;
+                            break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-
+                    unitsManager.EnableAppropriateSprites(_parameters.AllUnits, Players.NameToIndex(_parameters.Owner));
                     objectsManager.EnableAppropriateObjects();
+                    EnableAppropriateBorderSprite();
                     break;
                 }
             }

@@ -270,7 +270,8 @@ public class ObjectChanged : Event
     {
         Trenches,
         Lab,
-        Farm
+        Farm,
+        Unit
     }
 
     public readonly string FieldName;

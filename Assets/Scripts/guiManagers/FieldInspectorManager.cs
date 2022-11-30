@@ -49,24 +49,24 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject sellFarmButtonObject;
 
     private ButtonWrapper _attackModeButton;
+    private float _buttonDifference;
+    private Vector3 _buyButtonStartingPosition;
+    private ButtonWrapper _buyFarmButton;
     private ButtonWrapper _buyLabButton;
     private ButtonWrapper _buyTrenchesButton;
     private ButtonWrapper _buyUnitButton;
-    private ButtonWrapper _sellTrenchesButton;
-    private ButtonWrapper _sellLabButton;
-    private ButtonWrapper _buyFarmButton;
-    private ButtonWrapper _sellFarmButton;
     private string _fieldName;
+    private float _iconDifference;
+    private Vector3 _iconStartingPosition;
+    private float _labelDifference;
+    private Vector3 _labelStartingPosition;
 
     private FieldsParameters _parameters;
-    private Vector3 _iconStartingPosition;
-    private Vector3 _labelStartingPosition;
-    private Vector3 _buyButtonStartingPosition;
-    private Vector3 _sellButtonStartingPosition;
-    private float _iconDifference;
-    private float _labelDifference;
-    private float _buttonDifference;
     private Players _player;
+    private Vector3 _sellButtonStartingPosition;
+    private ButtonWrapper _sellFarmButton;
+    private ButtonWrapper _sellLabButton;
+    private ButtonWrapper _sellTrenchesButton;
 
     private void Start()
     {
@@ -209,6 +209,13 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _parameters.Farms--;
         _parameters.Instance.objectsManager.EnableAppropriateObjects();
         _player.Income = _player.CalculateIncome();
+        if (_player.GetUnits() > _player.CalculateMaxUnits())
+        {
+            DestroyUnitsDueToLackOfFarms();
+            NotificationsBarManager.EnqueueNotification(
+                "Some units in various locations have resigned due to lack of farms");
+        }
+
         Refresh();
         AudioPlayer.PlayBuy();
         SendEventObjectChanged(ObjectChanged.ObjectType.Farm, true);
@@ -454,5 +461,53 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
             takenSpacesCounter++;
         }
+    }
+
+    private void DestroyUnitsDueToLackOfFarms()
+    {
+        var unitsLeftToDestroy = _player.GetUnits() - _player.CalculateMaxUnits();
+        // FIRST, DESTROY UNITS ON THIS FIELD
+        if (_parameters.AllUnits > 0)
+        {
+            if (_parameters.AllUnits > unitsLeftToDestroy)
+            {
+                _parameters.AllUnits -= unitsLeftToDestroy;
+                if (_parameters.AvailableUnits > _parameters.AllUnits)
+                    _parameters.AvailableUnits = _parameters.AllUnits;
+                RaiseEventSellUnits(_parameters.Instance.name, unitsLeftToDestroy);
+                return;
+            }
+
+            unitsLeftToDestroy -= _parameters.AllUnits;
+            RaiseEventSellUnits(_parameters.Instance.name, _parameters.AllUnits);
+            _parameters.AllUnits = 0;
+            _parameters.AvailableUnits = 0;
+        }
+
+        // THEN GO THROUGH ALL OTHER FIELDS STARTING FROM ONES WITH LEAST FARMS
+        foreach (var p in FieldsParameters.LookupTable.Values.Where(p =>
+                     p.Owner == _player.Name && p.AllUnits > 0).OrderBy(p => p.Farms))
+        {
+            if (p.AllUnits > unitsLeftToDestroy)
+            {
+                p.AllUnits -= unitsLeftToDestroy;
+                if (p.AvailableUnits > p.AllUnits)
+                    p.AvailableUnits = p.AllUnits;
+                RaiseEventSellUnits(_parameters.Instance.name, unitsLeftToDestroy);
+                return;
+            }
+
+            unitsLeftToDestroy -= p.AllUnits;
+            RaiseEventSellUnits(_parameters.Instance.name, _parameters.AllUnits);
+            p.AllUnits = 0;
+            p.AvailableUnits = 0;
+        }
+    }
+
+    private static void RaiseEventSellUnits(string fieldName, int unitsCount)
+    {
+        ObjectChanged eventData = new(fieldName, ObjectChanged.ObjectType.Unit, true, unitsCount);
+        PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
+            new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);
     }
 }
