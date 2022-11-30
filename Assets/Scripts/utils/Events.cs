@@ -269,7 +269,8 @@ public class ObjectChanged : Event
     public enum ObjectType
     {
         Trenches,
-        Lab
+        Lab,
+        Farm
     }
 
     public readonly string FieldName;

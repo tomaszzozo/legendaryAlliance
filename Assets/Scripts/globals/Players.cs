@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using fields;
+using ScenesMainLoops;
 using UnityEngine;
 
 public class Players
@@ -22,6 +23,7 @@ public class Players
     public int TrenchesLimitLevel;
     public bool Conquered;
     public bool InDebt;
+    public int FarmsLimitLevel;
 
     public static void FillPlayerNames()
     {
@@ -42,6 +44,7 @@ public class Players
             player.Conquered = false;
             player.SciencePoints = 0;
             player.InDebt = false;
+            player.FarmsLimitLevel = 0;
         }
     }
 
@@ -79,6 +82,26 @@ public class Players
     public string ScienceIncomeAsString()
     {
         return $"(+{CalculateScienceIncome()})";
+    }
+
+    public int CalculateMaxUnits()
+    {
+        var unitsFromCapitals = FieldsParameters.LookupTable.Values.Count(p => p.IsCapital && p.Owner == Name) *
+                                GameplayConstants.FarmCapitalBonus;
+        var unitsFromFarms = FieldsParameters.LookupTable.Values.Where(p => p.Owner == Name).Sum(p => p.Farms) *
+                             GameplayConstants.AvailableUnitsPerFarm;
+        return unitsFromCapitals + unitsFromFarms;
+    }
+
+    public int GetUnits()
+    {
+        return FieldsParameters.LookupTable.Values.Where(p => p.Owner == Name).Sum(p => p.AllUnits);
+    }
+
+    public string MaxUnitsAsString()
+    {
+        var farmsCount = FieldsParameters.LookupTable.Values.Where(p => p.Owner == Name).Sum(p => p.Farms);
+        return $"{farmsCount} = {GetUnits()}/{CalculateMaxUnits()}";
     }
 
     /// <summary>

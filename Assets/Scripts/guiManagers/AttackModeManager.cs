@@ -249,7 +249,7 @@ public class AttackModeManager : MonoBehaviour
             var difference = parameters.Labs - maxLabs;
             for (var i = 0; i < difference; i++)
             {
-                player.Gold += parameters.CalculateCostOfBuyingLab();
+                player.Gold += parameters.CalculateCostOfSellingLab();
                 parameters.Labs--;
             }
 
@@ -273,6 +273,24 @@ public class AttackModeManager : MonoBehaviour
                 new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);
             NotificationsBarManager.EnqueueNotification(
                 $"Trenches in {Translator.TranslateField(parameters.Instance.name)} had to be sold");
+        }
+        
+        // SELL FARMS
+        var maxFarms = GameplayConstants.FarmLimits[player.FarmsLimitLevel];
+        if (parameters.Farms > maxFarms)
+        {
+            var difference = parameters.Farms - maxFarms;
+            for (var i = 0; i < difference; i++)
+            {
+                player.Gold += parameters.CalculateCostOfSellingFarm();
+                parameters.Farms--;
+            }
+            
+            ObjectChanged eventData = new(parameters.Instance.name, ObjectChanged.ObjectType.Farm, true, difference);
+            PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
+                new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);
+            NotificationsBarManager.EnqueueNotification(
+                $"Some farms in {Translator.TranslateField(parameters.Instance.name)} had to be sold");
         }
     }
 }

@@ -42,12 +42,20 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject buyLabButtonGameObject;
     [SerializeField] private GameObject sellLabButtonGameObject;
 
+    // FARMS
+    [SerializeField] private Image farmImage;
+    [SerializeField] private TextMeshProUGUI farmCountLabel;
+    [SerializeField] private GameObject buyFarmButtonObject;
+    [SerializeField] private GameObject sellFarmButtonObject;
+
     private ButtonWrapper _attackModeButton;
     private ButtonWrapper _buyLabButton;
     private ButtonWrapper _buyTrenchesButton;
     private ButtonWrapper _buyUnitButton;
     private ButtonWrapper _sellTrenchesButton;
     private ButtonWrapper _sellLabButton;
+    private ButtonWrapper _buyFarmButton;
+    private ButtonWrapper _sellFarmButton;
     private string _fieldName;
 
     private FieldsParameters _parameters;
@@ -58,6 +66,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private float _iconDifference;
     private float _labelDifference;
     private float _buttonDifference;
+    private Players _player;
 
     private void Start()
     {
@@ -67,6 +76,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyLabButton = new ButtonWrapper(buyLabButtonGameObject);
         _sellTrenchesButton = new ButtonWrapper(sellTrenchesButtonGameObject);
         _sellLabButton = new ButtonWrapper(sellLabButtonGameObject);
+        _buyFarmButton = new ButtonWrapper(buyFarmButtonObject);
+        _sellFarmButton = new ButtonWrapper(sellFarmButtonObject);
+
         _iconStartingPosition = unitColorManager.blueImage.transform.position;
         _labelStartingPosition = unitsCountLabel.transform.position;
         _buyButtonStartingPosition = buyUnitButton.transform.position;
@@ -74,6 +86,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _iconDifference = Math.Abs(_iconStartingPosition.y - trenchesImage.transform.position.y);
         _labelDifference = Math.Abs(_iconStartingPosition.y - trenchesCountLabel.transform.position.y);
         _buttonDifference = Math.Abs(_buyButtonStartingPosition.y - buyTrenchesButtonGameObject.transform.position.y);
+
         sellUnitMockButton.SetActive(false);
     }
 
@@ -82,7 +95,8 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     {
         _parameters = FieldsParameters.LookupTable[fieldName];
         _fieldName = fieldName;
-        RegroupMode = _parameters.Owner == SceneGame.GetCurrentPlayer().Name;
+        _player = SceneGame.GetCurrentPlayer();
+        RegroupMode = _parameters.Owner == _player.Name;
         Refresh();
         CorrectPlacement();
         canvas.enabled = true;
@@ -93,10 +107,10 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     public void HideFieldInspector(bool onStartup = false)
     {
         canvas.enabled = false;
-        if (onStartup || _parameters.Owner != SceneGame.GetCurrentPlayer().Name) return;
+        if (onStartup || _parameters.Owner != _player.Name) return;
 
         BuyUnits data = new(_parameters.Instance.name, _parameters.AvailableUnits, _parameters.AllUnits,
-            _parameters.Owner, SceneGame.GetCurrentPlayer().Gold);
+            _parameters.Owner, _player.Gold);
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         SharedVariables.IsOverUi = false;
@@ -106,7 +120,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     public void OnClickBuyUnitButton()
     {
         _parameters.AllUnits++;
-        SceneGame.GetCurrentPlayer().Gold -= GameplayConstants.UnitBaseCost;
+        _player.Gold -= GameplayConstants.UnitBaseCost;
         Refresh();
         _parameters.Instance.unitsManager.EnableAppropriateSprites(_parameters.AllUnits, SceneGame.CurrentPlayerIndex);
         AudioPlayer.PlayBuy();
@@ -115,7 +129,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     public void OnClickAttackButton()
     {
         BuyUnits data = new(name, _parameters.AvailableUnits, _parameters.AllUnits, _parameters.Owner,
-            SceneGame.GetCurrentPlayer().Gold);
+            _player.Gold);
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
         PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
         attackModeManager.EnableAttackModule(_fieldName);
@@ -125,59 +139,81 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     public void OnClickBuyTrenchesButton()
     {
-        var player = SceneGame.GetCurrentPlayer();
         _parameters.HasTrenches = true;
-        player.Income = player.CalculateIncome();
-        player.Gold -= GameplayConstants.TrenchesBaseCost;
+        _player.Income = _player.CalculateIncome();
+        _player.Gold -= GameplayConstants.TrenchesBaseCost;
         _parameters.Instance.objectsManager.EnableAppropriateObjects();
         Refresh();
         SendEventObjectChanged(ObjectChanged.ObjectType.Trenches);
         NotificationsBarManager.SendNotification(
-            $"{Players.DescribeNameAsColor(player.Name)} has build trenches in {Translator.TranslateField(_parameters.Instance.name)}");
+            $"{Players.DescribeNameAsColor(_player.Name)} has build trenches in {Translator.TranslateField(_parameters.Instance.name)}");
         AudioPlayer.PlayBuy();
     }
 
     public void OnClickSellTrenchesButton()
     {
-        var player = SceneGame.GetCurrentPlayer();
         _parameters.HasTrenches = false;
-        player.Gold += GameplayConstants.TrenchesBaseCost / 2;
-        player.Income = player.CalculateIncome();
+        _player.Gold += GameplayConstants.TrenchesBaseCost / 2;
+        _player.Income = _player.CalculateIncome();
         _parameters.Instance.objectsManager.EnableAppropriateObjects();
         Refresh();
         SendEventObjectChanged(ObjectChanged.ObjectType.Trenches, true);
         AudioPlayer.PlayBuy();
         NotificationsBarManager.SendNotification(
-            $"{Players.DescribeNameAsColor(player.Name)} has sold trenches in {Translator.TranslateField(_parameters.Instance.name)}");
+            $"{Players.DescribeNameAsColor(_player.Name)} has sold trenches in {Translator.TranslateField(_parameters.Instance.name)}");
     }
 
     public void OnClickSellLabButton()
     {
-        var player = SceneGame.GetCurrentPlayer();
-        player.Gold += _parameters.CalculateCostOfSellingLab();
+        _player.Gold += _parameters.CalculateCostOfSellingLab();
         _parameters.Labs--;
-        player.Income = player.CalculateIncome();
+        _player.Income = _player.CalculateIncome();
         _parameters.Instance.objectsManager.EnableAppropriateObjects();
         Refresh();
         CorrectPlacement();
         SendEventObjectChanged(ObjectChanged.ObjectType.Lab, true);
         AudioPlayer.PlayBuy();
         NotificationsBarManager.SendNotification(
-            $"{Players.DescribeNameAsColor(player.Name)} has sold a lab in {Translator.TranslateField(_parameters.Instance.name)}");
+            $"{Players.DescribeNameAsColor(_player.Name)} has sold a lab in {Translator.TranslateField(_parameters.Instance.name)}");
     }
 
     public void OnClickBuyLabButton()
     {
-        var player = SceneGame.GetCurrentPlayer();
-        player.Gold -= _parameters.CalculateCostOfBuyingLab();
+        _player.Gold -= _parameters.CalculateCostOfBuyingLab();
         _parameters.Labs++;
         _parameters.Instance.objectsManager.EnableAppropriateObjects();
-        player.Income = player.CalculateIncome();
+        _player.Income = _player.CalculateIncome();
         Refresh();
         AudioPlayer.PlayBuy();
         SendEventObjectChanged(ObjectChanged.ObjectType.Lab);
         NotificationsBarManager.SendNotification(
-            $"{Players.DescribeNameAsColor(player.Name)} has build a lab in {Translator.TranslateField(_parameters.Instance.name)}");
+            $"{Players.DescribeNameAsColor(_player.Name)} has build a lab in {Translator.TranslateField(_parameters.Instance.name)}");
+    }
+
+    public void OnClickBuyFarmButton()
+    {
+        _player.Gold -= _parameters.CalculateCostOfBuyingFarm();
+        _parameters.Farms++;
+        _parameters.Instance.objectsManager.EnableAppropriateObjects();
+        _player.Income = _player.CalculateIncome();
+        Refresh();
+        AudioPlayer.PlayBuy();
+        SendEventObjectChanged(ObjectChanged.ObjectType.Farm);
+        NotificationsBarManager.SendNotification(
+            $"{Players.DescribeNameAsColor(_player.Name)} has build a farm in {Translator.TranslateField(_parameters.Instance.name)}");
+    }
+
+    public void OnClickSellFarmButton()
+    {
+        _player.Gold += _parameters.CalculateCostOfSellingFarm();
+        _parameters.Farms--;
+        _parameters.Instance.objectsManager.EnableAppropriateObjects();
+        _player.Income = _player.CalculateIncome();
+        Refresh();
+        AudioPlayer.PlayBuy();
+        SendEventObjectChanged(ObjectChanged.ObjectType.Farm, true);
+        NotificationsBarManager.SendNotification(
+            $"{Players.DescribeNameAsColor(_player.Name)} has sold a farm in {Translator.TranslateField(_parameters.Instance.name)}");
     }
 
     private void SendEventObjectChanged(ObjectChanged.ObjectType objectType, bool sold = false)
@@ -192,9 +228,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     private void EnableAttackButtonIfAbleToAttack()
     {
-        var enable = _parameters.Owner != SceneGame.GetCurrentPlayer().Name
+        var enable = _parameters.Owner != _player.Name
                      && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName =>
-                         FieldsParameters.LookupTable[neighbourFieldName].Owner == SceneGame.GetCurrentPlayer().Name);
+                         FieldsParameters.LookupTable[neighbourFieldName].Owner == _player.Name);
         _attackModeButton.Button.image.enabled = enable;
         _attackModeButton.Label.enabled = enable;
     }
@@ -202,7 +238,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private void EnableMoveButtonIfAbleToMove()
     {
         if (RegroupMode && FieldsParameters.Neighbours[_fieldName].Any(neighbourFieldName =>
-                FieldsParameters.LookupTable[neighbourFieldName].Owner == SceneGame.GetCurrentPlayer().Name))
+                FieldsParameters.LookupTable[neighbourFieldName].Owner == _player.Name))
         {
             _attackModeButton.Button.image.enabled = true;
             _attackModeButton.Label.enabled = true;
@@ -217,10 +253,10 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private void Refresh()
     {
         // VARIABLES
-        var maxLabs = GameplayConstants.ScienceLabLimits[SceneGame.GetCurrentPlayer().LabsLimitLevel];
-        var currentPlayer = SceneGame.GetCurrentPlayer();
+        var maxLabs = GameplayConstants.ScienceLabLimits[_player.LabsLimitLevel];
+        var maxFarms = GameplayConstants.FarmLimits[_player.FarmsLimitLevel];
 
-        if (_parameters.Owner == currentPlayer.Name)
+        if (_parameters.Owner == _player.Name)
         {
             // FIELD BELONGS TO CURRENT PLAYER
             // LABELS
@@ -232,11 +268,14 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
             ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
             unitsCountLabel.enabled = true;
-            unitsCountLabel.text = "x " + _parameters.AvailableUnits + "/" + _parameters.AllUnits;
+            unitsCountLabel.text = $"x {_parameters.AvailableUnits}/{_parameters.AllUnits}";
+            farmCountLabel.enabled = true;
+            farmCountLabel.text = $"x {_parameters.Farms}/{maxFarms}";
 
             // IMAGES
             trenchesImage.enabled = true;
             labImage.enabled = true;
+            farmImage.enabled = true;
             unitColorManager.gameObject.SetActive(true);
             unitColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
 
@@ -246,33 +285,39 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             buyUnitButton.SetActive(true);
             buyTrenchesButtonGameObject.SetActive(!_parameters.IsCapital);
             buyLabButtonGameObject.SetActive(true);
+            buyFarmButtonObject.SetActive(true);
+            sellFarmButtonObject.SetActive(_parameters.Farms > 0);
 
             EnableAttackButtonIfAbleToAttack();
             EnableMoveButtonIfAbleToMove();
 
             _buyLabButton.Button.interactable = _parameters.Labs < maxLabs &&
-                                                currentPlayer.Gold >= GameplayConstants.LabBaseCost +
+                                                _player.Gold >= GameplayConstants.LabBaseCost +
                                                 GameplayConstants.ScienceLabCostIncrement * _parameters.Labs;
+            _buyFarmButton.Button.interactable = _parameters.Farms < maxFarms &&
+                                                 _player.Gold >= GameplayConstants.FarmBaseCost +
+                                                 GameplayConstants.FarmCostIncrement * _parameters.Farms;
             var boughtTrenches = FieldsParameters.LookupTable.Values.Count(parameters =>
-                parameters.Owner == currentPlayer.Name && !parameters.IsCapital && parameters.HasTrenches);
-            var trenchesLimitForThisPlayer = GameplayConstants.TrenchesLimits[currentPlayer.TrenchesLimitLevel];
+                parameters.Owner == _player.Name && !parameters.IsCapital && parameters.HasTrenches);
+            var trenchesLimitForThisPlayer = GameplayConstants.TrenchesLimits[_player.TrenchesLimitLevel];
             _buyTrenchesButton.Button.interactable = boughtTrenches < trenchesLimitForThisPlayer &&
-                                                     currentPlayer.Gold >= GameplayConstants.TrenchesBaseCost;
+                                                     _player.Gold >= GameplayConstants.TrenchesBaseCost;
             _buyUnitButton.Button.interactable = _parameters.HasTrenches &&
-                                                 currentPlayer.Gold >= GameplayConstants.UnitBaseCost;
+                                                 _player.GetUnits() < _player.CalculateMaxUnits() &&
+                                                 _player.Gold >= GameplayConstants.UnitBaseCost;
             _sellTrenchesButton.Button.interactable = _parameters.HasTrenches;
             _sellLabButton.Button.interactable = _parameters.Labs > 0;
             _sellTrenchesButton.Button.interactable = _parameters.HasTrenches;
+            _sellFarmButton.Button.interactable = _parameters.Farms > 0;
 
             // BUTTONS TEXT
             _buyUnitButton.Label.text = $"BUY ({GameplayConstants.UnitBaseCost})";
             _buyTrenchesButton.Label.text = $"BUY ({GameplayConstants.TrenchesBaseCost})";
-            _buyLabButton.Label.text =
-                $"BUY ({GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * _parameters.Labs})";
+            _buyLabButton.Label.text = $"BUY ({_parameters.CalculateCostOfBuyingLab()})";
             _sellTrenchesButton.Label.text = $"SELL ({GameplayConstants.TrenchesBaseCost / 2})";
-            _sellLabButton.Label.text = _parameters.Labs > 0
-                ? $"SELL ({(GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * (_parameters.Labs - 1)) / 2})"
-                : "";
+            _sellLabButton.Label.text = $"SELL ({_parameters.CalculateCostOfSellingLab()})";
+            _buyFarmButton.Label.text = $"BUY ({_parameters.CalculateCostOfBuyingFarm()})";
+            _sellFarmButton.Label.text = $"SELL ({_parameters.CalculateCostOfSellingFarm()})";
         }
         else if (_parameters.Owner == null)
         {
@@ -286,21 +331,26 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             nameLabel.text = Translator.TranslateField(_parameters.Instance.name);
             ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
             unitsCountLabel.enabled = false;
+            farmCountLabel.enabled = _parameters.Farms > 0;
+            farmCountLabel.text = $"x {_parameters.Farms}";
 
             // IMAGES
             trenchesImage.enabled = _parameters.HasTrenches;
             labImage.enabled = _parameters.Labs > 0;
+            farmImage.enabled = _parameters.Farms > 0;
             unitColorManager.gameObject.SetActive(_parameters.AllUnits > 0);
             unitColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
 
             // BUTTONS ACTIVE/INTERACTABLE
             sellTrenchesButtonGameObject.SetActive(false);
             sellLabButtonGameObject.SetActive(false);
+            sellFarmButtonObject.SetActive(false);
             EnableAttackButtonIfAbleToAttack();
             EnableMoveButtonIfAbleToMove();
             buyTrenchesButtonGameObject.SetActive(false);
             buyLabButtonGameObject.SetActive(false);
             buyUnitButton.SetActive(false);
+            buyFarmButtonObject.SetActive(false);
         }
         else
         {
@@ -315,21 +365,26 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             ownerLabel.text = Translator.TranslateOwner(_parameters.Owner);
             unitsCountLabel.enabled = _parameters.AllUnits > 0;
             unitsCountLabel.text = _parameters.UnitsCountDescription();
+            farmCountLabel.enabled = _parameters.Farms > 0;
+            farmCountLabel.text = FieldsParameters.BuildingCountDescription(_parameters.Farms);
 
             // IMAGES
             trenchesImage.enabled = _parameters.HasTrenches;
             labImage.enabled = _parameters.Labs > 0;
+            farmImage.enabled = _parameters.Farms > 0;
             unitColorManager.gameObject.SetActive(_parameters.AllUnits > 0);
             unitColorManager.EnableAppropriateImage(SceneGame.CurrentPlayerIndex);
 
             // BUTTONS ACTIVE/INTERACTABLE
             sellTrenchesButtonGameObject.SetActive(false);
             sellLabButtonGameObject.SetActive(false);
+            sellFarmButtonObject.SetActive(false);
             EnableAttackButtonIfAbleToAttack();
             EnableMoveButtonIfAbleToMove();
             buyTrenchesButtonGameObject.SetActive(false);
             buyLabButtonGameObject.SetActive(false);
             buyUnitButton.SetActive(false);
+            buyFarmButtonObject.SetActive(false);
         }
 
         unitColorManager.EnableAppropriateImage(
@@ -339,10 +394,9 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
     private void CorrectPlacement()
     {
-        var currentPlayer = SceneGame.GetCurrentPlayer();
         var takenSpacesCounter = 0;
 
-        if (_parameters.AllUnits > 0 || _parameters.Owner == currentPlayer.Name)
+        if (_parameters.AllUnits > 0 || _parameters.Owner == _player.Name)
         {
             unitColorManager.transform.position = _iconStartingPosition;
             unitsCountLabel.transform.position = _labelStartingPosition;
@@ -350,7 +404,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             takenSpacesCounter++;
         }
 
-        if (_parameters.HasTrenches || _parameters.Owner == currentPlayer.Name)
+        if (_parameters.HasTrenches || _parameters.Owner == _player.Name)
         {
             trenchesImage.transform.position = _iconStartingPosition;
             trenchesImage.transform.Translate(0, -_iconDifference * takenSpacesCounter, 0);
@@ -363,24 +417,41 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
             sellTrenchesButtonGameObject.transform.position = _sellButtonStartingPosition;
             sellTrenchesButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
-            
+
             takenSpacesCounter++;
         }
 
-        if (_parameters.Labs > 0 || _parameters.Owner == currentPlayer.Name)
+        if (_parameters.Labs > 0 || _parameters.Owner == _player.Name)
         {
             labImage.transform.position = _iconStartingPosition;
             labImage.transform.Translate(0, -_iconDifference * takenSpacesCounter, 0);
 
             labCountLabel.transform.position = _labelStartingPosition;
             labCountLabel.transform.Translate(0, -_labelDifference * takenSpacesCounter, 0);
-            
+
             buyLabButtonGameObject.transform.position = _buyButtonStartingPosition;
             buyLabButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
 
             sellLabButtonGameObject.transform.position = _sellButtonStartingPosition;
             sellLabButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
-            
+
+            takenSpacesCounter++;
+        }
+
+        if (_parameters.Farms > 0 || _parameters.Owner == _player.Name)
+        {
+            farmImage.transform.position = _iconStartingPosition;
+            farmImage.transform.Translate(0, -_iconDifference * takenSpacesCounter, 0);
+
+            farmCountLabel.transform.position = _labelStartingPosition;
+            farmCountLabel.transform.Translate(0, -_labelDifference * takenSpacesCounter, 0);
+
+            buyFarmButtonObject.transform.position = _buyButtonStartingPosition;
+            buyFarmButtonObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
+
+            sellFarmButtonObject.transform.position = _sellButtonStartingPosition;
+            sellFarmButtonObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
+
             takenSpacesCounter++;
         }
     }

@@ -1,3 +1,4 @@
+using ScenesMainLoops;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +16,10 @@ public class TopStatsManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI labelSciencePoints;
     [SerializeField] private TextMeshProUGUI labelScienceIncome;
 
+    // FOOD PRODUCTION
+    [SerializeField] private ImageColorManager unit;
+    [SerializeField] private TextMeshProUGUI labelFoodProduction;
+    
     public static TopStatsManager Instance { get; private set; }
     
     private Players _player;
@@ -25,6 +30,7 @@ public class TopStatsManager : MonoBehaviour
         _player = player;
         decorationBar.color = _player.Color;
         RefreshValues();
+        unit.EnableAppropriateImage(Players.PlayersList.IndexOf(player));
     }
 
     public void RefreshValues()
@@ -34,5 +40,6 @@ public class TopStatsManager : MonoBehaviour
         labelIncome.text = _player.IncomeAsString();
         labelScienceIncome.text = _player.ScienceIncomeAsString();
         labelSciencePoints.text = _player.SciencePoints.ToString();
+        labelFoodProduction.text = _player.MaxUnitsAsString();
     }
 }

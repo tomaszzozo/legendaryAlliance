@@ -27,6 +27,7 @@ namespace fields
         public int Income;
         public bool IsCapital;
         public int Labs;
+        public int Farms;
 
         private FieldsParameters(float camSize, Vector2 camPosition, int income = 5)
         {
@@ -37,6 +38,7 @@ namespace fields
             AvailableUnits = 0;
             AllUnits = 0;
             Labs = 0;
+            Farms = 0;
         }
 
         public float CameraSize { get; }
@@ -94,10 +96,21 @@ namespace fields
             return GameplayConstants.LabBaseCost + GameplayConstants.ScienceLabCostIncrement * Labs;
         }
 
+        public int CalculateCostOfBuyingFarm()
+        {
+            return GameplayConstants.FarmBaseCost + GameplayConstants.FarmCostIncrement * Farms;
+        }
+
         public int CalculateCostOfSellingLab()
         {
             return (GameplayConstants.LabBaseCost +
-                    GameplayConstants.ScienceLabCostIncrement * Labs-1) / 2;
+                    GameplayConstants.ScienceLabCostIncrement * (Labs-1)) / 2;
+        }
+
+        public int CalculateCostOfSellingFarm()
+        {
+            return (GameplayConstants.FarmBaseCost +
+                GameplayConstants.FarmCostIncrement * (Farms-1)) / 2;
         }
     }
 }

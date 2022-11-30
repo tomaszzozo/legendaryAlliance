@@ -175,11 +175,19 @@ namespace fields
                             _parameters.HasTrenches = !eventData.Sold;
                             break;
                         case ObjectChanged.ObjectType.Lab:
-                            _parameters.Labs = eventData.Sold ? _parameters.Labs - eventData.Count : _parameters.Labs + eventData.Count;
+                            _parameters.Labs = eventData.Sold
+                                ? _parameters.Labs - eventData.Count
+                                : _parameters.Labs + eventData.Count;
+                            break;
+                        case ObjectChanged.ObjectType.Farm:
+                            _parameters.Farms = eventData.Sold
+                                ? _parameters.Farms - eventData.Count
+                                : _parameters.Farms + eventData.Count;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
                     objectsManager.EnableAppropriateObjects();
                     break;
                 }
