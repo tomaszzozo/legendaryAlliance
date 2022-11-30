@@ -22,9 +22,11 @@ public class TopStatsManager : MonoBehaviour
     private Players _player;
 
     public static TopStatsManager Instance { get; private set; }
+    private static int _counter;
 
     public void Init(Players player)
     {
+        _counter = 0;
         Instance = this;
         _player = player;
         decorationBar.color = _player.Color;
@@ -40,5 +42,12 @@ public class TopStatsManager : MonoBehaviour
         labelScienceIncome.text = _player.ScienceIncomeAsString();
         labelSciencePoints.text = _player.SciencePoints.ToString();
         labelFoodProduction.text = _player.MaxUnitsAsString();
+    }
+
+    private void Update()
+    {
+        if (++_counter != 15) return;
+        _counter = 0;
+        RefreshValues();
     }
 }
