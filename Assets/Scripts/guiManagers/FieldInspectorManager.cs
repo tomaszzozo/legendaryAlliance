@@ -209,12 +209,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _parameters.Farms--;
         _parameters.Instance.objectsManager.EnableAppropriateObjects();
         _player.Income = _player.CalculateIncome();
-        if (_player.GetUnits() > _player.CalculateMaxUnits())
-        {
-            DestroyUnitsDueToLackOfFarms();
-            NotificationsBarManager.EnqueueNotification(
-                "Some units in various locations have resigned due to lack of farms");
-        }
+        _player.DestroyUnitsDueToLackOfFarms();
 
         Refresh();
         AudioPlayer.PlayBuy();
@@ -463,48 +458,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         }
     }
 
-    private void DestroyUnitsDueToLackOfFarms()
-    {
-        var unitsLeftToDestroy = _player.GetUnits() - _player.CalculateMaxUnits();
-        // FIRST, DESTROY UNITS ON THIS FIELD
-        if (_parameters.AllUnits > 0)
-        {
-            if (_parameters.AllUnits > unitsLeftToDestroy)
-            {
-                _parameters.AllUnits -= unitsLeftToDestroy;
-                if (_parameters.AvailableUnits > _parameters.AllUnits)
-                    _parameters.AvailableUnits = _parameters.AllUnits;
-                RaiseEventSellUnits(_parameters.Instance.name, unitsLeftToDestroy);
-                return;
-            }
-
-            unitsLeftToDestroy -= _parameters.AllUnits;
-            RaiseEventSellUnits(_parameters.Instance.name, _parameters.AllUnits);
-            _parameters.AllUnits = 0;
-            _parameters.AvailableUnits = 0;
-        }
-
-        // THEN GO THROUGH ALL OTHER FIELDS STARTING FROM ONES WITH LEAST FARMS
-        foreach (var p in FieldsParameters.LookupTable.Values.Where(p =>
-                     p.Owner == _player.Name && p.AllUnits > 0).OrderBy(p => p.Farms))
-        {
-            if (p.AllUnits > unitsLeftToDestroy)
-            {
-                p.AllUnits -= unitsLeftToDestroy;
-                if (p.AvailableUnits > p.AllUnits)
-                    p.AvailableUnits = p.AllUnits;
-                RaiseEventSellUnits(_parameters.Instance.name, unitsLeftToDestroy);
-                return;
-            }
-
-            unitsLeftToDestroy -= p.AllUnits;
-            RaiseEventSellUnits(_parameters.Instance.name, _parameters.AllUnits);
-            p.AllUnits = 0;
-            p.AvailableUnits = 0;
-        }
-    }
-
-    private static void RaiseEventSellUnits(string fieldName, int unitsCount)
+    public static void RaiseEventSellUnits(string fieldName, int unitsCount)
     {
         ObjectChanged eventData = new(fieldName, ObjectChanged.ObjectType.Unit, true, unitsCount);
         PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),

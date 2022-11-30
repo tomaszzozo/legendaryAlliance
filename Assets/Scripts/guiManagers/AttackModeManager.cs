@@ -189,6 +189,12 @@ public class AttackModeManager : MonoBehaviour
             parameters.Instance.EnableAppropriateGlowSprite();
             parameters.Instance.unitsManager.EnableAppropriateSprites(parameters.AllUnits,
                 SceneGame.CurrentPlayerIndex);
+            
+            foreach (var p in Players.PlayersList)
+            {
+                p.DestroyUnitsDueToLackOfFarms();
+                
+            }
 
             SellObjectIfOverLimit(parameters);
             parameters.Instance.objectsManager.EnableAppropriateObjects();

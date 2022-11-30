@@ -89,7 +89,7 @@ public class Players
                                 GameplayConstants.FarmCapitalBonus;
         var unitsFromFarms = FieldsParameters.LookupTable.Values.Where(p => p.Owner == Name).Sum(p => p.Farms) *
                              GameplayConstants.AvailableUnitsPerFarm;
-        return unitsFromCapitals + unitsFromFarms;
+        return unitsFromCapitals + unitsFromFarms < 3 ? 3 : unitsFromCapitals + unitsFromFarms;
     }
 
     public int GetUnits()
@@ -119,5 +119,32 @@ public class Players
             3 => "Violet Player",
             _ => "Player not found!"
         };
+    }
+
+    public void DestroyUnitsDueToLackOfFarms()
+    {
+        if (GetUnits() <= CalculateMaxUnits()) return;
+        var unitsLeftToDestroy = GetUnits() - CalculateMaxUnits();
+        
+        // GO THROUGH ALL FIELDS STARTING FROM ONES WITH LEAST FARMS
+        foreach (var p in FieldsParameters.LookupTable.Values.Where(p =>
+                     p.Owner == Name && p.AllUnits > 0).OrderBy(p => p.Farms))
+        {
+            if (p.AllUnits > unitsLeftToDestroy)
+            {
+                p.AllUnits -= unitsLeftToDestroy;
+                if (p.AvailableUnits > p.AllUnits)
+                    p.AvailableUnits = p.AllUnits;
+                p.Instance.unitsManager.EnableAppropriateSprites(p.AllUnits, PlayersList.IndexOf(this));
+                FieldInspectorManager.RaiseEventSellUnits(p.Instance.name, unitsLeftToDestroy);
+                return;
+            }
+
+            unitsLeftToDestroy -= p.AllUnits;
+            FieldInspectorManager.RaiseEventSellUnits(p.Instance.name, p.AllUnits);
+            p.AllUnits = 0;
+            p.AvailableUnits = 0;
+            p.Instance.unitsManager.EnableAppropriateSprites(0, PlayersList.IndexOf(this));
+        }
     }
 }
