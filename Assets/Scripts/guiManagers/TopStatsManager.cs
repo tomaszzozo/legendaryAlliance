@@ -1,4 +1,3 @@
-using ScenesMainLoops;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,10 +18,10 @@ public class TopStatsManager : MonoBehaviour
     // FOOD PRODUCTION
     [SerializeField] private ImageColorManager unit;
     [SerializeField] private TextMeshProUGUI labelFoodProduction;
-    
-    public static TopStatsManager Instance { get; private set; }
-    
+
     private Players _player;
+
+    public static TopStatsManager Instance { get; private set; }
 
     public void Init(Players player)
     {

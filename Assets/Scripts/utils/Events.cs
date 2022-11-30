@@ -17,7 +17,7 @@ public enum EventTypes
     SendNotificationEvent,
     PlaySound,
     ObjectChanged,
-    SellEverything,
+    SellEverything
 }
 
 public class Event
@@ -274,12 +274,14 @@ public class ObjectChanged : Event
         Unit
     }
 
+    public readonly int Count;
+
     public readonly string FieldName;
     public readonly ObjectType ObjectName;
     public readonly bool Sold;
-    public readonly int Count;
 
-    public ObjectChanged(string fieldName, ObjectType objectName, bool sold = false, int count = 1) : base(EventTypes.ObjectChanged)
+    public ObjectChanged(string fieldName, ObjectType objectName, bool sold = false, int count = 1) : base(EventTypes
+        .ObjectChanged)
     {
         FieldName = fieldName;
         ObjectName = objectName;
@@ -289,7 +291,7 @@ public class ObjectChanged : Event
 
     public object[] Serialize()
     {
-        return new object[] { FieldName, (int)ObjectName, Sold, Count};
+        return new object[] { FieldName, (int)ObjectName, Sold, Count };
     }
 
     public static ObjectChanged Deserialize(object[] content)
@@ -306,7 +308,7 @@ public class SellEverything : Event
     {
         PlayerName = playerName;
     }
-    
+
     public object[] Serialize()
     {
         return new object[] { PlayerName };

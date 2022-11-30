@@ -6,6 +6,7 @@ using UnityEngine;
 public class DebugObject : MonoBehaviour
 {
     [SerializeField] private bool enableDebugMode;
+
     private void Update()
     {
         if (!enableDebugMode) return;

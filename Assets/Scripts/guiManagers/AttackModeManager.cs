@@ -274,7 +274,7 @@ public class AttackModeManager : MonoBehaviour
             NotificationsBarManager.EnqueueNotification(
                 $"Trenches in {Translator.TranslateField(parameters.Instance.name)} had to be sold");
         }
-        
+
         // SELL FARMS
         var maxFarms = GameplayConstants.FarmLimits[player.FarmsLimitLevel];
         if (parameters.Farms > maxFarms)
@@ -285,7 +285,7 @@ public class AttackModeManager : MonoBehaviour
                 player.Gold += parameters.CalculateCostOfSellingFarm();
                 parameters.Farms--;
             }
-            
+
             ObjectChanged eventData = new(parameters.Instance.name, ObjectChanged.ObjectType.Farm, true, difference);
             PhotonNetwork.RaiseEvent(eventData.GetEventType(), eventData.Serialize(),
                 new RaiseEventOptions { Receivers = ReceiverGroup.Others }, SendOptions.SendReliable);

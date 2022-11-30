@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using fields;
-using ScenesMainLoops;
 using UnityEngine;
 
 public class Players
@@ -15,15 +14,15 @@ public class Players
     };
 
     public Color Color;
+    public bool Conquered;
+    public int FarmsLimitLevel;
     public int Gold;
     public int Income;
+    public bool InDebt;
     public int LabsLimitLevel;
     public string Name;
     public int SciencePoints;
     public int TrenchesLimitLevel;
-    public bool Conquered;
-    public bool InDebt;
-    public int FarmsLimitLevel;
 
     public static void FillPlayerNames()
     {

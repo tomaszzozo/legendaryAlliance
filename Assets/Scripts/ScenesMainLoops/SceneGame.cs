@@ -277,7 +277,7 @@ namespace ScenesMainLoops
                     NotificationsBarManager.EnqueueNotification("You lost the game due to your debt!");
                     NotificationsBarManager.SendNotification(
                         $"{Players.DescribeNameAsColor(_player.Name)} lost the game due to his debt!");
-                    
+
                     NextTurn();
                     return;
                 }

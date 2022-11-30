@@ -194,6 +194,7 @@ namespace fields
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
                     unitsManager.EnableAppropriateSprites(_parameters.AllUnits, Players.NameToIndex(_parameters.Owner));
                     objectsManager.EnableAppropriateObjects();
                     EnableAppropriateBorderSprite();
