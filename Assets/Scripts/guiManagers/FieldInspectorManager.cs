@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using ExitGames.Client.Photon;
 using fields;
@@ -68,6 +70,8 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     private ButtonWrapper _sellLabButton;
     private ButtonWrapper _sellTrenchesButton;
 
+    private static List<Dictionary<string, Vector3>> PositionsList;
+
     private void Start()
     {
         _buyUnitButton = new ButtonWrapper(buyUnitButton);
@@ -79,13 +83,29 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         _buyFarmButton = new ButtonWrapper(buyFarmButtonObject);
         _sellFarmButton = new ButtonWrapper(sellFarmButtonObject);
 
-        _iconStartingPosition = unitColorManager.blueImage.transform.position;
-        _labelStartingPosition = unitsCountLabel.transform.position;
-        _buyButtonStartingPosition = buyUnitButton.transform.position;
-        _sellButtonStartingPosition = sellUnitMockButton.transform.position;
-        _iconDifference = Math.Abs(_iconStartingPosition.y - trenchesImage.transform.position.y);
-        _labelDifference = Math.Abs(_iconStartingPosition.y - trenchesCountLabel.transform.position.y);
-        _buttonDifference = Math.Abs(_buyButtonStartingPosition.y - buyTrenchesButtonGameObject.transform.position.y);
+        PositionsList = new List<Dictionary<string, Vector3>>
+        {
+            new()
+            {
+                { "icon", unitColorManager.transform.position }, { "label", unitsCountLabel.transform.position },
+                { "buy", buyUnitButton.transform.position }, { "sell", sellUnitMockButton.transform.position }
+            },
+            new()
+            {
+                { "icon", trenchesImage.transform.position }, { "label", trenchesCountLabel.transform.position },
+                { "buy", buyTrenchesButtonGameObject.transform.position }, { "sell", sellTrenchesButtonGameObject.transform.position }
+            },
+            new()
+            {
+                { "icon", labImage.transform.position }, { "label", labCountLabel.transform.position },
+                { "buy", buyLabButtonGameObject.transform.position }, { "sell", sellLabButtonGameObject.transform.position }
+            },
+            new()
+            {
+                { "icon", farmImage.transform.position }, { "label", farmCountLabel.transform.position },
+                { "buy", buyFarmButtonObject.transform.position }, { "sell", sellFarmButtonObject.transform.position }
+            }
+        };
 
         sellUnitMockButton.SetActive(false);
     }
@@ -400,60 +420,36 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
 
         if (_parameters.AllUnits > 0 || _parameters.Owner == _player.Name)
         {
-            unitColorManager.transform.position = _iconStartingPosition;
-            unitsCountLabel.transform.position = _labelStartingPosition;
-            buyUnitButton.transform.position = _buyButtonStartingPosition;
+            unitColorManager.transform.position = PositionsList[takenSpacesCounter]["icon"];
+            unitsCountLabel.transform.position = PositionsList[takenSpacesCounter]["label"];
+            buyUnitButton.transform.position = PositionsList[takenSpacesCounter]["buy"];
             takenSpacesCounter++;
         }
 
         if (_parameters.HasTrenches || _parameters.Owner == _player.Name)
         {
-            trenchesImage.transform.position = _iconStartingPosition;
-            trenchesImage.transform.Translate(0, -_iconDifference * takenSpacesCounter, 0);
-
-            trenchesCountLabel.transform.position = _labelStartingPosition;
-            trenchesCountLabel.transform.Translate(0, -_labelDifference * takenSpacesCounter, 0);
-
-            buyTrenchesButtonGameObject.transform.position = _buyButtonStartingPosition;
-            buyTrenchesButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
-
-            sellTrenchesButtonGameObject.transform.position = _sellButtonStartingPosition;
-            sellTrenchesButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
-
+            trenchesImage.transform.position = PositionsList[takenSpacesCounter]["icon"];
+            trenchesCountLabel.transform.position = PositionsList[takenSpacesCounter]["label"];
+            buyTrenchesButtonGameObject.transform.position = PositionsList[takenSpacesCounter]["buy"];
+            sellTrenchesButtonGameObject.transform.position = PositionsList[takenSpacesCounter]["sell"];
             takenSpacesCounter++;
         }
 
         if (_parameters.Labs > 0 || _parameters.Owner == _player.Name)
         {
-            labImage.transform.position = _iconStartingPosition;
-            labImage.transform.Translate(0, -_iconDifference * takenSpacesCounter, 0);
-
-            labCountLabel.transform.position = _labelStartingPosition;
-            labCountLabel.transform.Translate(0, -_labelDifference * takenSpacesCounter, 0);
-
-            buyLabButtonGameObject.transform.position = _buyButtonStartingPosition;
-            buyLabButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
-
-            sellLabButtonGameObject.transform.position = _sellButtonStartingPosition;
-            sellLabButtonGameObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
-
+            labImage.transform.position = PositionsList[takenSpacesCounter]["icon"];
+            labCountLabel.transform.position = PositionsList[takenSpacesCounter]["label"];
+            buyLabButtonGameObject.transform.position = PositionsList[takenSpacesCounter]["buy"];
+            sellLabButtonGameObject.transform.position = PositionsList[takenSpacesCounter]["sell"];
             takenSpacesCounter++;
         }
 
         if (_parameters.Farms > 0 || _parameters.Owner == _player.Name)
         {
-            farmImage.transform.position = _iconStartingPosition;
-            farmImage.transform.Translate(0, -_iconDifference * takenSpacesCounter, 0);
-
-            farmCountLabel.transform.position = _labelStartingPosition;
-            farmCountLabel.transform.Translate(0, -_labelDifference * takenSpacesCounter, 0);
-
-            buyFarmButtonObject.transform.position = _buyButtonStartingPosition;
-            buyFarmButtonObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
-
-            sellFarmButtonObject.transform.position = _sellButtonStartingPosition;
-            sellFarmButtonObject.transform.Translate(0, -_buttonDifference * takenSpacesCounter, 0);
-
+            farmImage.transform.position = PositionsList[takenSpacesCounter]["icon"];
+            farmCountLabel.transform.position = PositionsList[takenSpacesCounter]["label"];
+            buyFarmButtonObject.transform.position = PositionsList[takenSpacesCounter]["buy"];
+            sellFarmButtonObject.transform.position = PositionsList[takenSpacesCounter]["sell"];
             takenSpacesCounter++;
         }
     }
