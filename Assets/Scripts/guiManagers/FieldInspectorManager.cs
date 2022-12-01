@@ -21,6 +21,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI ownerLabel;
     [SerializeField] private TextMeshProUGUI nameLabel;
     [SerializeField] private Button backButton;
+    [SerializeField] private Image decorationBar;
 
     // ATTACK
     [SerializeField] private GameObject attackButton;
@@ -272,6 +273,15 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
         }
     }
 
+    private void DecorationBarRefresh()
+    {
+        decorationBar.enabled = _parameters.Owner != null;
+        if (!decorationBar.enabled) return;
+        var color = Players.PlayersList[Players.NameToIndex(_parameters.Owner)].Color;
+        color.a = 0.25f;
+        decorationBar.color = color;
+    }
+
     private void Refresh()
     {
         // VARIABLES
@@ -409,6 +419,7 @@ public class FieldInspectorManager : MonoBehaviourPunCallbacks
             buyFarmButtonObject.SetActive(false);
         }
 
+        DecorationBarRefresh();
         unitColorManager.EnableAppropriateImage(
             Players.PlayersList.FindIndex(player => player.Name == _parameters.Owner));
         TopStatsManager.Instance.RefreshValues();
