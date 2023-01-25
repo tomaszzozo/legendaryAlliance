@@ -69,7 +69,9 @@ public class Players
         var labsPenalty = FieldsParameters.LookupTable.Values
             .Where(field => field.Owner == Name)
             .Sum(field => field.Labs) * GameplayConstants.LabIncomeCost;
-        return incomeSum + capitalBonus - trenchesPenalty - labsPenalty;
+        var farmsPenalty = FieldsParameters.LookupTable.Values.Where(f => f.Owner == Name).Sum(f => f.Farms) *
+                           GameplayConstants.FarmIncomeCost;
+        return incomeSum + capitalBonus - trenchesPenalty - labsPenalty - farmsPenalty;
     }
 
     public int CalculateScienceIncome()
@@ -125,7 +127,7 @@ public class Players
     {
         if (GetUnits() <= CalculateMaxUnits()) return;
         var unitsLeftToDestroy = GetUnits() - CalculateMaxUnits();
-        
+
         // GO THROUGH ALL FIELDS STARTING FROM ONES WITH LEAST FARMS
         foreach (var p in FieldsParameters.LookupTable.Values.Where(p =>
                      p.Owner == Name && p.AllUnits > 0).OrderBy(p => p.Farms))

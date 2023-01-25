@@ -17,7 +17,7 @@ namespace ScenesMainLoops
         public GameObject labelStatus2;
         public GameObject labelStatus3;
         public GameObject labelStatus4;
-        public GameObject labelButtonReady;
+        // public GameObject labelButtonReady;
 
         private bool _disconnectedIntentionally;
         private TextMeshProUGUI _labelAdminUsername;
@@ -31,6 +31,7 @@ namespace ScenesMainLoops
         private TextMeshProUGUI _labelStatus2;
         private TextMeshProUGUI _labelStatus3;
         private TextMeshProUGUI _labelStatus4;
+        [SerializeField] private ReadyButton readyButton;
 
         private void Start()
         {
@@ -47,7 +48,7 @@ namespace ScenesMainLoops
             _labelStatus2 = labelStatus2.GetComponent<TextMeshProUGUI>();
             _labelStatus3 = labelStatus3.GetComponent<TextMeshProUGUI>();
             _labelStatus4 = labelStatus4.GetComponent<TextMeshProUGUI>();
-            _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
+            // _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
         }
 
         void IOnEventCallback.OnEvent(EventData photonEvent)
@@ -126,7 +127,8 @@ namespace ScenesMainLoops
         public void OnClickReadyButton()
         {
             _labelStatus1.text = _labelStatus1.text.Equals("Not ready") ? "Ready" : "Not ready";
-            _labelButtonReady.text = _labelStatus1.text.Equals("Not ready") ? "Ready" : "Not ready";
+            // _labelButtonReady.text = _labelStatus1.text.Equals("Not ready") ? "Ready" : "Not ready";
+            readyButton.ChangeSprites(_labelStatus1.text.Equals("Ready"));
             RaiseEventUpdateRoomUi();
         }
 

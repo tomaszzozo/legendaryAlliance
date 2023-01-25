@@ -319,7 +319,9 @@ namespace ScenesMainLoops
         private bool DidThisPlayerWin()
         {
             if (RoundCounter < 1 || _player.InDebt) return false;
-            return FieldsParameters.LookupTable.Values.All(parameters =>
+            var sciencePoints = Players.PlayersList[Players.NameToIndex(_player.Name)].SciencePoints;
+            var gold = Players.PlayersList[Players.NameToIndex(_player.Name)].Gold;
+            return sciencePoints >= 5000 || gold >= 10000 || FieldsParameters.LookupTable.Values.All(parameters =>
                 parameters.Owner == _player.Name || parameters.Owner == null);
         }
 

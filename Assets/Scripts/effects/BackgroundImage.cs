@@ -10,6 +10,8 @@ public class BackgroundImage : MonoBehaviour
     [SerializeField] private float criticalBottom;
     private float _currentSpeedX;
     private float _currentSpeedY;
+    private static float _speedX;
+    private static float _speedY;
 
     private bool _directionLeft;
     private bool _directionTop;
@@ -23,14 +25,16 @@ public class BackgroundImage : MonoBehaviour
             return;
         }
 
+        if (_speedX == 0) _speedX = speedX;
+        if (_speedY == 0) _speedY = speedY;
         Instance = this;
         DontDestroyOnLoad(transform.gameObject);
     }
 
     private void Start()
     {
-        _currentSpeedX = -speedX / 10000;
-        _currentSpeedY = speedY / 10000;
+        _currentSpeedX = -_speedX / 10000;
+        _currentSpeedY = _speedY / 10000;
     }
 
     private void Update()
@@ -41,7 +45,7 @@ public class BackgroundImage : MonoBehaviour
         {
             if (gameObject.transform.position.x > criticalLeft)
             {
-                _currentSpeedX = -speedX / 10000;
+                _currentSpeedX = -_speedX / 10000;
                 _directionLeft = false;
             }
         }
@@ -49,7 +53,7 @@ public class BackgroundImage : MonoBehaviour
         {
             if (gameObject.transform.position.x < criticalRight)
             {
-                _currentSpeedX = speedX / 10000;
+                _currentSpeedX = _speedX / 10000;
                 _directionLeft = true;
             }
         }
@@ -58,7 +62,7 @@ public class BackgroundImage : MonoBehaviour
         {
             if (gameObject.transform.position.y < criticalTop)
             {
-                _currentSpeedY = speedY / 10000;
+                _currentSpeedY = _speedY / 10000;
                 _directionTop = false;
             }
         }
@@ -66,7 +70,7 @@ public class BackgroundImage : MonoBehaviour
         {
             if (gameObject.transform.position.y > criticalBottom)
             {
-                _currentSpeedY = -speedY / 10000;
+                _currentSpeedY = -_speedY / 10000;
                 _directionTop = true;
             }
         }
