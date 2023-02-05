@@ -29,7 +29,7 @@ Ta sekcja będzie zawierać porady dotyczące rozpoczęcia i przebiegu rozgrywki
 - Gra jest przeznaczona dla od dwóch do czterech graczy.
 - Gracze muszą połączyć się na różnych maszynach, co spowodowane jest działaniem wybranego systemu rozwiązań sieciowych.
 - Nie istnieje konieczność łączenia się na tych samych systemach operacyjnych.
-- Użyte w grze obrazy są przechowywane na osobnym, prywatnym dysku ze względu na ich duży rozmiar. Nie jest więc możliwa własnoręczna kompilacja projektu po sklonowaniu repozytorium.
+- Użyte w grze obrazy są przechowywane na prywatnym dysku ze względu na ich duży rozmiar. Link do folderu assets: https://drive.google.com/drive/folders/1YdWnaP6O4MFLeEf-9QOhu3cQlUpxrUfZ?usp=sharing
 
 ## Wykorzystane technologie
 - Języki programowania: C# oraz PHP
