@@ -17,7 +17,7 @@ namespace ScenesMainLoops
         public GameObject labelStatus2;
         public GameObject labelStatus3;
         public GameObject labelStatus4;
-        public GameObject labelButtonReady;
+        // public GameObject labelButtonReady;
 
         private readonly bool _disconnectedIntentionally = false;
         private TextMeshProUGUI _labelAdminUsername;
@@ -31,6 +31,8 @@ namespace ScenesMainLoops
         private TextMeshProUGUI _labelStatus2;
         private TextMeshProUGUI _labelStatus3;
         private TextMeshProUGUI _labelStatus4;
+        [SerializeField] private ReadyButton readyButton;
+        private static bool _ready;
 
         private void Start()
         {
@@ -44,7 +46,7 @@ namespace ScenesMainLoops
             _labelStatus2 = labelStatus2.GetComponent<TextMeshProUGUI>();
             _labelStatus3 = labelStatus3.GetComponent<TextMeshProUGUI>();
             _labelStatus4 = labelStatus4.GetComponent<TextMeshProUGUI>();
-            _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
+            // _labelButtonReady = labelButtonReady.GetComponent<TextMeshProUGUI>();
 
             PhotonNetwork.RaiseEvent((byte)EventTypes.RequestRoomData, null,
                 new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient }, SendOptions.SendReliable);
@@ -87,7 +89,9 @@ namespace ScenesMainLoops
 
         public void OnClickReady()
         {
-            _labelButtonReady.text = _labelButtonReady.text.Equals("Not ready") ? "Ready" : "Not ready";
+            // _labelButtonReady.text = _labelButtonReady.text.Equals("Not ready") ? "Ready" : "Not ready";
+            readyButton.ChangeSprites(_ready);
+            _ready = true;
             ClientClickedReady data = new(PhotonNetwork.NickName);
             RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(data.GetEventType(), data.Serialize(), options, SendOptions.SendReliable);
