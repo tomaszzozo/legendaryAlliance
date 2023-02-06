@@ -20,11 +20,40 @@ Rzeczywisty tytuł pracy to "Strategiczna gra sieciowa – scenariusz oparty na 
 - Uruchom plik "My project.exe"
 - Usługa Windows Defender może poinformować Cię, że ten plik jest niebezpieczny. Jest to spowodowane tylko i wyłącznie brakiem informacji o wydawcy, a nie złośliwym oprogramowaniem. Kliknij "więcej informacji", a pojawi się przycisk umożliwiający pominięcie tego monitu i uruchomienie programu.
 
-### Rozpoczęcie i przebieg rozgrywki
+## Rozpoczęcie i przebieg rozgrywki
 
-Ta sekcja będzie zawierać porady dotyczące rozpoczęcia i przebiegu rozgrywki.
+### Logowanie lub rejestracja
 
-### Uwagi
+Aby mieć możliwość rozgrywki, niezbędne jest zalogowanie się. Można do tego użyć gotowego konta tester1 lub tester2 z hasłem Tester123#, lub stworzyć nowe konto klikając w przycisk 'go to sign up' i wypełniając formularz.
+
+### Gracz tworzący grę
+
+- Kliknij w przycisk 'create game'
+- Udostępnij wygenerowany kod rozgrywki (room id)
+- Poczekaj na dołączenie drugiego gracza i ustawienie jego statusu gotowości do gry na 'ready'
+- Kliknij w przycisk 'ready' aby ustawić swój status gotowości do gry, a następnie kliknij w przycisk 'start game'
+
+### Gracz dołączający do gry
+
+- Kliknij w przycisk 'join game'
+- Pobierz od drugiego gracza tworzącego rozgrywkę kod gry (room id), a następnie wpisz go w pole tekstowe
+- Kliknij w przycisk 'join room'
+- Kliknij w przycisk 'ready' aby ustawić swój status gotowości do gry
+- Czekaj na rozpoczęcie gry przez drugiego gracza
+
+### Część wspólna
+
+- Może wydawać się, że proces gry został zawieszony. Jest to jednak nieprawdą- wszystkie niezbędne obiekty ładują się w tle i należy odczekać maksymalnie 20 sekund.
+- Jeżeli jesteś graczem tworzącym grę, kliknij na jakieś pole aby utworzyć tam swoją stolicę, a następnie naciśnij przycisk 'next turn'. Jeżeli nie jesteś tym graczem, czekaj na swoją turę i zrób to samo.
+- Po wybraniu stolicy rozpoczyna się normalna rozgrywka. Klikając w swoje pole otworzysz jego widok, na którym wymienione są posiadane na tym polu obiekty i jednostki. Na tym ekranie masz możliwość ich kupna i sprzedaży. Szare przyciski lub brak obiektów oznacza, że nie spełniasz odpowiednich wymagań do kupna danego obiektu.
+- Kliknięcie na inny teren wyświetli informację o właścicielu danego terenu oraz przybliżonej liczbie budynków i jednostek.
+- Jeżeli wybrany teren sąsiaduje z twoim i nie jest jednocześnie twoim terenem, możesz kliknąć przycisk 'attack' aby przejść w tryb ataku
+- Jeżeli wybrany teren sąsiaduje z twoim i jest jednocześnie twoim terenem, możesz kliknąć przycisk 'move' aby przegrupować swoje oddziały na ten teren
+- W obu przypadkach należy wybrać wybraną ilość jednostek z sąsiadujących posiadanych terenów i kliknąć przycisk zatwierdzenia akcji.
+- Uwaga: atak sąsiedniego pola wszystkimi jednostkami z danego pola pozbawia gracza kontroli nad danym polem!
+- Wygrana następuje poprzez przejęcie wszystkich terenów przeciwnika, zdobycie 5000 punktów nauki lub 10000 sztuk złota.
+
+## Uwagi
 
 - Gra jest przeznaczona dla od dwóch do czterech graczy.
 - Gracze muszą połączyć się na różnych maszynach, co spowodowane jest działaniem wybranego systemu rozwiązań sieciowych.
